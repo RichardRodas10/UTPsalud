@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "959701179394",
+    "project_id": "utp-salud-8cd0e",
+    "storage_bucket": "utp-salud-8cd0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959701179394:android:ca7e3493538ee8c5dedb1b",
+        "android_client_info": {
+          "package_name": "com.example.utpsalud"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAaa2N_lgTjlNhLm16nRJq_AZ7BtDJYLU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
