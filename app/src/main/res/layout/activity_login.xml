@@ -103,6 +103,15 @@
             android:textStyle="bold"
             app:cornerRadius="50dp" />
 
+        <TextView
+            android:id="@+id/forgetPass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Me olvidé mi contraseña"
+            android:textColor="@color/gris"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/>
         <!-- Link para ir a Registro -->
         <TextView
             android:id="@+id/registerLink"
