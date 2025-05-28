@@ -57,4 +57,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-analytics"))
     implementation ("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation ("com.google.firebase:firebase-storage:20.1.0")
+
 }
