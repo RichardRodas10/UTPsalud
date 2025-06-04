@@ -1,124 +1,294 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".ui.perfil.PerfilFragment">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/imageFrame2"
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="15dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_height="match_parent"
+        tools:context=".ui.perfil.PerfilFragment">
 
-        <!-- Imagen de perfil -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/imageFrame"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginStart="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profileImage"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_account"
-                android:scaleType="centerCrop"
-                android:contentDescription="Foto del administrador" />
-
-            <ImageButton
-                android:id="@+id/cameraIcon"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_camera"
-                android:contentDescription="Elegir foto"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- Contenedor para los textos -->
-        <LinearLayout
-            android:id="@+id/textContainer"
-            android:orientation="vertical"
-            android:layout_width="0dp"
+            android:id="@+id/contenedorPerfil"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="15dp"
             android:layout_marginStart="16dp"
-            app:layout_constraintTop_toTopOf="@id/imageFrame"
-            app:layout_constraintBottom_toBottomOf="@id/imageFrame"
-            app:layout_constraintStart_toEndOf="@id/imageFrame"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <TextView
-                android:id="@+id/textName"
-                android:layout_width="match_parent"
+            <!-- Imagen de perfil -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/fotoPerfil"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_account"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="Foto del administrador" />
+
+                <ImageButton
+                    android:id="@+id/cameraIcon"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_camera"
+                    android:contentDescription="Elegir foto"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Contenedor para los textos -->
+            <LinearLayout
+                android:id="@+id/textContainer"
+                android:orientation="vertical"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Nombre del Usuario"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/fotoPerfil"
+                app:layout_constraintBottom_toBottomOf="@id/fotoPerfil"
+                app:layout_constraintStart_toEndOf="@id/fotoPerfil"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/textName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre del Usuario"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textApe"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Apellido del Usuario"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textDni"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="DNI"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="16sp"
+                    android:drawableStart="@drawable/ic_dni"
+                    android:drawableTint="@color/letra_fragment"
+                    android:drawablePadding="6dp" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/contenedorTextoDatos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contenedorPerfil">
+
+            <!-- Título -->
+            <TextView
+                android:id="@+id/textMisDatos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mis datos personales"
+                android:textColor="@color/black"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- Botón o texto "Editar" -->
+            <TextView
+                android:id="@+id/textEditar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_edit"
+                android:drawableTint="@color/blue"
+                android:drawablePadding="4dp"
+                android:text="Editar"
+                android:textColor="@color/blue"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/textMisDatos"
+                app:layout_constraintBottom_toBottomOf="@id/textMisDatos" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <!-- Contenedor para datos personales -->
+        <LinearLayout
+            android:id="@+id/contenedorDatos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:background="@drawable/contenedor_cuadrado"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contenedorTextoDatos">
 
             <TextView
-                android:id="@+id/textApe"
+                android:id="@+id/textCelular"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Apellido del Usuario"
-                android:textSize="18sp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:text="Celular"
+                android:drawableStart="@drawable/ic_telephone"
+                android:drawableTint="@color/letra_fragment"
+                android:drawablePadding="10dp"
+                android:textColor="@color/letra_fragment"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="email@utp.edu.pe"
-                android:textSize="16sp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:text="correo@gmail.com"
                 android:drawableStart="@drawable/email"
-                android:drawableTint="@color/gray_suave"
-                android:drawablePadding="4dp" />
+                android:drawableTint="@color/letra_fragment"
+                android:drawablePadding="10dp"
+                android:textColor="@color/letra_fragment"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
+        <!-- Pregunta -->
+        <TextView
+            android:id="@+id/textPregunta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:text="¿Cómo podemos mejorar esta Aplicación?"
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contenedorDatos" />
+
+        <LinearLayout
+            android:id="@+id/contenedorSugerencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/contenedor_cuadrado"
+            app:layout_constraintTop_toBottomOf="@+id/textPregunta"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/textAyuda"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:text="Ayúdanos a seguir mejorando UTP salud"
+                android:textColor="@color/letra_fragment"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/editSugerencia"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/contenedor_sugerencia"
+                android:hint="Escribe tu sugerencia aquí"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:maxLines="5"
+                android:maxLength="100"
+                android:padding="12dp"
+                android:textSize="16dp"
+                android:textColor="@color/letra_fragment"
+                android:textColorHint="@color/gray_suave" />
+
+            <TextView
+                android:id="@+id/txtContadorSugerencia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:gravity="end"
+                android:text="0/100"
+                android:textColor="@color/gray_suave"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnEnviar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="20dp"
+                android:backgroundTint="@color/azul_marino"
+                android:padding="12dp"
+                android:text="Enviar"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@color/fondo_fragment"
+            android:padding="12dp"
+            android:text="Cerrar Sesión"
+            android:textColor="@color/azul_marino"
+            android:textStyle="bold"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/azul_marino"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contenedorSugerencia" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-    <TextView
-        android:id="@+id/text_home"
-        android:text="Perfil"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="234dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/red"
-        android:padding="12dp"
-        android:text="Cerrar Sesión"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        app:cornerRadius="50dp"
-        app:layout_constraintTop_toBottomOf="@id/text_home"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -4,11 +4,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.utpsalud.LoginActivity
 import com.example.utpsalud.R
@@ -22,6 +25,10 @@ class PerfilFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
 
+    companion object {
+        private const val LIMITE_CARACTERES = 100
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,38 +41,80 @@ class PerfilFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadUserPhotoFromBase64()
+        loadUserInfo()
+        configurarContadorSugerencia()
 
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
         }
     }
 
-    private fun loadUserPhotoFromBase64() {
+    private fun configurarContadorSugerencia() {
+        binding.editSugerencia.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val cantidad = s?.length ?: 0
+                binding.txtContadorSugerencia.text = "$cantidad/$LIMITE_CARACTERES"
+
+                val color = if (cantidad == LIMITE_CARACTERES) {
+                    R.color.red // Puedes cambiar este color según tu diseño
+                } else {
+                    R.color.gray_suave
+                }
+
+                binding.txtContadorSugerencia.setTextColor(
+                    ContextCompat.getColor(requireContext(), color)
+                )
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
+    private fun loadUserInfo() {
         val user = auth.currentUser ?: return
         val userId = user.uid
 
         val db = FirebaseFirestore.getInstance()
-        val userDocRef = db.collection("usuarios").document(userId)  // Ajusta el nombre de colección
+        val userDocRef = db.collection("usuarios").document(userId)
 
         userDocRef.get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
                 val fotoBase64 = document.getString("fotoPerfilBase64")
                 if (!fotoBase64.isNullOrEmpty()) {
-                    // Decodificar Base64 y convertir a Bitmap
                     val decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT)
                     val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
                     binding.profileImage.setImageBitmap(bitmap)
                 } else {
-                    // Si no hay foto, poner imagen por defecto
                     binding.profileImage.setImageResource(R.drawable.ic_account)
                 }
+
+                val nombre = document.getString("nombre") ?: "Nombre no disponible"
+                val apellido = document.getString("apellido") ?: "Apellido no disponible"
+                val correo = document.getString("correo") ?: user.email ?: "Correo no disponible"
+                val dni = document.getString("dni") ?: "DNI no disponible"
+                val celular = document.getString("celular") ?: "Celular no disponible"
+
+                binding.textName.text = nombre
+                binding.textApe.text = apellido
+                binding.textEmail.text = correo
+                binding.textDni.text = dni
+                binding.textCelular.text = celular
             } else {
                 binding.profileImage.setImageResource(R.drawable.ic_account)
+                binding.textName.text = "Nombre no disponible"
+                binding.textApe.text = "Apellido no disponible"
+                binding.textEmail.text = user.email ?: "Correo no disponible"
+                binding.textDni.text = "Dni no disponible"
+                binding.textCelular.text = "Celular no disponible"
             }
         }.addOnFailureListener {
-            // En caso de error, imagen por defecto
             binding.profileImage.setImageResource(R.drawable.ic_account)
+            binding.textName.text = "Error al cargar"
+            binding.textApe.text = "Error al cargar"
+            binding.textEmail.text = user.email ?: "Correo no disponible"
+            binding.textDni.text = "Error al cargar"
+            binding.textCelular.text = "Error al cargar"
         }
     }
 
