@@ -40,16 +40,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_account"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="Foto del administrador" />
+                    android:scaleType="centerCrop" />
 
                 <ImageButton
-                    android:id="@+id/cameraIcon"
+                    android:id="@+id/cameraIconPerfil"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_camera"
-                    android:contentDescription="Elegir foto"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>

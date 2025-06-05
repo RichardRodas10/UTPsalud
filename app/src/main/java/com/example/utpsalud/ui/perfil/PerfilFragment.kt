@@ -1,8 +1,11 @@
 package com.example.utpsalud.ui.perfil
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.utpsalud.LoginActivity
@@ -18,12 +22,14 @@ import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentPerfilBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.io.ByteArrayOutputStream
 
 class PerfilFragment : Fragment() {
 
     private var _binding: FragmentPerfilBinding? = null
     private val binding get() = _binding!!
     private lateinit var auth: FirebaseAuth
+    private val IMAGE_PICK_CODE = 1000
 
     companion object {
         private const val LIMITE_CARACTERES = 100
@@ -47,6 +53,64 @@ class PerfilFragment : Fragment() {
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
         }
+
+        binding.cameraIconPerfil.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            startActivityForResult(intent, IMAGE_PICK_CODE)
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == IMAGE_PICK_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val imageUri = data.data
+            val bitmap = imageUri?.let { decodeBitmapFromUri(it) }
+
+            bitmap?.let {
+                binding.profileImage.setImageBitmap(it)
+                val stream = ByteArrayOutputStream()
+                it.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+                val imageBytes = stream.toByteArray()
+                val base64Image = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                actualizarFotoEnFirestore(base64Image)
+            }
+        }
+    }
+
+    private fun decodeBitmapFromUri(uri: Uri): Bitmap? {
+        val inputStream = requireActivity().contentResolver.openInputStream(uri)
+        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+
+        // Escala la imagen para evitar distorsión (ajustar tamaño si lo deseas)
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val newSize = 512 // Tamaño recomendado
+
+        val scaledBitmap = if (width > height) {
+            val newHeight = (height.toFloat() / width.toFloat() * newSize).toInt()
+            Bitmap.createScaledBitmap(originalBitmap, newSize, newHeight, true)
+        } else {
+            val newWidth = (width.toFloat() / height.toFloat() * newSize).toInt()
+            Bitmap.createScaledBitmap(originalBitmap, newWidth, newSize, true)
+        }
+
+        return scaledBitmap
+    }
+
+    private fun actualizarFotoEnFirestore(base64Image: String) {
+        val uid = auth.currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+        db.collection("usuarios").document(uid)
+            .update("fotoPerfilBase64", base64Image)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Foto actualizada", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Error al actualizar la foto", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun configurarContadorSugerencia() {
@@ -56,7 +120,7 @@ class PerfilFragment : Fragment() {
                 binding.txtContadorSugerencia.text = "$cantidad/$LIMITE_CARACTERES"
 
                 val color = if (cantidad == LIMITE_CARACTERES) {
-                    R.color.red // Puedes cambiar este color según tu diseño
+                    R.color.red
                 } else {
                     R.color.gray_suave
                 }
@@ -74,7 +138,6 @@ class PerfilFragment : Fragment() {
     private fun loadUserInfo() {
         val user = auth.currentUser ?: return
         val userId = user.uid
-
         val db = FirebaseFirestore.getInstance()
         val userDocRef = db.collection("usuarios").document(userId)
 
@@ -89,33 +152,26 @@ class PerfilFragment : Fragment() {
                     binding.profileImage.setImageResource(R.drawable.ic_account)
                 }
 
-                val nombre = document.getString("nombre") ?: "Nombre no disponible"
-                val apellido = document.getString("apellido") ?: "Apellido no disponible"
-                val correo = document.getString("correo") ?: user.email ?: "Correo no disponible"
-                val dni = document.getString("dni") ?: "DNI no disponible"
-                val celular = document.getString("celular") ?: "Celular no disponible"
-
-                binding.textName.text = nombre
-                binding.textApe.text = apellido
-                binding.textEmail.text = correo
-                binding.textDni.text = dni
-                binding.textCelular.text = celular
+                binding.textName.text = document.getString("nombre") ?: "Nombre no disponible"
+                binding.textApe.text = document.getString("apellido") ?: "Apellido no disponible"
+                binding.textEmail.text = document.getString("correo") ?: user.email ?: "Correo no disponible"
+                binding.textDni.text = document.getString("dni") ?: "DNI no disponible"
+                binding.textCelular.text = document.getString("celular") ?: "Celular no disponible"
             } else {
-                binding.profileImage.setImageResource(R.drawable.ic_account)
-                binding.textName.text = "Nombre no disponible"
-                binding.textApe.text = "Apellido no disponible"
-                binding.textEmail.text = user.email ?: "Correo no disponible"
-                binding.textDni.text = "Dni no disponible"
-                binding.textCelular.text = "Celular no disponible"
+                mostrarCamposVacios(user.email)
             }
         }.addOnFailureListener {
-            binding.profileImage.setImageResource(R.drawable.ic_account)
-            binding.textName.text = "Error al cargar"
-            binding.textApe.text = "Error al cargar"
-            binding.textEmail.text = user.email ?: "Correo no disponible"
-            binding.textDni.text = "Error al cargar"
-            binding.textCelular.text = "Error al cargar"
+            mostrarCamposVacios(user.email, esError = true)
         }
+    }
+
+    private fun mostrarCamposVacios(email: String?, esError: Boolean = false) {
+        binding.profileImage.setImageResource(R.drawable.ic_account)
+        binding.textName.text = if (esError) "Error al cargar" else "Nombre no disponible"
+        binding.textApe.text = if (esError) "Error al cargar" else "Apellido no disponible"
+        binding.textEmail.text = email ?: "Correo no disponible"
+        binding.textDni.text = if (esError) "Error al cargar" else "DNI no disponible"
+        binding.textCelular.text = if (esError) "Error al cargar" else "Celular no disponible"
     }
 
     private fun showLogoutDialog() {
@@ -125,10 +181,7 @@ class PerfilFragment : Fragment() {
             .setCancelable(false)
             .create()
 
-        val btnConfirm = dialogView.findViewById<Button>(R.id.btnConfirmLogout)
-        val btnCancel = dialogView.findViewById<Button>(R.id.btnCancelLogout)
-
-        btnConfirm.setOnClickListener {
+        dialogView.findViewById<Button>(R.id.btnConfirmLogout).setOnClickListener {
             auth.signOut()
             startActivity(Intent(requireContext(), LoginActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -137,7 +190,7 @@ class PerfilFragment : Fragment() {
             requireActivity().finish()
         }
 
-        btnCancel.setOnClickListener {
+        dialogView.findViewById<Button>(R.id.btnCancelLogout).setOnClickListener {
             dialog.dismiss()
         }
 
