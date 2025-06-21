@@ -1,10 +1,15 @@
 package com.example.utpsalud.ui.home
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
+import com.example.utpsalud.LoginActivity
+import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
@@ -23,5 +28,28 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.btnInstrucciones.setOnClickListener {
+            showInstruccionesDialog()
+        }
+    }
+
+    private fun showInstruccionesDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_instrucciones, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialogView.findViewById<Button>(R.id.btnClose).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
     }
 }

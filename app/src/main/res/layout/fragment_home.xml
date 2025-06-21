@@ -1,257 +1,244 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment">
-
-    <LinearLayout
-        android:id="@+id/linearSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+    android:fillViewport="true"
+        tools:context=".ui.perfil.PerfilFragment">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.home.HomeFragment">
 
         <TextView
-            android:id="@+id/beAdmin"
+            android:id="@+id/lecturaDatos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bluetooth"
-            android:textColor="@color/gray_suave"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <Switch
-            android:id="@+id/switch1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"/>
-    </LinearLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/imageFrame2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/contenedor_fragmenthome"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearSwitch">
-
-        <!-- Imagen de perfil -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/imageFrame"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="25dp"
+            android:text="Lectura de Datos"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="@color/letra_fragment"
+            tools:layout_editor_absoluteX="20dp"
+            tools:layout_editor_absoluteY="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+           />
+        <TextView
+            android:id="@+id/txtPromedio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Promedios:"
+            android:textSize="25sp"
+            android:textColor="@color/black"
+            tools:layout_editor_absoluteX="20dp"
+            tools:layout_editor_absoluteY="15dp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lecturaDatos"/>
 
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerFrecuencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/contenedor_fragmenthome"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtPromedio">
+
+            <!-- Imagen de perfil -->
             <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginBottom="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/imageHeart"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@mipmap/logoheart" />
+            <!-- Contenedor para los textos -->
+            <LinearLayout
+                android:id="@+id/textContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="@id/imageHeart"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imageHeart"
+                app:layout_constraintTop_toTopOf="@id/imageHeart">
+
+                <TextView
+                    android:id="@+id/textFrecuencia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Frecuencia Cardiaca"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textMedFrecuencia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="180.12 lpm"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Contenedor para los textos -->
-        <LinearLayout
-            android:id="@+id/textContainer"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerTemperatura"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@id/imageFrame"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageFrame"
-            app:layout_constraintTop_toTopOf="@id/imageFrame">
-
-            <TextView
-                android:id="@+id/textFrecuencia"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Frecuencia Cardiaca"
-                android:textColor="@color/letra_fragment"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textMedFrecuencia"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="98.12 lpm"
-                android:textColor="@color/letra_fragment"
-                android:textSize="40sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constTemperatura"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="25dp"
-        android:background="@drawable/contenedor_fragmenthome"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageFrame2">
-
-        <!-- Contenedor para los textos -->
-        <LinearLayout
-            android:id="@+id/textContainer2"
-            android:gravity="center"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@+id/imageTemp"
-            app:layout_constraintEnd_toStartOf="@+id/imageTemp"
-            app:layout_constraintTop_toTopOf="@+id/imageTemp">
-
-            <TextView
-                android:id="@+id/textTemperatura"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Temperatura Corporal"
-                android:textColor="@color/letra_fragment"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textMedTemperatura"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="35.6° C"
-                android:textColor="@color/letra_fragment"
-                android:textSize="40sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Imagen de perfil -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/imageTemp"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            android:layout_marginTop="25dp"
+            android:background="@drawable/contenedor_fragmenthome"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/containerFrecuencia">
 
+            <!-- Contenedor para los textos -->
+            <LinearLayout
+                android:id="@+id/textContainer2"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="@+id/imageTemp"
+                app:layout_constraintEnd_toStartOf="@+id/imageTemp"
+                app:layout_constraintTop_toTopOf="@+id/imageTemp">
+
+                <TextView
+                    android:id="@+id/textTemperatura"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Temperatura Corporal"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textMedTemperatura"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="35.6° C"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Imagen de perfil -->
             <ImageView
-                android:id="@+id/imageTemperatura"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginBottom="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/imageTemp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@mipmap/temperatura" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <!-- Contenedor para Saturación -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constSaturacion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="25dp"
-        android:background="@drawable/contenedor_fragmenthome"
-        app:layout_constraintTop_toBottomOf="@+id/constTemperatura"
-        tools:layout_editor_absoluteX="16dp">
-
-        <!-- Imagen de perfil -->
+        <!-- Contenedor para Oxigeno -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/imageSat"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:id="@+id/containerOxigeno"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/contenedor_fragmenthome"
+            app:layout_constraintTop_toBottomOf="@+id/containerTemperatura"
+            tools:layout_editor_absoluteX="16dp">
 
+            <!-- Imagen de perfil -->
             <ImageView
-                android:id="@+id/imageSaturacion"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginBottom="20dp"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/imageSat"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@mipmap/saturacion" />
+
+            <!-- Contenedor para los textos -->
+            <LinearLayout
+                android:id="@+id/textContainer3"
+                android:gravity="center"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="@id/imageSat"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imageSat"
+                app:layout_constraintTop_toTopOf="@id/imageSat">
+
+                <TextView
+                    android:id="@+id/textSaturacion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Oxígeno en sangre"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textMedSaturacion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="90 mmHg"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Contenedor para los textos -->
-        <LinearLayout
-            android:id="@+id/textContainer3"
-            android:gravity="center"
-            android:layout_width="0dp"
+
+        <Button
+            android:id="@+id/btnInstrucciones"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@id/imageSat"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageSat"
-            app:layout_constraintTop_toTopOf="@id/imageSat">
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="@color/azul_marino"
+            android:padding="12dp"
+            android:text="INSTRUCCIONES"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@+id/containerOxigeno" />
 
-            <TextView
-                android:id="@+id/textSaturacion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Saturación"
-                android:textColor="@color/letra_fragment"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textMedSaturacion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="98 | 78"
-                android:textColor="@color/letra_fragment"
-                android:textSize="50sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
+        <Button
+            android:id="@+id/btnIniciarMedicion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:backgroundTint="@color/fondo_fragment"
+            android:padding="12dp"
+            android:text="INICIAR MEDICIÓN"
+            android:textColor="@color/azul_marino"
+            android:textStyle="bold"
+            app:strokeColor="@color/azul_marino"
+            app:strokeWidth="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/btnInstrucciones"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="234dp"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/green"
-        android:padding="12dp"
-        android:text="Contactar Médico"
-        android:textStyle="bold"
-        app:cornerRadius="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constSaturacion" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
