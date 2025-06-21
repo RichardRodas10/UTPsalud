@@ -41,6 +41,13 @@
             android:windowSoftInputMode="adjustPan"
             android:exported="true">
         </activity>
+        <activity android:name=".BluetoothActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".LecturaActivity"
+            android:exported="true">
+        </activity>
+
     </application>
 
 </manifest>

@@ -7,9 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.utpsalud.BluetoothActivity
 import com.example.utpsalud.LoginActivity
 import com.example.utpsalud.R
+import com.example.utpsalud.RegisterActivity
 import com.example.utpsalud.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
@@ -23,6 +26,7 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     override fun onDestroyView() {
@@ -36,6 +40,12 @@ class HomeFragment : Fragment() {
         binding.btnInstrucciones.setOnClickListener {
             showInstruccionesDialog()
         }
+
+        binding.btnIniciarMedicion.setOnClickListener {
+            val intent = Intent(requireContext(), BluetoothActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun showInstruccionesDialog() {
@@ -45,7 +55,7 @@ class HomeFragment : Fragment() {
             .setCancelable(false)
             .create()
 
-        dialogView.findViewById<Button>(R.id.btnClose).setOnClickListener {
+        dialogView.findViewById<TextView>(R.id.btnClose).setOnClickListener {
             dialog.dismiss()
         }
 

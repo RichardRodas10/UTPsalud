@@ -131,8 +131,9 @@
 
                 <TextView
                     android:id="@+id/textMedTemperatura"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="35.6° C"
                     android:textColor="@color/letra_fragment"
                     android:textSize="40sp"
@@ -203,8 +204,9 @@
 
                 <TextView
                     android:id="@+id/textMedSaturacion"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="90 mmHg"
                     android:textColor="@color/letra_fragment"
                     android:textSize="40sp"
@@ -212,6 +214,65 @@
 
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/txtMedicion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:text="ÚLTIMA MEDICIÓN"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:textColor="@color/gray"
+            tools:layout_editor_absoluteX="20dp"
+            tools:layout_editor_absoluteY="15dp"
+            app:layout_constraintTop_toBottomOf="@+id/containerOxigeno"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/containerFecha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="5dp"
+            app:layout_constraintTop_toBottomOf="@+id/txtMedicion">
+
+            <!-- Contenedor horizontal para centrar los textos juntos -->
+            <LinearLayout
+                android:id="@+id/linearFechaHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/txtFecha"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha: 20/06/2025"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/letra_fragment" />
+
+                <TextView
+                    android:id="@+id/txtHora"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Hora: 21:38"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/letra_fragment" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
         <Button
@@ -225,13 +286,14 @@
             android:text="INSTRUCCIONES"
             android:textColor="@color/white"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@+id/containerOxigeno" />
+            app:layout_constraintTop_toBottomOf="@+id/containerFecha" />
 
         <Button
             android:id="@+id/btnIniciarMedicion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="30dp"
             android:backgroundTint="@color/fondo_fragment"
             android:padding="12dp"
             android:text="INICIAR MEDICIÓN"
@@ -239,6 +301,9 @@
             android:textStyle="bold"
             app:strokeColor="@color/azul_marino"
             app:strokeWidth="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnInstrucciones"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
