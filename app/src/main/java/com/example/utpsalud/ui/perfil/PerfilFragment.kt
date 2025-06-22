@@ -17,6 +17,8 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.utpsalud.EditardatosActivity
+import com.example.utpsalud.HomeActivity
 import com.example.utpsalud.LoginActivity
 import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentPerfilBinding
@@ -58,6 +60,10 @@ class PerfilFragment : Fragment() {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, IMAGE_PICK_CODE)
+        }
+
+        binding.textEditar.setOnClickListener {
+            startActivity(Intent(requireContext(), EditardatosActivity::class.java))
         }
     }
 

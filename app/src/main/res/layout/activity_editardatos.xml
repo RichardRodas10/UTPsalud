@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fondo_fragment">
+
+    <LinearLayout
+        android:id="@+id/containerEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="30dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="25dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/iconInfo"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@color/button" />
+        <TextView
+            android:id="@+id/beAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:text="Edita tus datos de contacto"
+            android:textColor="@color/azul_marino"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/contenedorNumero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="40dp"
+        android:padding="20dp"
+        android:background="@drawable/contenedor_radio_arriba"
+        app:layout_constraintTop_toBottomOf="@+id/containerEdit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/textAyuda"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:text="NÚMERO DE TELÉFONO CELULAR"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editSugerencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/contenedor_sugerencia"
+            android:gravity="top|start"
+            android:drawableStart="@drawable/ic_telephone"
+            android:drawableTint="@color/letra_fragment"
+            android:drawableEnd="@drawable/ic_edit"
+            android:drawablePadding="10dp"
+            android:hint="Número"
+            android:inputType="textMultiLine"
+            android:maxLength="9"
+            android:maxLines="5"
+            android:padding="12dp"
+            android:textColor="@color/letra_fragment"
+            android:textColorHint="@color/gray_suave"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/contenedorCorreo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/contenedor_radio_abajo"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contenedorNumero">
+
+        <TextView
+            android:id="@+id/textCorreo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:text="CORREO ELECTRÓNICO PERSONAL"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editCorreo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/contenedor_sugerencia"
+            android:drawableStart="@drawable/email"
+            android:drawableEnd="@drawable/ic_edit"
+            android:drawableTint="@color/letra_fragment"
+            android:drawablePadding="10dp"
+            android:gravity="top|start"
+            android:hint="Correo"
+            android:inputType="textMultiLine"
+            android:maxLength="9"
+            android:maxLines="5"
+            android:padding="12dp"
+            android:textColor="@color/letra_fragment"
+            android:textColorHint="@color/gray_suave"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textEmergencia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="40dp"
+        android:text="Contacto de emergencia"
+        android:textColor="@color/azul_marino"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contenedorCorreo" />
+
+    <LinearLayout
+        android:id="@+id/contenedorEmergencia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="20dp"
+        android:padding="20dp"
+        android:background="@drawable/contenedor_radio_arriba"
+        app:layout_constraintTop_toBottomOf="@+id/textEmergencia"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/editCelularEmergencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:text="NÚMERO DE TELÉFONO CELULAR"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editNumeroEmergencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/contenedor_sugerencia"
+            android:gravity="top|start"
+            android:drawableStart="@drawable/ic_telephone"
+            android:drawableTint="@color/letra_fragment"
+            android:drawableEnd="@drawable/ic_edit"
+            android:drawablePadding="10dp"
+            android:hint="Número"
+            android:inputType="textMultiLine"
+            android:maxLength="9"
+            android:maxLines="5"
+            android:padding="12dp"
+            android:textColor="@color/letra_fragment"
+            android:textColorHint="@color/gray_suave"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/contenedorContactoEm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="2dp"
+        android:background="@drawable/contenedor_radio_abajo"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contenedorEmergencia">
+
+        <TextView
+            android:id="@+id/textCorreoEm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:text="CORREO ELECTRÓNICO"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editCorreoEm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/contenedor_sugerencia"
+            android:drawableStart="@drawable/email"
+            android:drawableEnd="@drawable/ic_edit"
+            android:drawableTint="@color/letra_fragment"
+            android:drawablePadding="10dp"
+            android:gravity="top|start"
+            android:hint="Correo"
+            android:inputType="textMultiLine"
+            android:maxLength="9"
+            android:maxLines="5"
+            android:padding="12dp"
+            android:textColor="@color/letra_fragment"
+            android:textColorHint="@color/gray_suave"
+            android:textSize="16dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

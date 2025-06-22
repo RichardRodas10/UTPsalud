@@ -45,9 +45,17 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment) {
+    private fun replaceFragment(newFragment: Fragment) {
+        val currentFragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
+
+        // Evitar reemplazo si el fragmento ya está activo,para no sobrecargar la pila de fragmentos
+        if (currentFragment != null && currentFragment::class == newFragment::class) {
+            return
+        }
+
         supportFragmentManager.beginTransaction()
-            .replace(binding.fragmentContainer.id, fragment)
+            .replace(binding.fragmentContainer.id, newFragment)
             .commit()
     }
+
 }

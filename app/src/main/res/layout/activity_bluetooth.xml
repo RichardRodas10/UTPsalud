@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/fondo_fragment">
 
     <!-- Encabezado con texto y switch -->
     <LinearLayout
@@ -23,14 +24,16 @@
             android:layout_height="wrap_content"
             android:text="Bluetooth"
             android:textColor="@color/azul_marino"
-            android:textSize="15sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <Switch
             android:id="@+id/switchBluetooth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"/>
+            android:layout_marginStart="10dp"
+            android:thumb="@drawable/ic_thumb"
+            android:track="@drawable/selector_track"/>
     </LinearLayout>
 
     <!-- Contenedor vertical de dispositivos -->
@@ -43,15 +46,96 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <TextView
+            android:id="@+id/textDispositivoConectado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="82dp"
+            android:layout_marginTop="50dp"
+            android:text="Dispositivo conectado"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold"/>
         <!-- Dispositivo 1 -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/containerFrecuencia"
+            android:id="@+id/subContainerConectado"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/contenedor_fragmenthome"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/imageBluetoothConectado"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_bluetooth" />
+
+            <LinearLayout
+                android:id="@+id/textContainerTextConectado"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="@id/imageBluetoothConectado"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageBluetoothConectado"
+                app:layout_constraintTop_toTopOf="@id/imageBluetoothConectado">
+
+                <TextView
+                    android:id="@+id/textDispConectado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dispositivo 3"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textDireccionMac"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="MAC: AA:BB:CC:DD:EE:FF"
+                    android:textColor="@color/letra_fragment"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/separadorLineaConectado"
+                android:layout_width="0dp"
+                android:layout_height="2dp"
+                android:background="#000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/textDispositivosDisponibles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="82dp"
+            android:layout_marginTop="50dp"
+            android:text="Dispositivos disponibles"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold"/>
+        <!-- Dispositivo 1 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/subContainerDispositivo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="16dp"
             android:clickable="true"
             android:foreground="?attr/selectableItemBackground">
 
@@ -113,9 +197,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="15dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/contenedor_fragmenthome"
             android:clickable="true"
             android:foreground="?attr/selectableItemBackground">
 
@@ -171,4 +254,58 @@
                 app:layout_constraintEnd_toEndOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/containerInfoConectado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="40dp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/containerDispositivos">
+
+        <ImageView
+            android:id="@+id/iconInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_info"
+            app:tint="@color/gray" />
+
+        <TextView
+            android:id="@+id/textConectado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cuando Bluetooth está activado, permite conectarse con dispositivos cercanos que tengan Bluetooth."
+            android:textColor="@color/gray"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/textVolver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:text="Volver"
+        android:textColor="@color/letra_fragment"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textIniciar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="40dp"
+        android:text="Iniciar"
+        android:textColor="@color/letra_fragment"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

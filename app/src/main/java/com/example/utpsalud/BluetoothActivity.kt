@@ -17,19 +17,19 @@ class BluetoothActivity : AppCompatActivity() {
 
         // Ocultar dispositivos al inicio
         binding.containerDispositivos.visibility = View.GONE
-
         // Mostrar/ocultar según el switch
         binding.switchBluetooth.setOnCheckedChangeListener { _, isChecked ->
             binding.containerDispositivos.visibility = if (isChecked) View.VISIBLE else View.GONE
         }
 
-        // Ir a lectura
-        binding.containerFrecuencia.setOnClickListener {
+        binding.textIniciar.setOnClickListener {
             startActivity(Intent(this, LecturaActivity::class.java))
+            finish()
         }
 
-        binding.containerFrecuencia2.setOnClickListener {
-            startActivity(Intent(this, LecturaActivity::class.java))
+        binding.textVolver.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java))
+            finish()
         }
     }
 }
