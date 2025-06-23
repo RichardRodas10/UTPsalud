@@ -56,7 +56,11 @@ class RegisterActivity : AppCompatActivity() {
 
         // 1) Mostrar u ocultar campos de administrador
         binding.switch1.setOnCheckedChangeListener { _, isChecked ->
+            // Mostrar u ocultar campos de administrador
             binding.adminFields.visibility = if (isChecked) View.VISIBLE else View.GONE
+
+            // Mostrar el campo de emergencia solo si NO es administrador
+            binding.etCelularEmergencia.visibility = if (isChecked) View.GONE else View.VISIBLE
         }
 
         // 2) Selector de fecha para etFechaEmision
@@ -70,14 +74,15 @@ class RegisterActivity : AppCompatActivity() {
             val apellido = binding.etApellido.text.toString().trim()
             val dni = binding.etDNI.text.toString().trim()
             val celular = binding.etCelular.text.toString().trim()
-            val celularEmergencia = binding.etCelularEmergencia.text.toString().trim()
+            val celularEmergencia = binding.editCelularEmergencia.text.toString().trim()
             val email = binding.etRegisterEmail.text.toString().trim()
             val password = binding.etRegisterPassword.text.toString()
             val confirmPassword = binding.etConfirmPassword.text.toString()
+            val esAdmin = binding.switch1.isChecked
 
             // Validación registro
             if (nombre.isEmpty() || apellido.isEmpty() || dni.isEmpty() ||
-                celular.isEmpty() || celularEmergencia.isEmpty() || email.isEmpty() ||
+                celular.isEmpty() || email.isEmpty() ||
                 password.isEmpty() || confirmPassword.isEmpty()
             ) {
                 Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
@@ -91,8 +96,17 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this, "El celular debe empezar con 9", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if (!celularEmergencia.matches(Regex("^9\\d{8}$"))) {
-                Toast.makeText(this, "El contacto de emergencia debe empezar con 9", Toast.LENGTH_SHORT).show()
+            if (!esAdmin && celularEmergencia.isEmpty()) {
+                Toast.makeText(this, "Ingresa el contacto de emergencia", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (!esAdmin && !celularEmergencia.matches(Regex("^9\\d{8}$"))) {
+                Toast.makeText(this, "El contacto de emergencia debe empezar con 9 y tener 9 dígitos", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!esAdmin && celularEmergencia == celular) {
+                Toast.makeText(this, "El contacto de emergencia debe ser diferente al celular personal", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (dni.length != 8) {
@@ -101,7 +115,6 @@ class RegisterActivity : AppCompatActivity() {
             }
 
             // Si es administrador, validar colegiatura y fecha de emisión
-            val esAdmin = binding.switch1.isChecked
             val colegAdmin = binding.etColegiatura.text.toString().trim()
             val fechaEmisionStr = binding.etFechaEmision.text.toString().trim()
 
@@ -260,11 +273,13 @@ class RegisterActivity : AppCompatActivity() {
             "apellido" to apellido,
             "dni" to dni,
             "celular" to celular,
-            "celularEmergencia" to celularEmergencia,
             "email" to email,
             "esAdministrador" to esAdmin,
             "fotoPerfilBase64" to photoBase64
         ).apply {
+            if (!esAdmin) {
+                put("celularEmergencia", celularEmergencia)
+            }
             if (esAdmin) {
                 put("nColegiatura", colegAdmin)
                 put("fechaEmision", fechaEmision)

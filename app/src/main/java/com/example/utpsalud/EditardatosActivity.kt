@@ -83,6 +83,11 @@ class EditardatosActivity : AppCompatActivity() {
             return
         }
 
+        if (nuevoEmergencia == nuevoCelular) {
+            Toast.makeText(this, "El contacto de emergencia debe ser distinto al celular personal", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (nuevoCorreo.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(nuevoCorreo).matches()) {
             Toast.makeText(this, "Correo inválido", Toast.LENGTH_SHORT).show()
             return
