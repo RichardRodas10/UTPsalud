@@ -28,7 +28,6 @@ class BluetoothActivity : AppCompatActivity() {
         }
 
         binding.textVolver.setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }
     }

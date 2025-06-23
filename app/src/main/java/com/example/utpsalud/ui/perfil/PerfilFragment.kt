@@ -163,6 +163,7 @@ class PerfilFragment : Fragment() {
                 binding.textEmail.text = document.getString("correo") ?: user.email ?: "Correo no disponible"
                 binding.textDni.text = document.getString("dni") ?: "DNI no disponible"
                 binding.textCelular.text = document.getString("celular") ?: "Celular no disponible"
+                binding.textCelularEmergencia.text = document.getString("celularEmergencia") ?: "Contacto no disponible"
             } else {
                 mostrarCamposVacios(user.email)
             }
@@ -178,6 +179,7 @@ class PerfilFragment : Fragment() {
         binding.textEmail.text = email ?: "Correo no disponible"
         binding.textDni.text = if (esError) "Error al cargar" else "DNI no disponible"
         binding.textCelular.text = if (esError) "Error al cargar" else "Celular no disponible"
+        binding.textCelularEmergencia.text = if (esError) "Error al cargar" else "Contacto no disponible"
     }
 
     private fun showLogoutDialog() {
@@ -207,5 +209,11 @@ class PerfilFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    //Actualiza los datos al volver de otro layout (después de editarlos)
+    override fun onResume() {
+        super.onResume()
+        loadUserInfo()
     }
 }

@@ -210,9 +210,8 @@
             android:id="@+id/contenedorContactoEm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginVertical="10dp"
             android:orientation="vertical"
             android:background="@drawable/contenedor_cuadrado"
             app:layout_constraintEnd_toEndOf="parent"
@@ -220,36 +219,19 @@
             app:layout_constraintTop_toBottomOf="@+id/textContactoEmergencia">
 
             <TextView
-                android:id="@+id/textCelularEm"
+                android:id="@+id/textCelularEmergencia"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="10dp"
-                android:text="Celular"
-                android:drawableStart="@drawable/ic_telephone"
+                android:layout_margin="20dp"
+                android:text="Celular de emergencia"
+                android:drawableStart="@drawable/ic_alerta"
                 android:drawableTint="@color/letra_fragment"
                 android:drawablePadding="10dp"
                 android:textColor="@color/letra_fragment"
                 android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:gravity="center_vertical" />
 
-            <TextView
-                android:id="@+id/textEmailEm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
-                android:text="correo@gmail.com"
-                android:drawableStart="@drawable/email"
-                android:drawableTint="@color/letra_fragment"
-                android:drawablePadding="10dp"
-                android:textColor="@color/letra_fragment"
-                android:textSize="15sp"
-                android:textStyle="bold" />
 
         </LinearLayout>
         <!-- Pregunta -->

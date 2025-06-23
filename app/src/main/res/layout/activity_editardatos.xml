@@ -68,8 +68,7 @@
             android:drawableTint="@color/letra_fragment"
             android:drawableEnd="@drawable/ic_edit"
             android:drawablePadding="10dp"
-            android:hint="Número"
-            android:inputType="textMultiLine"
+            android:inputType="number"
             android:maxLength="9"
             android:maxLines="5"
             android:padding="12dp"
@@ -114,9 +113,7 @@
             android:drawableTint="@color/letra_fragment"
             android:drawablePadding="10dp"
             android:gravity="top|start"
-            android:hint="Correo"
-            android:inputType="textMultiLine"
-            android:maxLength="9"
+            android:inputType="textEmailAddress"
             android:maxLines="5"
             android:padding="12dp"
             android:textColor="@color/letra_fragment"
@@ -148,7 +145,7 @@
         android:layout_marginEnd="30dp"
         android:layout_marginTop="20dp"
         android:padding="20dp"
-        android:background="@drawable/contenedor_radio_arriba"
+        android:background="@drawable/contenedor_fragmenthome"
         app:layout_constraintTop_toBottomOf="@+id/textEmergencia"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -168,13 +165,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/contenedor_sugerencia"
-            android:gravity="top|start"
-            android:drawableStart="@drawable/ic_telephone"
+            android:gravity="center_vertical|start"
+            android:drawableStart="@drawable/ic_alerta"
             android:drawableTint="@color/letra_fragment"
             android:drawableEnd="@drawable/ic_edit"
             android:drawablePadding="10dp"
-            android:hint="Número"
-            android:inputType="textMultiLine"
+            android:inputType="number"
             android:maxLength="9"
             android:maxLines="5"
             android:padding="12dp"
@@ -184,50 +180,38 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/contenedorContactoEm"
+    <Button
+        android:id="@+id/btnContinuar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginTop="2dp"
-        android:background="@drawable/contenedor_radio_abajo"
-        android:orientation="vertical"
-        android:padding="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="@color/azul_marino"
+        android:padding="12dp"
+        android:text="Continuar"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/contenedorEmergencia">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnCancelar" />
 
-        <TextView
-            android:id="@+id/textCorreoEm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="7dp"
-            android:text="CORREO ELECTRÓNICO"
-            android:textColor="@color/letra_fragment"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/editCorreoEm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/contenedor_sugerencia"
-            android:drawableStart="@drawable/email"
-            android:drawableEnd="@drawable/ic_edit"
-            android:drawableTint="@color/letra_fragment"
-            android:drawablePadding="10dp"
-            android:gravity="top|start"
-            android:hint="Correo"
-            android:inputType="textMultiLine"
-            android:maxLength="9"
-            android:maxLines="5"
-            android:padding="12dp"
-            android:textColor="@color/letra_fragment"
-            android:textColorHint="@color/gray_suave"
-            android:textSize="16dp" />
-
-    </LinearLayout>
-
+    <Button
+        android:id="@+id/btnCancelar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/fondo_fragment"
+        android:padding="12dp"
+        android:text="CANCELAR"
+        android:textColor="@color/azul_marino"
+        android:textStyle="bold"
+        app:strokeColor="@color/azul_marino"
+        app:strokeWidth="2dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

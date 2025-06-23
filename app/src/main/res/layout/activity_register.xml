@@ -189,6 +189,39 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:endIconMode="clear_text"
+        app:endIconTint="@color/gray"
+        app:boxStrokeColor="@color/transparente"
+        app:boxStrokeWidth="0dp"
+        app:boxBackgroundColor="@color/white"
+        app:boxCornerRadiusTopStart="25dp"
+        app:boxCornerRadiusBottomEnd="25dp"
+        app:boxCornerRadiusBottomStart="25dp"
+        app:boxCornerRadiusTopEnd="25dp"
+        app:hintEnabled="false">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCelularEmergencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contacto de emergencia"
+            android:inputType="number"
+            android:maxLength="9"
+            android:textColor="@color/black"
+            android:textColorHint="@color/gray_suave"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:layout_marginBottom="16dp"
+            android:drawableStart="@drawable/ic_telephone"
+            android:drawableTint="@color/gray_suave"
+            android:drawablePadding="12dp"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
     <!-- Campo de Email -->
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="300dp"

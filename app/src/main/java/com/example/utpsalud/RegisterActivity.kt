@@ -35,6 +35,7 @@ class RegisterActivity : AppCompatActivity() {
     private var profileImageBase64: String = ""
 
     // Formato de fecha usado en etFechaEmision
+    // Formato de fecha usado en etFechaEmision
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,13 +70,14 @@ class RegisterActivity : AppCompatActivity() {
             val apellido = binding.etApellido.text.toString().trim()
             val dni = binding.etDNI.text.toString().trim()
             val celular = binding.etCelular.text.toString().trim()
+            val celularEmergencia = binding.etCelularEmergencia.text.toString().trim()
             val email = binding.etRegisterEmail.text.toString().trim()
             val password = binding.etRegisterPassword.text.toString()
             val confirmPassword = binding.etConfirmPassword.text.toString()
 
             // Validación registro
             if (nombre.isEmpty() || apellido.isEmpty() || dni.isEmpty() ||
-                celular.isEmpty() || email.isEmpty() ||
+                celular.isEmpty() || celularEmergencia.isEmpty() || email.isEmpty() ||
                 password.isEmpty() || confirmPassword.isEmpty()
             ) {
                 Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
@@ -87,6 +89,10 @@ class RegisterActivity : AppCompatActivity() {
             }
             if (!celular.matches(Regex("^9\\d{8}$"))) {
                 Toast.makeText(this, "El celular debe empezar con 9", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!celularEmergencia.matches(Regex("^9\\d{8}$"))) {
+                Toast.makeText(this, "El contacto de emergencia debe empezar con 9", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (dni.length != 8) {
@@ -154,6 +160,7 @@ class RegisterActivity : AppCompatActivity() {
                                             apellido,
                                             dni,
                                             celular,
+                                            celularEmergencia,
                                             email,
                                             esAdmin,
                                             binding.etColegiatura.text.toString().trim(),
@@ -240,6 +247,7 @@ class RegisterActivity : AppCompatActivity() {
         apellido: String,
         dni: String,
         celular: String,
+        celularEmergencia: String,
         email: String,
         esAdmin: Boolean,
         colegAdmin: String,
@@ -252,6 +260,7 @@ class RegisterActivity : AppCompatActivity() {
             "apellido" to apellido,
             "dni" to dni,
             "celular" to celular,
+            "celularEmergencia" to celularEmergencia,
             "email" to email,
             "esAdministrador" to esAdmin,
             "fotoPerfilBase64" to photoBase64
