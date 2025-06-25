@@ -11,33 +11,18 @@
         android:layout_height="match_parent"
         tools:context=".ui.home.HomeFragment">
 
-        <TextView
-            android:id="@+id/lecturaDatos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:text="Datos Promedios"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:textColor="@color/letra_fragment"
-            tools:layout_editor_absoluteX="20dp"
-            tools:layout_editor_absoluteY="15dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-           />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/containerFrecuencia"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="25dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/contenedor_fragmenthome"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lecturaDatos">
+            app:layout_constraintTop_toTopOf="parent">
 
             <!-- Imagen de perfil -->
             <ImageView
