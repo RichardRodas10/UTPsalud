@@ -13,9 +13,9 @@
       android:icon="@drawable/ic_history" />
 
   <item
-      android:id="@+id/navSugerencia"
-      android:title="Sugerencia"
-      android:icon="@drawable/ic_sugerency"/>
+      android:id="@+id/navChat"
+      android:title="Chat"
+      android:icon="@drawable/ic_chat"/>
 
   <item
       android:id="@+id/navPerfil"

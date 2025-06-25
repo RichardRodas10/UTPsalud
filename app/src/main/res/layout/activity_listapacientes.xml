@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fondo_fragment">
+
+    <TextView
+        android:id="@+id/textLista"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingVertical="25dp"
+        android:text="LISTA DE PACIENTES"
+        android:textColor="@color/azul_marino"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:paddingVertical="15dp"
+        android:paddingHorizontal="20dp"
+        android:text="Nombre Usuario"
+        android:background="@drawable/contenedor_fragmenthome"
+        android:textColor="@color/azul_marino"
+        android:textSize="23sp"
+        android:textStyle="bold"
+        android:drawableEnd="@drawable/ic_option"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textLista" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

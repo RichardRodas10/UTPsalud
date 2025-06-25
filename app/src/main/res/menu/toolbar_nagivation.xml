@@ -3,6 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/navBuscar"
+        android:icon="@drawable/ic_search"
+        android:title="Buscar"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/navUsuarios"
+        android:icon="@drawable/ic_group"
+        android:title="Contactos"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/navNotification"
         android:icon="@drawable/ic_notification"
         android:title="Notificación"

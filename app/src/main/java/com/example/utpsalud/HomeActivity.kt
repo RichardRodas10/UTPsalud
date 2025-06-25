@@ -32,7 +32,7 @@ class HomeActivity : AppCompatActivity() {
                     replaceFragment(HistorialFragment())
                     true
                 }
-                R.id.navSugerencia -> {
+                R.id.navChat -> {
                     replaceFragment(SugerencyFragment())
                     true
                 }
