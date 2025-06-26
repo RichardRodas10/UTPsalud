@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
                                     val esAdmin = doc.getBoolean("esAdministrador") ?: false
                                     if (esAdmin) {
                                         // Si es admin, vamos al Home Admin
-                                        startActivity(Intent(this, HomeAdminActivity::class.java))
+                                        startActivity(Intent(this, HomeActivity::class.java))
                                     } else {
                                         // Si no es admin, vamos al Home normal
                                         startActivity(Intent(this, HomeActivity::class.java))

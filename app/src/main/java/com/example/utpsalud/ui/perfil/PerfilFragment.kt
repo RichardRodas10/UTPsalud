@@ -149,6 +149,17 @@ class PerfilFragment : Fragment() {
 
         userDocRef.get().addOnSuccessListener { document ->
             if (document != null && document.exists()) {
+                val esAdmin = document.getBoolean("esAdministrador") ?: false
+
+                // Mostrar u ocultar sección "Contacto de emergencia" según el rol
+                if (esAdmin) {
+                    binding.textContactoEmergencia.visibility = View.GONE
+                    binding.contenedorContactoEm.visibility = View.GONE
+                } else {
+                    binding.textContactoEmergencia.visibility = View.VISIBLE
+                    binding.contenedorContactoEm.visibility = View.VISIBLE
+                }
+
                 val fotoBase64 = document.getString("fotoPerfilBase64")
                 if (!fotoBase64.isNullOrEmpty()) {
                     val decodedBytes = Base64.decode(fotoBase64, Base64.DEFAULT)
@@ -171,6 +182,7 @@ class PerfilFragment : Fragment() {
             mostrarCamposVacios(user.email, esError = true)
         }
     }
+
 
     private fun mostrarCamposVacios(email: String?, esError: Boolean = false) {
         binding.profileImage.setImageResource(R.drawable.ic_account)

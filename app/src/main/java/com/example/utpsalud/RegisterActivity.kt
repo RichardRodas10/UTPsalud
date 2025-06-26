@@ -35,7 +35,6 @@ class RegisterActivity : AppCompatActivity() {
     private var profileImageBase64: String = ""
 
     // Formato de fecha usado en etFechaEmision
-    // Formato de fecha usado en etFechaEmision
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {

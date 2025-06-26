@@ -28,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
                     if (doc.exists()) {
                         val esAdmin = doc.getBoolean("esAdministrador") ?: false
                         if (esAdmin) {
-                            startActivity(Intent(this, HomeAdminActivity::class.java))
+                            startActivity(Intent(this, HomeActivity::class.java))
                         } else {
                             startActivity(Intent(this, HomeActivity::class.java))
                         }

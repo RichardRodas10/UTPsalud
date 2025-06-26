@@ -34,9 +34,6 @@
             android:exported="true">
         </activity>
 
-        <activity android:name=".HomeAdminActivity"
-            android:exported="true">
-        </activity>
         <activity android:name=".HomeActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true">
@@ -48,6 +45,12 @@
             android:exported="true">
         </activity>
         <activity android:name=".EditardatosActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".BuscarActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".UsuariosActivity"
             android:exported="true">
         </activity>
     </application>

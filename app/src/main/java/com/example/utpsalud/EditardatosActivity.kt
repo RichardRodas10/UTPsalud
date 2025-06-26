@@ -20,6 +20,8 @@ class EditardatosActivity : AppCompatActivity() {
     private var originalCorreo: String = ""
     private var originalEmergencia: String = ""
 
+    private var esAdmin = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditardatosBinding.inflate(layoutInflater)
@@ -42,13 +44,23 @@ class EditardatosActivity : AppCompatActivity() {
         db.collection("usuarios").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
+                    esAdmin = document.getBoolean("esAdministrador") ?: false
+
                     originalCelular = document.getString("celular") ?: ""
                     originalCorreo = document.getString("correo") ?: user.email ?: ""
                     originalEmergencia = document.getString("celularEmergencia") ?: ""
 
                     binding.editSugerencia.setText(originalCelular)
                     binding.editCorreo.setText(originalCorreo)
-                    binding.editNumeroEmergencia.setText(originalEmergencia)
+
+                    if (esAdmin) {
+                        binding.textEmergencia.visibility = View.GONE
+                        binding.contenedorEmergencia.visibility = View.GONE
+                    } else {
+                        binding.textEmergencia.visibility = View.VISIBLE
+                        binding.contenedorEmergencia.visibility = View.VISIBLE
+                        binding.editNumeroEmergencia.setText(originalEmergencia)
+                    }
 
                     configurarTextWatchers()
                     ocultarBotones()
@@ -72,20 +84,22 @@ class EditardatosActivity : AppCompatActivity() {
         val nuevoCorreo = binding.editCorreo.text.toString().trim()
         val nuevoEmergencia = binding.editNumeroEmergencia.text.toString().trim()
 
-        // Validaciones
+        // Validaciones comunes
         if (nuevoCelular.length != 9 || !nuevoCelular.startsWith("9")) {
             Toast.makeText(this, "El número de celular debe tener 9 dígitos y empezar con 9", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (nuevoEmergencia.length != 9 || !nuevoEmergencia.startsWith("9")) {
-            Toast.makeText(this, "El número de emergencia debe tener 9 dígitos y empezar con 9", Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (!esAdmin) {
+            if (nuevoEmergencia.length != 9 || !nuevoEmergencia.startsWith("9")) {
+                Toast.makeText(this, "El número de emergencia debe tener 9 dígitos y empezar con 9", Toast.LENGTH_SHORT).show()
+                return
+            }
 
-        if (nuevoEmergencia == nuevoCelular) {
-            Toast.makeText(this, "El contacto de emergencia debe ser distinto al celular personal", Toast.LENGTH_SHORT).show()
-            return
+            if (nuevoEmergencia == nuevoCelular) {
+                Toast.makeText(this, "El contacto de emergencia debe ser distinto al celular personal", Toast.LENGTH_SHORT).show()
+                return
+            }
         }
 
         if (nuevoCorreo.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(nuevoCorreo).matches()) {
@@ -93,7 +107,6 @@ class EditardatosActivity : AppCompatActivity() {
             return
         }
 
-        // Verificar si el número de celular está en uso por otro usuario
         db.collection("usuarios")
             .whereEqualTo("celular", nuevoCelular)
             .get()
@@ -103,11 +116,18 @@ class EditardatosActivity : AppCompatActivity() {
                 if (celularUsadoPorOtro) {
                     Toast.makeText(this, "Este número de celular ya está en uso por otro usuario", Toast.LENGTH_LONG).show()
                 } else {
-                    val datosActualizados = mapOf(
-                        "celular" to nuevoCelular,
-                        "correo" to nuevoCorreo,
-                        "celularEmergencia" to nuevoEmergencia
-                    )
+                    val datosActualizados = if (esAdmin) {
+                        mapOf(
+                            "celular" to nuevoCelular,
+                            "correo" to nuevoCorreo
+                        )
+                    } else {
+                        mapOf(
+                            "celular" to nuevoCelular,
+                            "correo" to nuevoCorreo,
+                            "celularEmergencia" to nuevoEmergencia
+                        )
+                    }
 
                     db.collection("usuarios").document(user.uid)
                         .update(datosActualizados)
@@ -130,7 +150,7 @@ class EditardatosActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 val celularActual = binding.editSugerencia.text.toString().trim()
                 val correoActual = binding.editCorreo.text.toString().trim()
-                val emergenciaActual = binding.editNumeroEmergencia.text.toString().trim()
+                val emergenciaActual = if (esAdmin) "" else binding.editNumeroEmergencia.text.toString().trim()
 
                 val huboCambios = celularActual != originalCelular ||
                         correoActual != originalCorreo ||
@@ -150,7 +170,9 @@ class EditardatosActivity : AppCompatActivity() {
 
         binding.editSugerencia.addTextChangedListener(watcher)
         binding.editCorreo.addTextChangedListener(watcher)
-        binding.editNumeroEmergencia.addTextChangedListener(watcher)
+        if (!esAdmin) {
+            binding.editNumeroEmergencia.addTextChangedListener(watcher)
+        }
     }
 
     private fun ocultarBotones() {

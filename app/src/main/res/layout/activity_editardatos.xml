@@ -132,6 +132,7 @@
         android:textColor="@color/azul_marino"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contenedorCorreo" />
@@ -146,6 +147,7 @@
         android:layout_marginTop="20dp"
         android:padding="20dp"
         android:background="@drawable/contenedor_fragmenthome"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/textEmergencia"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

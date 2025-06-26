@@ -2,18 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fondo_fragment">
 
+    <!-- Botón para regresar -->
     <LinearLayout
-        android:id="@+id/containerEditBuscar"
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="15dp"
         android:orientation="horizontal"
+        android:padding="16dp"
         android:gravity="center_vertical"
         android:background="@color/fondo"
         app:layout_constraintTop_toTopOf="parent"
@@ -21,52 +20,58 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
-            android:id="@+id/iconInfo"
+            android:id="@+id/iconBack"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/ic_flecha_izquierda"
             app:tint="@color/button" />
 
-        <EditText
-            android:id="@+id/editBuscar"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:background="@drawable/contenedor_fragmenthome"
-            android:drawableTint="@color/letra_fragment"
-            android:drawablePadding="10dp"
-            android:hint="Buscar"
-            android:gravity="top|start"
-            android:inputType="text"
-            android:maxLines="1"
-            android:padding="12dp"
+            android:layout_marginStart="12dp"
+            android:text="Usuarios"
             android:textColor="@color/letra_fragment"
-            android:textColorHint="@color/gray_suave"
-            android:textSize="16dp" />
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBarUsuarios"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/button"
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- RecyclerView con resultados -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvResultados"
+        android:id="@+id/rvUsuarios"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/containerEditBuscar"
+        app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Texto si no hay resultados -->
     <TextView
-        android:id="@+id/tvNoResultados"
+        android:id="@+id/tvNoUsuarios"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="No se encontraron resultados"
+        android:text="No hay usuarios disponibles"
         android:textColor="@color/gray"
         android:textAlignment="center"
         android:visibility="gone"
         android:textSize="16sp"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/containerEditBuscar"
+        app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
