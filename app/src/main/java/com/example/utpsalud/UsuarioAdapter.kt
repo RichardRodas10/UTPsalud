@@ -72,14 +72,14 @@ class UsuarioAdapter(
 
             "aceptado" -> {
                 // Ya está aceptado → desactivar botón
-                holder.btnAccion.text = "Agregado"
+                holder.btnAccion.text = "Vinculado"
                 holder.btnAccion.setBackgroundColor(Color.LTGRAY)
                 holder.btnAccion.isEnabled = false
             }
 
             else -> {
                 // No hay solicitud aún → botón Agregar
-                holder.btnAccion.text = "Agregar"
+                holder.btnAccion.text = "Vincular"
                 holder.btnAccion.setBackgroundColor(
                     ContextCompat.getColor(holder.itemView.context, R.color.azul_marino)
                 )

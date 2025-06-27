@@ -9,7 +9,7 @@ import com.example.utpsalud.ui.historial.HistorialFragment
 import com.example.utpsalud.ui.home.HomeFragment
 import com.example.utpsalud.ui.home.ListapacientesFragment
 import com.example.utpsalud.ui.perfil.PerfilFragment
-import com.example.utpsalud.ui.sugerency.SugerencyFragment
+import com.example.utpsalud.ui.chat.ChatFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -80,7 +80,7 @@ class HomeActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navChat -> {
-                    replaceFragment(SugerencyFragment())
+                    replaceFragment(ChatFragment())
                     true
                 }
                 R.id.navPerfil -> {
