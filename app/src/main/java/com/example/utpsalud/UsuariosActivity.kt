@@ -105,7 +105,7 @@ class UsuariosActivity : AppCompatActivity() {
                 for (doc in enviadas) {
                     val receptorId = doc.getString("receptorId") ?: continue
                     val estado = doc.getString("estado") ?: "pendiente"
-                    estadoSolicitudes[receptorId] = estado // ej: pendiente
+                    estadoSolicitudes[receptorId] = estado
                 }
 
                 db.collection("solicitudes")
@@ -115,11 +115,8 @@ class UsuariosActivity : AppCompatActivity() {
                         for (doc in recibidas) {
                             val emisorId = doc.getString("emisorId") ?: continue
                             val estado = doc.getString("estado") ?: "pendiente"
-                            if (estado == "pendiente") {
-                                estadoSolicitudes[emisorId] = "recibida"
-                            } else {
-                                estadoSolicitudes[emisorId] = estado
-                            }
+                            estadoSolicitudes[emisorId] =
+                                if (estado == "pendiente") "recibida" else estado
                         }
 
                         binding.progressBarUsuarios.visibility = View.GONE
@@ -145,7 +142,7 @@ class UsuariosActivity : AppCompatActivity() {
             .add(solicitud)
             .addOnSuccessListener {
                 estadoSolicitudes[receptorId] = "pendiente"
-                adapter.notifyDataSetChanged()
+                adapter.actualizarEstado(receptorId, "pendiente")
                 Toast.makeText(this, "Solicitud enviada", Toast.LENGTH_SHORT).show()
             }
     }
@@ -160,7 +157,7 @@ class UsuariosActivity : AppCompatActivity() {
                     db.collection("solicitudes").document(doc.id).delete()
                 }
                 estadoSolicitudes.remove(receptorId)
-                adapter.notifyDataSetChanged()
+                adapter.actualizarEstado(receptorId, null)
                 Toast.makeText(this, "Solicitud cancelada", Toast.LENGTH_SHORT).show()
             }
     }
@@ -176,7 +173,7 @@ class UsuariosActivity : AppCompatActivity() {
                         .update("estado", "aceptado")
                 }
                 estadoSolicitudes[emisorId] = "aceptado"
-                adapter.notifyDataSetChanged()
+                adapter.actualizarEstado(emisorId, "aceptado")
                 Toast.makeText(this, "Solicitud aceptada", Toast.LENGTH_SHORT).show()
             }
     }

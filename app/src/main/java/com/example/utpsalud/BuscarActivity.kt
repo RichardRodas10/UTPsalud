@@ -79,6 +79,7 @@ class BuscarActivity : AppCompatActivity() {
                     binding.tvNoResultados.visibility = View.VISIBLE
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }
@@ -135,11 +136,8 @@ class BuscarActivity : AppCompatActivity() {
                         for (doc in recibidas) {
                             val emisorId = doc.getString("emisorId") ?: continue
                             val estado = doc.getString("estado") ?: "pendiente"
-                            if (estado == "pendiente") {
-                                estadoSolicitudes[emisorId] = "recibida"
-                            } else {
-                                estadoSolicitudes[emisorId] = estado
-                            }
+                            estadoSolicitudes[emisorId] =
+                                if (estado == "pendiente") "recibida" else estado
                         }
 
                         if (listaUsuarios.isEmpty()) {
@@ -164,7 +162,7 @@ class BuscarActivity : AppCompatActivity() {
             .add(solicitud)
             .addOnSuccessListener {
                 estadoSolicitudes[receptorId] = "pendiente"
-                adapter.notifyDataSetChanged()
+                adapter.actualizarEstado(receptorId, "pendiente")
                 Toast.makeText(this, "Solicitud enviada", Toast.LENGTH_SHORT).show()
             }
     }
@@ -179,7 +177,7 @@ class BuscarActivity : AppCompatActivity() {
                     db.collection("solicitudes").document(doc.id).delete()
                 }
                 estadoSolicitudes.remove(receptorId)
-                adapter.notifyDataSetChanged()
+                adapter.actualizarEstado(receptorId, null)
                 Toast.makeText(this, "Solicitud cancelada", Toast.LENGTH_SHORT).show()
             }
     }
@@ -195,7 +193,7 @@ class BuscarActivity : AppCompatActivity() {
                         .update("estado", "aceptado")
                 }
                 estadoSolicitudes[emisorId] = "aceptado"
-                adapter.notifyDataSetChanged()
+                adapter.actualizarEstado(emisorId, "aceptado")
                 Toast.makeText(this, "Solicitud aceptada", Toast.LENGTH_SHORT).show()
             }
     }

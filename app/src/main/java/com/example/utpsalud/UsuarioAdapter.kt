@@ -16,7 +16,7 @@ import de.hdodenhof.circleimageview.CircleImageView
 
 class UsuarioAdapter(
     private val usuarios: List<Usuario>,
-    private val estadoSolicitudes: Map<String, String>, // uid -> estado ("pendiente", "aceptado", etc.)
+    private val estadoSolicitudes: MutableMap<String, String>, // CAMBIADO A MutableMap
     private val uidActual: String,
     private val onAgregar: (Usuario) -> Unit,
     private val onCancelar: (Usuario) -> Unit,
@@ -41,7 +41,6 @@ class UsuarioAdapter(
         holder.textNombre.text = usuario.nombre
         holder.textApellido.text = usuario.apellido
 
-        // Imagen
         if (!usuario.fotoPerfilBase64.isNullOrEmpty()) {
             val decodedBytes = Base64.decode(usuario.fotoPerfilBase64, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
@@ -50,43 +49,54 @@ class UsuarioAdapter(
             holder.imgPerfil.setImageResource(R.drawable.ic_account)
         }
 
-        // Determinar estado actual de solicitud
         val estado = estadoSolicitudes[usuario.uid]
 
+        holder.btnAccion.isEnabled = true // Reset antes de definir
         when (estado) {
             "pendiente" -> {
-                // Yo envié solicitud → mostrar botón Cancelar
                 holder.btnAccion.text = "Cancelar"
                 holder.btnAccion.setBackgroundColor(Color.GRAY)
-                holder.btnAccion.setOnClickListener { onCancelar(usuario) }
+                holder.btnAccion.setOnClickListener {
+                    onCancelar(usuario)
+                }
             }
 
             "recibida" -> {
-                // Me enviaron solicitud → mostrar Confirmar
                 holder.btnAccion.text = "Confirmar"
                 holder.btnAccion.setBackgroundColor(
                     ContextCompat.getColor(holder.itemView.context, R.color.azul_marino)
                 )
-                holder.btnAccion.setOnClickListener { onConfirmar(usuario) }
+                holder.btnAccion.setOnClickListener {
+                    onConfirmar(usuario)
+                }
             }
 
             "aceptado" -> {
-                // Ya está aceptado → desactivar botón
                 holder.btnAccion.text = "Vinculado"
                 holder.btnAccion.setBackgroundColor(Color.LTGRAY)
                 holder.btnAccion.isEnabled = false
             }
 
             else -> {
-                // No hay solicitud aún → botón Agregar
                 holder.btnAccion.text = "Vincular"
                 holder.btnAccion.setBackgroundColor(
                     ContextCompat.getColor(holder.itemView.context, R.color.azul_marino)
                 )
-                holder.btnAccion.setOnClickListener { onAgregar(usuario) }
+                holder.btnAccion.setOnClickListener {
+                    onAgregar(usuario)
+                }
             }
         }
     }
 
     override fun getItemCount(): Int = usuarios.size
+
+    // NUEVA FUNCIÓN para actualizar estado y refrescar visualmente solo un ítem
+    fun actualizarEstado(uid: String, nuevoEstado: String?) {
+        estadoSolicitudes[uid] = nuevoEstado ?: ""
+        val index = usuarios.indexOfFirst { it.uid == uid }
+        if (index != -1) {
+            notifyItemChanged(index)
+        }
+    }
 }
