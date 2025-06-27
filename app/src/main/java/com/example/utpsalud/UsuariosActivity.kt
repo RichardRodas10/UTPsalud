@@ -18,7 +18,9 @@ class UsuariosActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
 
     private var esAdmin: Boolean = false
+    private lateinit var uidActual: String
     private val listaUsuarios = mutableListOf<Usuario>()
+    private val estadoSolicitudes = mutableMapOf<String, String>()
     private lateinit var adapter: UsuarioAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,16 +30,18 @@ class UsuariosActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+        uidActual = auth.currentUser?.uid ?: ""
 
         binding.iconBack.setOnClickListener { finish() }
 
-        adapter = UsuarioAdapter(listaUsuarios) { usuarioSeleccionado ->
-            Toast.makeText(
-                this,
-                "Agregar: ${usuarioSeleccionado.nombre} ${usuarioSeleccionado.apellido}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        adapter = UsuarioAdapter(
+            listaUsuarios,
+            estadoSolicitudes,
+            uidActual,
+            onAgregar = { usuario -> enviarSolicitud(usuario.uid) },
+            onCancelar = { usuario -> cancelarSolicitud(usuario.uid) },
+            onConfirmar = { usuario -> aceptarSolicitud(usuario.uid) }
+        )
 
         binding.rvUsuarios.layoutManager = LinearLayoutManager(this)
         binding.rvUsuarios.adapter = adapter
@@ -69,11 +73,14 @@ class UsuariosActivity : AppCompatActivity() {
             .get()
             .addOnSuccessListener { documentos ->
                 listaUsuarios.clear()
+                estadoSolicitudes.clear()
 
                 for (doc in documentos) {
+                    val uid = doc.id
                     val nombre = doc.getString("nombre") ?: ""
                     val apellido = doc.getString("apellido") ?: ""
                     val usuario = Usuario(
+                        uid = uid,
                         nombre = nombre,
                         apellido = apellido,
                         esAdministrador = doc.getBoolean("esAdministrador") ?: false,
@@ -82,16 +89,7 @@ class UsuariosActivity : AppCompatActivity() {
                     listaUsuarios.add(usuario)
                 }
 
-                binding.progressBarUsuarios.visibility = View.GONE
-
-                if (listaUsuarios.isEmpty()) {
-                    binding.rvUsuarios.visibility = View.GONE
-                    binding.tvNoUsuarios.visibility = View.VISIBLE
-                } else {
-                    binding.rvUsuarios.visibility = View.VISIBLE
-                    binding.tvNoUsuarios.visibility = View.GONE
-                    adapter.notifyDataSetChanged()
-                }
+                cargarSolicitudes()
             }
             .addOnFailureListener {
                 binding.progressBarUsuarios.visibility = View.GONE
@@ -99,4 +97,87 @@ class UsuariosActivity : AppCompatActivity() {
             }
     }
 
+    private fun cargarSolicitudes() {
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", uidActual)
+            .get()
+            .addOnSuccessListener { enviadas ->
+                for (doc in enviadas) {
+                    val receptorId = doc.getString("receptorId") ?: continue
+                    val estado = doc.getString("estado") ?: "pendiente"
+                    estadoSolicitudes[receptorId] = estado // ej: pendiente
+                }
+
+                db.collection("solicitudes")
+                    .whereEqualTo("receptorId", uidActual)
+                    .get()
+                    .addOnSuccessListener { recibidas ->
+                        for (doc in recibidas) {
+                            val emisorId = doc.getString("emisorId") ?: continue
+                            val estado = doc.getString("estado") ?: "pendiente"
+                            if (estado == "pendiente") {
+                                estadoSolicitudes[emisorId] = "recibida"
+                            } else {
+                                estadoSolicitudes[emisorId] = estado
+                            }
+                        }
+
+                        binding.progressBarUsuarios.visibility = View.GONE
+                        if (listaUsuarios.isEmpty()) {
+                            binding.rvUsuarios.visibility = View.GONE
+                            binding.tvNoUsuarios.visibility = View.VISIBLE
+                        } else {
+                            binding.rvUsuarios.visibility = View.VISIBLE
+                            binding.tvNoUsuarios.visibility = View.GONE
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+            }
+    }
+
+    private fun enviarSolicitud(receptorId: String) {
+        val solicitud = hashMapOf(
+            "emisorId" to uidActual,
+            "receptorId" to receptorId,
+            "estado" to "pendiente"
+        )
+        db.collection("solicitudes")
+            .add(solicitud)
+            .addOnSuccessListener {
+                estadoSolicitudes[receptorId] = "pendiente"
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Solicitud enviada", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun cancelarSolicitud(receptorId: String) {
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", uidActual)
+            .whereEqualTo("receptorId", receptorId)
+            .get()
+            .addOnSuccessListener { docs ->
+                for (doc in docs) {
+                    db.collection("solicitudes").document(doc.id).delete()
+                }
+                estadoSolicitudes.remove(receptorId)
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Solicitud cancelada", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun aceptarSolicitud(emisorId: String) {
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", emisorId)
+            .whereEqualTo("receptorId", uidActual)
+            .get()
+            .addOnSuccessListener { docs ->
+                for (doc in docs) {
+                    db.collection("solicitudes").document(doc.id)
+                        .update("estado", "aceptado")
+                }
+                estadoSolicitudes[emisorId] = "aceptado"
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Solicitud aceptada", Toast.LENGTH_SHORT).show()
+            }
+    }
 }

@@ -20,7 +20,9 @@ class BuscarActivity : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
 
     private var esAdmin: Boolean = false
+    private lateinit var uidActual: String
     private val listaUsuarios = mutableListOf<Usuario>()
+    private val estadoSolicitudes = mutableMapOf<String, String>()
     private lateinit var adapter: UsuarioAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,16 +32,18 @@ class BuscarActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+        uidActual = auth.currentUser?.uid ?: ""
 
         binding.iconInfo.setOnClickListener { finish() }
 
-        adapter = UsuarioAdapter(listaUsuarios) { usuarioSeleccionado ->
-            Toast.makeText(
-                this,
-                "Agregar: ${usuarioSeleccionado.nombre} ${usuarioSeleccionado.apellido}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        adapter = UsuarioAdapter(
+            listaUsuarios,
+            estadoSolicitudes,
+            uidActual,
+            onAgregar = { usuario -> enviarSolicitud(usuario.uid) },
+            onCancelar = { usuario -> cancelarSolicitud(usuario.uid) },
+            onConfirmar = { usuario -> aceptarSolicitud(usuario.uid) }
+        )
 
         binding.rvResultados.layoutManager = LinearLayoutManager(this)
         binding.rvResultados.adapter = adapter
@@ -72,30 +76,31 @@ class BuscarActivity : AppCompatActivity() {
                     listaUsuarios.clear()
                     adapter.notifyDataSetChanged()
                     binding.rvResultados.visibility = View.GONE
-                    binding.tvNoResultados.visibility = View.GONE
+                    binding.tvNoResultados.visibility = View.VISIBLE
                 }
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun buscarUsuarios(texto: String) {
-        db.collection("usuarios")
+        val coleccion = db.collection("usuarios")
+
+        coleccion
             .whereEqualTo("esAdministrador", !esAdmin)
             .get()
             .addOnSuccessListener { documentos ->
                 listaUsuarios.clear()
+                estadoSolicitudes.clear()
 
                 for (doc in documentos) {
+                    val uid = doc.id
                     val nombre = doc.getString("nombre") ?: ""
                     val apellido = doc.getString("apellido") ?: ""
 
-                    val nombreCompleto = "$nombre $apellido"
-                    if (nombre.contains(texto, ignoreCase = true) ||
-                        apellido.contains(texto, ignoreCase = true) ||
-                        nombreCompleto.contains(texto, ignoreCase = true)) {
+                    if (nombre.contains(texto, ignoreCase = true) || apellido.contains(texto, ignoreCase = true)) {
                         val usuario = Usuario(
+                            uid = uid,
                             nombre = nombre,
                             apellido = apellido,
                             esAdministrador = doc.getBoolean("esAdministrador") ?: false,
@@ -105,17 +110,93 @@ class BuscarActivity : AppCompatActivity() {
                     }
                 }
 
-                if (listaUsuarios.isEmpty()) {
-                    binding.rvResultados.visibility = View.GONE
-                    binding.tvNoResultados.visibility = View.VISIBLE
-                } else {
-                    binding.tvNoResultados.visibility = View.GONE
-                    binding.rvResultados.visibility = View.VISIBLE
-                    adapter.notifyDataSetChanged()
-                }
+                cargarSolicitudesBusqueda()
             }
             .addOnFailureListener {
                 Toast.makeText(this, "Error al buscar usuarios", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun cargarSolicitudesBusqueda() {
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", uidActual)
+            .get()
+            .addOnSuccessListener { enviadas ->
+                for (doc in enviadas) {
+                    val receptorId = doc.getString("receptorId") ?: continue
+                    val estado = doc.getString("estado") ?: "pendiente"
+                    estadoSolicitudes[receptorId] = estado
+                }
+
+                db.collection("solicitudes")
+                    .whereEqualTo("receptorId", uidActual)
+                    .get()
+                    .addOnSuccessListener { recibidas ->
+                        for (doc in recibidas) {
+                            val emisorId = doc.getString("emisorId") ?: continue
+                            val estado = doc.getString("estado") ?: "pendiente"
+                            if (estado == "pendiente") {
+                                estadoSolicitudes[emisorId] = "recibida"
+                            } else {
+                                estadoSolicitudes[emisorId] = estado
+                            }
+                        }
+
+                        if (listaUsuarios.isEmpty()) {
+                            binding.rvResultados.visibility = View.GONE
+                            binding.tvNoResultados.visibility = View.VISIBLE
+                        } else {
+                            binding.rvResultados.visibility = View.VISIBLE
+                            binding.tvNoResultados.visibility = View.GONE
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+            }
+    }
+
+    private fun enviarSolicitud(receptorId: String) {
+        val solicitud = hashMapOf(
+            "emisorId" to uidActual,
+            "receptorId" to receptorId,
+            "estado" to "pendiente"
+        )
+        db.collection("solicitudes")
+            .add(solicitud)
+            .addOnSuccessListener {
+                estadoSolicitudes[receptorId] = "pendiente"
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Solicitud enviada", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun cancelarSolicitud(receptorId: String) {
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", uidActual)
+            .whereEqualTo("receptorId", receptorId)
+            .get()
+            .addOnSuccessListener { docs ->
+                for (doc in docs) {
+                    db.collection("solicitudes").document(doc.id).delete()
+                }
+                estadoSolicitudes.remove(receptorId)
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Solicitud cancelada", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun aceptarSolicitud(emisorId: String) {
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", emisorId)
+            .whereEqualTo("receptorId", uidActual)
+            .get()
+            .addOnSuccessListener { docs ->
+                for (doc in docs) {
+                    db.collection("solicitudes").document(doc.id)
+                        .update("estado", "aceptado")
+                }
+                estadoSolicitudes[emisorId] = "aceptado"
+                adapter.notifyDataSetChanged()
+                Toast.makeText(this, "Solicitud aceptada", Toast.LENGTH_SHORT).show()
             }
     }
 }
