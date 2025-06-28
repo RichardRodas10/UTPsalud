@@ -36,19 +36,8 @@ class BuscarActivity : AppCompatActivity() {
 
         binding.iconInfo.setOnClickListener { finish() }
 
-        adapter = UsuarioAdapter(
-            listaUsuarios,
-            estadoSolicitudes,
-            uidActual,
-            onAgregar = { usuario -> enviarSolicitud(usuario.uid) },
-            onCancelar = { usuario -> cancelarSolicitud(usuario.uid) },
-            onConfirmar = { usuario -> aceptarSolicitud(usuario.uid) }
-        )
-
-        binding.rvResultados.layoutManager = LinearLayoutManager(this)
-        binding.rvResultados.adapter = adapter
-
         obtenerRolUsuarioActual {
+            configurarAdapter()
             configurarBusqueda()
         }
     }
@@ -63,6 +52,20 @@ class BuscarActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Error al obtener rol de usuario", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun configurarAdapter() {
+        adapter = UsuarioAdapter(
+            listaUsuarios,
+            estadoSolicitudes,
+            uidActual,
+            esAdmin,
+            onAgregar = { usuario -> enviarSolicitud(usuario.uid) },
+            onCancelar = { usuario -> cancelarSolicitud(usuario.uid) },
+            onConfirmar = { usuario -> aceptarSolicitud(usuario.uid) }
+        )
+        binding.rvResultados.layoutManager = LinearLayoutManager(this)
+        binding.rvResultados.adapter = adapter
     }
 
     private fun configurarBusqueda() {
@@ -83,6 +86,8 @@ class BuscarActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
     }
+
+    // BuscarActivity.kt (igual que antes pero con validación para pacientes ya vinculados)
 
     private fun buscarUsuarios(texto: String) {
         val coleccion = db.collection("usuarios")
@@ -111,34 +116,34 @@ class BuscarActivity : AppCompatActivity() {
                     }
                 }
 
-                cargarSolicitudesBusqueda()
-            }
-            .addOnFailureListener {
-                Toast.makeText(this, "Error al buscar usuarios", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun cargarSolicitudesBusqueda() {
-        db.collection("solicitudes")
-            .whereEqualTo("emisorId", uidActual)
-            .get()
-            .addOnSuccessListener { enviadas ->
-                for (doc in enviadas) {
-                    val receptorId = doc.getString("receptorId") ?: continue
-                    val estado = doc.getString("estado") ?: "pendiente"
-                    estadoSolicitudes[receptorId] = estado
-                }
-
                 db.collection("solicitudes")
-                    .whereEqualTo("receptorId", uidActual)
                     .get()
-                    .addOnSuccessListener { recibidas ->
-                        for (doc in recibidas) {
-                            val emisorId = doc.getString("emisorId") ?: continue
-                            val estado = doc.getString("estado") ?: "pendiente"
-                            estadoSolicitudes[emisorId] =
-                                if (estado == "pendiente") "recibida" else estado
+                    .addOnSuccessListener { solicitudes ->
+                        val pacientesVinculados = mutableSetOf<String>()
+
+                        for (sol in solicitudes) {
+                            val emisorId = sol.getString("emisorId") ?: continue
+                            val receptorId = sol.getString("receptorId") ?: continue
+                            val estado = sol.getString("estado") ?: "pendiente"
+
+                            if (estado == "aceptado") {
+                                pacientesVinculados.add(receptorId)
+                            }
+
+                            if (emisorId == uidActual) {
+                                estadoSolicitudes[receptorId] = estado
+                            } else if (receptorId == uidActual) {
+                                estadoSolicitudes[emisorId] = if (estado == "pendiente") "recibida" else estado
+                            }
                         }
+
+                        for (u in listaUsuarios) {
+                            if (esAdmin && pacientesVinculados.contains(u.uid) && estadoSolicitudes[u.uid] == null) {
+                                estadoSolicitudes[u.uid] = "no_disponible"
+                            }
+                        }
+
+                        adapter.notifyDataSetChanged()
 
                         if (listaUsuarios.isEmpty()) {
                             binding.rvResultados.visibility = View.GONE
@@ -146,11 +151,65 @@ class BuscarActivity : AppCompatActivity() {
                         } else {
                             binding.rvResultados.visibility = View.VISIBLE
                             binding.tvNoResultados.visibility = View.GONE
-                            adapter.notifyDataSetChanged()
                         }
                     }
             }
     }
+
+
+    private fun cargarSolicitudesBusqueda() {
+        db.collection("solicitudes")
+            .get()
+            .addOnSuccessListener { docs ->
+                val pacientesYaVinculados = mutableSetOf<String>()
+
+                for (doc in docs) {
+                    val emisorId = doc.getString("emisorId") ?: continue
+                    val receptorId = doc.getString("receptorId") ?: continue
+                    val estado = doc.getString("estado") ?: "pendiente"
+
+                    // Si el paciente ya está vinculado con un médico, lo anotamos
+                    if (estado == "aceptado") {
+                        if (!esAdmin && emisorId == uidActual) {
+                            estadoSolicitudes[receptorId] = estado
+                        } else if (!esAdmin && receptorId == uidActual) {
+                            estadoSolicitudes[emisorId] = estado
+                        } else if (esAdmin) {
+                            pacientesYaVinculados.add(emisorId)
+                            pacientesYaVinculados.add(receptorId)
+                        }
+                    } else {
+                        if (emisorId == uidActual) {
+                            estadoSolicitudes[receptorId] = estado
+                        } else if (receptorId == uidActual) {
+                            estadoSolicitudes[emisorId] =
+                                if (estado == "pendiente") "recibida" else estado
+                        }
+                    }
+                }
+
+                // Si soy médico, marco los pacientes que ya tienen médico como "no_disponible"
+                if (esAdmin) {
+                    for (usuario in listaUsuarios) {
+                        if (pacientesYaVinculados.contains(usuario.uid) &&
+                            !estadoSolicitudes.containsKey(usuario.uid)
+                        ) {
+                            estadoSolicitudes[usuario.uid] = "no_disponible"
+                        }
+                    }
+                }
+
+                if (listaUsuarios.isEmpty()) {
+                    binding.rvResultados.visibility = View.GONE
+                    binding.tvNoResultados.visibility = View.VISIBLE
+                } else {
+                    binding.rvResultados.visibility = View.VISIBLE
+                    binding.tvNoResultados.visibility = View.GONE
+                    adapter.notifyDataSetChanged()
+                }
+            }
+    }
+
 
     private fun enviarSolicitud(receptorId: String) {
         val solicitud = hashMapOf(

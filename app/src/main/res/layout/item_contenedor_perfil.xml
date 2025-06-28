@@ -5,8 +5,8 @@
     android:id="@+id/contenedorPerfil"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:layout_marginHorizontal="16dp"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="32dp"
     android:clickable="true"
     android:foreground="?attr/selectableItemBackground">
 

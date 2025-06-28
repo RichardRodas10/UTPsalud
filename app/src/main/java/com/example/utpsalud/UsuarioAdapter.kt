@@ -12,12 +12,14 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.utpsalud.R
 import com.example.utpsalud.model.Usuario
+import com.google.android.material.snackbar.Snackbar
 import de.hdodenhof.circleimageview.CircleImageView
 
 class UsuarioAdapter(
     private val usuarios: List<Usuario>,
-    private val estadoSolicitudes: MutableMap<String, String>, // CAMBIADO A MutableMap
+    private val estadoSolicitudes: MutableMap<String, String>,
     private val uidActual: String,
+    private val esAdmin: Boolean, // NUEVO PARAMETRO: true si soy médico
     private val onAgregar: (Usuario) -> Unit,
     private val onCancelar: (Usuario) -> Unit,
     private val onConfirmar: (Usuario) -> Unit
@@ -51,9 +53,21 @@ class UsuarioAdapter(
 
         val estado = estadoSolicitudes[usuario.uid]
 
-        holder.btnAccion.isEnabled = true // Reset antes de definir
-        when (estado) {
-            "pendiente" -> {
+        // Solo los pacientes tienen restricción de 1 vínculo
+        val otroVinculoActivo = !esAdmin && estadoSolicitudes.any {
+            val id = it.key
+            val estadoVal = it.value
+            id != usuario.uid && (estadoVal == "pendiente" || estadoVal == "aceptado")
+        }
+
+        holder.btnAccion.setBackgroundColor(
+            ContextCompat.getColor(holder.itemView.context, R.color.azul_marino)
+        )
+        holder.btnAccion.setTextColor(Color.WHITE)
+        holder.btnAccion.isEnabled = true
+
+        when {
+            estado == "pendiente" -> {
                 holder.btnAccion.text = "Cancelar"
                 holder.btnAccion.setBackgroundColor(Color.GRAY)
                 holder.btnAccion.setOnClickListener {
@@ -61,27 +75,34 @@ class UsuarioAdapter(
                 }
             }
 
-            "recibida" -> {
+            estado == "recibida" -> {
                 holder.btnAccion.text = "Confirmar"
-                holder.btnAccion.setBackgroundColor(
-                    ContextCompat.getColor(holder.itemView.context, R.color.azul_marino)
-                )
                 holder.btnAccion.setOnClickListener {
                     onConfirmar(usuario)
                 }
             }
 
-            "aceptado" -> {
+            estado == "aceptado" -> {
                 holder.btnAccion.text = "Vinculado"
                 holder.btnAccion.setBackgroundColor(Color.LTGRAY)
                 holder.btnAccion.isEnabled = false
             }
 
+            otroVinculoActivo -> {
+                holder.btnAccion.text = "No disponible"
+                holder.btnAccion.setBackgroundColor(Color.LTGRAY)
+                holder.btnAccion.setOnClickListener {
+                    val mensaje = if (esAdmin)
+                        "Este paciente ya tiene un médico asignado."
+                    else
+                        "Ya tienes un médico asignado. Cancela el vínculo para enviar otra solicitud."
+
+                    Snackbar.make(holder.itemView, mensaje, Snackbar.LENGTH_LONG).show()
+                }
+            }
+
             else -> {
                 holder.btnAccion.text = "Vincular"
-                holder.btnAccion.setBackgroundColor(
-                    ContextCompat.getColor(holder.itemView.context, R.color.azul_marino)
-                )
                 holder.btnAccion.setOnClickListener {
                     onAgregar(usuario)
                 }
@@ -91,7 +112,6 @@ class UsuarioAdapter(
 
     override fun getItemCount(): Int = usuarios.size
 
-    // NUEVA FUNCIÓN para actualizar estado y refrescar visualmente solo un ítem
     fun actualizarEstado(uid: String, nuevoEstado: String?) {
         estadoSolicitudes[uid] = nuevoEstado ?: ""
         val index = usuarios.indexOfFirst { it.uid == uid }
