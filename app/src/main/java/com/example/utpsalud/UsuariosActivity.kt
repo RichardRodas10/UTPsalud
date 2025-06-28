@@ -119,7 +119,18 @@ class UsuariosActivity : AppCompatActivity() {
                     .whereIn("emisorId", listOf(uidActual) + todos.map { it.uid })
                     .get()
                     .addOnSuccessListener { solicitudesDocs ->
-                        for (sol in solicitudesDocs) {
+
+                        // Para recolectar solicitudes para lógica extra
+                        val solicitudes = solicitudesDocs.documents
+
+                        // Estado solicitudes y sets auxiliares
+                        val pacientesVinculados = mutableSetOf<String>()
+                        val pacientesConSolicitudPendiente = mutableSetOf<String>()
+
+                        // NUEVO: ids de médicos que enviaron solicitud al usuario actual (solo si no soy admin)
+                        val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
+
+                        for (sol in solicitudes) {
                             val emisorId = sol.getString("emisorId") ?: continue
                             val receptorId = sol.getString("receptorId") ?: continue
                             val estado = sol.getString("estado") ?: "pendiente"
@@ -130,15 +141,55 @@ class UsuariosActivity : AppCompatActivity() {
                                 estadoSolicitudes[emisorId] =
                                     if (estado == "pendiente") "recibida" else estado
                             }
+
+                            if (estado == "aceptado") {
+                                pacientesVinculados.add(emisorId)
+                                pacientesVinculados.add(receptorId)
+                            } else if (estado == "pendiente" && esAdmin) {
+                                // paciente envió solicitud
+                                pacientesConSolicitudPendiente.add(emisorId)
+
+                                // paciente recibió solicitud de otro médico (que no soy yo)
+                                if (receptorId != uidActual) {
+                                    pacientesConSolicitudPendiente.add(receptorId)
+                                }
+                            }
+
+                            // NUEVO: Si soy usuario normal y este médico me envió solicitud pendiente
+                            if (!esAdmin && estado == "pendiente" && receptorId == uidActual) {
+                                medicosQueMeEnviaronSolicitud.add(emisorId)
+                            }
                         }
 
+                        // Clasificación final de usuarios
                         for (u in todos) {
-                            when (val st = estadoSolicitudes[u.uid]) {
+                            val estadoActual = estadoSolicitudes[u.uid]
+
+                            if (esAdmin && estadoActual == null) {
+                                when {
+                                    pacientesVinculados.contains(u.uid) -> {
+                                        estadoSolicitudes[u.uid] = "vinculado_admin"
+                                    }
+                                    pacientesConSolicitudPendiente.contains(u.uid) -> {
+                                        estadoSolicitudes[u.uid] = "solicitud_en_curso"
+                                    }
+                                }
+                            }
+
+                            if (!esAdmin && medicosQueMeEnviaronSolicitud.isNotEmpty()) {
+                                // Si tengo solicitud recibida de algún médico
+                                // Y el médico actual no es uno que me envió solicitud
+                                if (!medicosQueMeEnviaronSolicitud.contains(u.uid)) {
+                                    estadoSolicitudes[u.uid] = "no_disponible"
+                                }
+                            }
+
+                            when (estadoSolicitudes[u.uid]) {
                                 null -> listaDisponibles.add(u)
                                 "pendiente" -> listaEnviadas.add(u)
                                 "recibida" -> listaRecibidas.add(u)
                                 "aceptado" -> {} // omitido
-                                else -> {}
+                                "vinculado_admin", "solicitud_en_curso", "no_disponible" -> listaDisponibles.add(u) // mostramos pero restringidos
                             }
                         }
 

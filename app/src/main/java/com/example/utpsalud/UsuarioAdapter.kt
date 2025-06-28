@@ -19,7 +19,7 @@ class UsuarioAdapter(
     private val usuarios: List<Usuario>,
     private val estadoSolicitudes: MutableMap<String, String>,
     private val uidActual: String,
-    private val esAdmin: Boolean, // NUEVO PARAMETRO: true si soy médico
+    private val esAdmin: Boolean,
     private val onAgregar: (Usuario) -> Unit,
     private val onCancelar: (Usuario) -> Unit,
     private val onConfirmar: (Usuario) -> Unit
@@ -53,7 +53,6 @@ class UsuarioAdapter(
 
         val estado = estadoSolicitudes[usuario.uid]
 
-        // Solo los pacientes tienen restricción de 1 vínculo
         val otroVinculoActivo = !esAdmin && estadoSolicitudes.any {
             val id = it.key
             val estadoVal = it.value
@@ -88,14 +87,21 @@ class UsuarioAdapter(
                 holder.btnAccion.isEnabled = false
             }
 
-            otroVinculoActivo -> {
+            estado == "vinculado_admin" || estado == "solicitud_en_curso" || estado == "no_disponible" || (!esAdmin && otroVinculoActivo) -> {
                 holder.btnAccion.text = "No disponible"
                 holder.btnAccion.setBackgroundColor(Color.LTGRAY)
                 holder.btnAccion.setOnClickListener {
-                    val mensaje = if (esAdmin)
-                        "Este paciente ya tiene un médico asignado."
-                    else
-                        "Ya tienes un médico asignado. Cancela el vínculo para enviar otra solicitud."
+                    val mensaje = when {
+                        esAdmin && estado == "vinculado_admin" ->
+                            "Este paciente ya está vinculado con un médico. No puede recibir nuevas solicitudes."
+                        esAdmin && estado == "solicitud_en_curso" ->
+                            "Este paciente ya tiene una solicitud pendiente con otro médico."
+                        estado == "no_disponible" && !esAdmin && estadoSolicitudes.values.any { it == "recibida" } ->
+                            "Tienes una solicitud pendiente de un médico por confirmar antes de contactar a otro."
+                        estado == "no_disponible" && !esAdmin ->
+                            "Ya tienes un médico asignado. Cancela tu vínculo actual para enviar otra solicitud."
+                        else -> "No disponible"
+                    }
 
                     Snackbar.make(holder.itemView, mensaje, Snackbar.LENGTH_LONG).show()
                 }
@@ -113,7 +119,11 @@ class UsuarioAdapter(
     override fun getItemCount(): Int = usuarios.size
 
     fun actualizarEstado(uid: String, nuevoEstado: String?) {
-        estadoSolicitudes[uid] = nuevoEstado ?: ""
+        if (nuevoEstado == null) {
+            estadoSolicitudes.remove(uid)
+        } else {
+            estadoSolicitudes[uid] = nuevoEstado
+        }
         val index = usuarios.indexOfFirst { it.uid == uid }
         if (index != -1) {
             notifyItemChanged(index)

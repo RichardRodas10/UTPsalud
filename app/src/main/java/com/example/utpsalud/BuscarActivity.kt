@@ -99,47 +99,87 @@ class BuscarActivity : AppCompatActivity() {
                 listaUsuarios.clear()
                 estadoSolicitudes.clear()
 
+                val candidatos = mutableListOf<Usuario>()
                 for (doc in documentos) {
                     val uid = doc.id
                     val nombre = doc.getString("nombre") ?: ""
                     val apellido = doc.getString("apellido") ?: ""
 
                     if (nombre.contains(texto, ignoreCase = true) || apellido.contains(texto, ignoreCase = true)) {
-                        val usuario = Usuario(
-                            uid = uid,
-                            nombre = nombre,
-                            apellido = apellido,
-                            esAdministrador = doc.getBoolean("esAdministrador") ?: false,
-                            fotoPerfilBase64 = doc.getString("fotoPerfilBase64")
+                        candidatos.add(
+                            Usuario(
+                                uid = uid,
+                                nombre = nombre,
+                                apellido = apellido,
+                                esAdministrador = doc.getBoolean("esAdministrador") ?: false,
+                                fotoPerfilBase64 = doc.getString("fotoPerfilBase64")
+                            )
                         )
-                        listaUsuarios.add(usuario)
                     }
                 }
 
                 db.collection("solicitudes")
                     .get()
                     .addOnSuccessListener { solicitudes ->
+
                         val pacientesVinculados = mutableSetOf<String>()
+                        val solicitudesEnCurso = mutableSetOf<String>()
+                        val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
 
                         for (sol in solicitudes) {
                             val emisorId = sol.getString("emisorId") ?: continue
                             val receptorId = sol.getString("receptorId") ?: continue
                             val estado = sol.getString("estado") ?: "pendiente"
 
+                            // Pacientes ya vinculados (para médicos)
                             if (estado == "aceptado") {
+                                pacientesVinculados.add(emisorId)
                                 pacientesVinculados.add(receptorId)
                             }
 
+                            // Estado de solicitudes relacionadas al usuario actual
                             if (emisorId == uidActual) {
                                 estadoSolicitudes[receptorId] = estado
                             } else if (receptorId == uidActual) {
                                 estadoSolicitudes[emisorId] = if (estado == "pendiente") "recibida" else estado
+
+                                // Si soy paciente (no admin) y un médico me envió solicitud
+                                if (!esAdmin && estado == "pendiente") {
+                                    medicosQueMeEnviaronSolicitud.add(emisorId)
+                                }
+                            }
+
+                            // Pacientes que ya enviaron solicitud a otro médico (para médicos)
+                            if (esAdmin && estado == "pendiente") {
+                                solicitudesEnCurso.add(emisorId)
                             }
                         }
 
-                        for (u in listaUsuarios) {
-                            if (esAdmin && pacientesVinculados.contains(u.uid) && estadoSolicitudes[u.uid] == null) {
-                                estadoSolicitudes[u.uid] = "no_disponible"
+                        for (usuario in candidatos) {
+                            val estadoActual = estadoSolicitudes[usuario.uid]
+
+                            if (esAdmin && estadoActual == null) {
+                                when {
+                                    pacientesVinculados.contains(usuario.uid) -> {
+                                        estadoSolicitudes[usuario.uid] = "vinculado_admin"
+                                    }
+                                    solicitudesEnCurso.contains(usuario.uid) -> {
+                                        estadoSolicitudes[usuario.uid] = "solicitud_en_curso"
+                                    }
+                                }
+                            }
+
+                            if (!esAdmin && estadoActual == null) {
+                                val tieneSolicitudRecibida = estadoSolicitudes.values.any { it == "recibida" }
+
+                                if (tieneSolicitudRecibida) {
+                                    estadoSolicitudes[usuario.uid] = "no_disponible"
+                                }
+                            }
+
+                            // Evita duplicados
+                            if (listaUsuarios.none { it.uid == usuario.uid }) {
+                                listaUsuarios.add(usuario)
                             }
                         }
 
@@ -155,6 +195,7 @@ class BuscarActivity : AppCompatActivity() {
                     }
             }
     }
+
 
 
     private fun cargarSolicitudesBusqueda() {
