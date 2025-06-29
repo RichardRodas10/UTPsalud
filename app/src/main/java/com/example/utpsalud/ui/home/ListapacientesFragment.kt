@@ -14,6 +14,7 @@ import com.example.utpsalud.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class ListapacientesFragment : Fragment() {
     private var _binding: FragmentListapacientesBinding? = null
@@ -25,6 +26,10 @@ class ListapacientesFragment : Fragment() {
     private lateinit var uidActual: String
     private val listaPacientes = mutableListOf<Usuario>()
     private lateinit var adapter: PacienteAdapter
+
+    private var solicitudesListenerEmisor: ListenerRegistration? = null
+    private var solicitudesListenerReceptor: ListenerRegistration? = null
+    private var usuariosListener: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +50,7 @@ class ListapacientesFragment : Fragment() {
         binding.rvPacientes.layoutManager = LinearLayoutManager(requireContext())
         binding.rvPacientes.adapter = adapter
 
-        obtenerPacientesAgregados()
+        startListeners()
     }
 
     private fun mostrarLoading() {
@@ -66,86 +71,86 @@ class ListapacientesFragment : Fragment() {
         binding.tvSinPacientes.visibility = View.VISIBLE
     }
 
-    private fun obtenerPacientesAgregados() {
+    private fun startListeners() {
         mostrarLoading()
 
         val solicitudesRef = db.collection("solicitudes")
 
-        solicitudesRef
+        // Listener para solicitudes donde soy emisor y aceptadas
+        solicitudesListenerEmisor = solicitudesRef
             .whereEqualTo("estado", "aceptado")
             .whereEqualTo("emisorId", uidActual)
-            .get()
-            .addOnSuccessListener { enviadas ->
-                val agregadosIds = mutableSetOf<String>()
-                for (doc in enviadas) {
-                    val receptorId = doc.getString("receptorId")
-                    if (receptorId != null) agregadosIds.add(receptorId)
+            .addSnapshotListener { snapshotEmisor, e1 ->
+                if (e1 != null) {
+                    mostrarSinResultados()
+                    return@addSnapshotListener
                 }
 
-                solicitudesRef
+                // Listener para solicitudes donde soy receptor y aceptadas
+                solicitudesListenerReceptor = solicitudesRef
                     .whereEqualTo("estado", "aceptado")
                     .whereEqualTo("receptorId", uidActual)
-                    .get()
-                    .addOnSuccessListener { recibidas ->
-                        for (doc in recibidas) {
-                            val emisorId = doc.getString("emisorId")
-                            if (emisorId != null) agregadosIds.add(emisorId)
+                    .addSnapshotListener { snapshotReceptor, e2 ->
+                        if (e2 != null) {
+                            mostrarSinResultados()
+                            return@addSnapshotListener
+                        }
+
+                        val agregadosIds = mutableSetOf<String>()
+
+                        snapshotEmisor?.documents?.forEach { doc ->
+                            doc.getString("receptorId")?.let { agregadosIds.add(it) }
+                        }
+
+                        snapshotReceptor?.documents?.forEach { doc ->
+                            doc.getString("emisorId")?.let { agregadosIds.add(it) }
                         }
 
                         if (agregadosIds.isEmpty()) {
+                            listaPacientes.clear()
+                            adapter.notifyDataSetChanged()
                             mostrarSinResultados()
-                        } else {
-                            cargarDatosUsuarios(agregadosIds.toList())
+                            return@addSnapshotListener
                         }
+
+                        usuariosListener?.remove()
+                        usuariosListener = db.collection("usuarios")
+                            .whereIn(FieldPath.documentId(), agregadosIds.toList())
+                            .addSnapshotListener { usuariosSnapshot, e3 ->
+                                if (e3 != null) {
+                                    mostrarSinResultados()
+                                    return@addSnapshotListener
+                                }
+
+                                listaPacientes.clear()
+                                usuariosSnapshot?.documents?.forEach { doc ->
+                                    val uid = doc.id
+                                    val usuario = Usuario(
+                                        uid = uid,
+                                        nombre = doc.getString("nombre") ?: "",
+                                        apellido = doc.getString("apellido") ?: "",
+                                        fotoPerfilBase64 = doc.getString("fotoPerfilBase64"),
+                                        esAdministrador = doc.getBoolean("esAdministrador") ?: false
+                                    )
+                                    listaPacientes.add(usuario)
+                                }
+
+                                if (listaPacientes.isEmpty()) {
+                                    mostrarSinResultados()
+                                } else {
+                                    mostrarPacientes()
+                                    adapter.notifyDataSetChanged()
+                                }
+                            }
                     }
-                    .addOnFailureListener {
-                        mostrarSinResultados()
-                    }
-            }
-            .addOnFailureListener {
-                mostrarSinResultados()
-            }
-    }
-
-    private fun cargarDatosUsuarios(uids: List<String>) {
-        db.collection("usuarios")
-            .whereIn(FieldPath.documentId(), uids)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                listaPacientes.clear()
-
-                for (doc in snapshot) {
-                    val uid = doc.id
-                    val usuario = Usuario(
-                        uid = uid,
-                        nombre = doc.getString("nombre") ?: "",
-                        apellido = doc.getString("apellido") ?: "",
-                        fotoPerfilBase64 = doc.getString("fotoPerfilBase64"),
-                        esAdministrador = doc.getBoolean("esAdministrador") ?: false
-                    )
-                    listaPacientes.add(usuario)
-                }
-
-                if (listaPacientes.isEmpty()) {
-                    mostrarSinResultados()
-                } else {
-                    mostrarPacientes()
-                    adapter.notifyDataSetChanged()
-                }
-            }
-            .addOnFailureListener {
-                mostrarSinResultados()
             }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        solicitudesListenerEmisor?.remove()
+        solicitudesListenerReceptor?.remove()
+        usuariosListener?.remove()
     }
-
-    override fun onResume() {
-        super.onResume()
-        obtenerPacientesAgregados()
-    }
-
 }

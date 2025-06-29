@@ -9,7 +9,10 @@ import com.example.utpsalud.adapter.UsuarioAdapter
 import com.example.utpsalud.databinding.ActivityUsuariosBinding
 import com.example.utpsalud.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
 
 class UsuariosActivity : AppCompatActivity() {
 
@@ -29,6 +32,12 @@ class UsuariosActivity : AppCompatActivity() {
     private lateinit var adapterEnv: UsuarioAdapter
     private lateinit var adapterRec: UsuarioAdapter
 
+    private var usuariosListener: ListenerRegistration? = null
+    private var solicitudesListener: ListenerRegistration? = null
+
+    private var usuariosSnapshot: QuerySnapshot? = null
+    private var solicitudesSnapshot: QuerySnapshot? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUsuariosBinding.inflate(layoutInflater)
@@ -40,7 +49,147 @@ class UsuariosActivity : AppCompatActivity() {
 
         binding.iconBack.setOnClickListener { finish() }
 
-        obtenerRolUsuarioActual { cargarUsuarios() }
+        obtenerRolUsuarioActual {
+            configurarAdapters()
+            startListeners()
+        }
+    }
+
+    private fun startListeners() {
+        usuariosListener = db.collection("usuarios")
+            .whereEqualTo("esAdministrador", !esAdmin)
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    toast("Error al escuchar usuarios: ${e.message}")
+                    return@addSnapshotListener
+                }
+                usuariosSnapshot = snapshots
+                procesarDatos()
+            }
+
+        solicitudesListener = db.collection("solicitudes")
+            .addSnapshotListener { snapshots, e ->
+                if (e != null) {
+                    toast("Error al escuchar solicitudes: ${e.message}")
+                    return@addSnapshotListener
+                }
+                solicitudesSnapshot = snapshots
+                procesarDatos()
+            }
+    }
+
+    private fun procesarDatos() {
+        // Si aún no tenemos ambos snapshots, esperar
+        val usuariosDocs = usuariosSnapshot?.documents ?: return
+        val solicitudesDocs = solicitudesSnapshot?.documents ?: return
+
+        mostrarCargando(true)
+
+        listaDisponibles.clear()
+        listaEnviadas.clear()
+        listaRecibidas.clear()
+        estadoSolicitudes.clear()
+
+        val todos = mutableListOf<Usuario>()
+
+        // Construir lista usuarios sin el actual
+        for (doc in usuariosDocs) {
+            val uid = doc.id
+            if (uid == uidActual) continue
+
+            todos += Usuario(
+                uid = uid,
+                nombre = doc.getString("nombre") ?: "",
+                apellido = doc.getString("apellido") ?: "",
+                esAdministrador = doc.getBoolean("esAdministrador") ?: false,
+                fotoPerfilBase64 = doc.getString("fotoPerfilBase64")
+            )
+        }
+
+        val pacientesVinculados = mutableSetOf<String>()
+        val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
+        val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
+
+        for (sol in solicitudesDocs) {
+            val emisorId = sol.getString("emisorId") ?: continue
+            val receptorId = sol.getString("receptorId") ?: continue
+            val estado = sol.getString("estado") ?: "pendiente"
+
+            if (estado == "aceptado") {
+                pacientesVinculados.add(emisorId)
+                pacientesVinculados.add(receptorId)
+            }
+
+            if (emisorId == uidActual) {
+                estadoSolicitudes[receptorId] = estado
+            }
+
+            if (receptorId == uidActual && estado == "pendiente") {
+                estadoSolicitudes[emisorId] = "recibida"
+                medicosQueMeEnviaronSolicitud.add(emisorId)
+            }
+
+            if (esAdmin && estado == "pendiente") {
+                if (emisorId != uidActual) {
+                    pacientesConSolicitudPendienteDeOtro.add(receptorId)
+                }
+
+                if (receptorId != uidActual) {
+                    pacientesConSolicitudPendienteDeOtro.add(emisorId)
+                }
+            }
+        }
+
+        for (usuario in todos) {
+            val estadoActual = estadoSolicitudes[usuario.uid]
+
+            if (esAdmin) {
+                when {
+                    pacientesVinculados.contains(usuario.uid) -> {
+                        continue
+                    }
+
+                    estadoActual == "recibida" -> {
+                        listaRecibidas.add(usuario)
+                    }
+
+                    estadoActual == "pendiente" -> {
+                        listaEnviadas.add(usuario)
+                    }
+
+                    pacientesConSolicitudPendienteDeOtro.contains(usuario.uid) -> {
+                        estadoSolicitudes[usuario.uid] = "no_disponible"
+                        listaDisponibles.add(usuario)
+                    }
+
+                    else -> {
+                        listaDisponibles.add(usuario)
+                    }
+                }
+            } else {
+                when (estadoActual) {
+                    "recibida" -> listaRecibidas.add(usuario)
+                    "pendiente" -> listaEnviadas.add(usuario)
+                    "aceptado" -> {}
+                    else -> {
+                        if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
+                            !medicosQueMeEnviaronSolicitud.contains(usuario.uid)) {
+                            estadoSolicitudes[usuario.uid] = "no_disponible"
+                        }
+                        listaDisponibles.add(usuario)
+                    }
+                }
+            }
+        }
+
+        actualizarUI()
+        mostrarCargando(false)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        usuariosListener?.remove()
+        solicitudesListener?.remove()
     }
 
     private fun obtenerRolUsuarioActual(onComplete: () -> Unit) {
@@ -48,7 +197,6 @@ class UsuariosActivity : AppCompatActivity() {
         db.collection("usuarios").document(id).get()
             .addOnSuccessListener { doc ->
                 esAdmin = doc.getBoolean("esAdministrador") ?: false
-                configurarAdapters()
                 onComplete()
             }
             .addOnFailureListener {
@@ -88,124 +236,6 @@ class UsuariosActivity : AppCompatActivity() {
         binding.rvSolicitudesRecibidas.adapter = adapterRec
     }
 
-    private fun cargarUsuarios() {
-        mostrarCargando(true)
-
-        db.collection("usuarios")
-            .whereEqualTo("esAdministrador", !esAdmin)
-            .get()
-            .addOnSuccessListener { usuariosDocs ->
-
-                listaDisponibles.clear()
-                listaEnviadas.clear()
-                listaRecibidas.clear()
-                estadoSolicitudes.clear()
-
-                val todos = mutableListOf<Usuario>()
-                for (doc in usuariosDocs) {
-                    val uid = doc.id
-                    if (uid == uidActual) continue
-
-                    todos += Usuario(
-                        uid = uid,
-                        nombre = doc.getString("nombre") ?: "",
-                        apellido = doc.getString("apellido") ?: "",
-                        esAdministrador = doc.getBoolean("esAdministrador") ?: false,
-                        fotoPerfilBase64 = doc.getString("fotoPerfilBase64")
-                    )
-                }
-
-                db.collection("solicitudes")
-                    .get()
-                    .addOnSuccessListener { solicitudesDocs ->
-
-                        val pacientesVinculados = mutableSetOf<String>()
-                        val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
-                        val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
-
-                        for (sol in solicitudesDocs) {
-                            val emisorId = sol.getString("emisorId") ?: continue
-                            val receptorId = sol.getString("receptorId") ?: continue
-                            val estado = sol.getString("estado") ?: "pendiente"
-
-                            if (estado == "aceptado") {
-                                pacientesVinculados.add(emisorId)
-                                pacientesVinculados.add(receptorId)
-                            }
-
-                            if (emisorId == uidActual) {
-                                estadoSolicitudes[receptorId] = estado
-                            }
-
-                            if (receptorId == uidActual && estado == "pendiente") {
-                                estadoSolicitudes[emisorId] = "recibida"
-                                medicosQueMeEnviaronSolicitud.add(emisorId)
-                            }
-
-                            if (esAdmin && estado == "pendiente") {
-                                if (emisorId != uidActual) {
-                                    pacientesConSolicitudPendienteDeOtro.add(receptorId)
-                                }
-
-                                if (receptorId != uidActual) {
-                                    pacientesConSolicitudPendienteDeOtro.add(emisorId)
-                                }
-                            }
-                        }
-
-                        for (usuario in todos) {
-                            val estadoActual = estadoSolicitudes[usuario.uid]
-
-                            if (esAdmin) {
-                                when {
-                                    pacientesVinculados.contains(usuario.uid) -> {
-                                        continue
-                                    }
-
-                                    estadoActual == "recibida" -> {
-                                        listaRecibidas.add(usuario) // ✅ Mostrar en recycler de recibidas
-                                    }
-
-                                    estadoActual == "pendiente" -> {
-                                        listaEnviadas.add(usuario)
-                                    }
-
-                                    pacientesConSolicitudPendienteDeOtro.contains(usuario.uid) -> {
-                                        estadoSolicitudes[usuario.uid] = "no_disponible"
-                                        listaDisponibles.add(usuario)
-                                    }
-
-                                    else -> {
-                                        listaDisponibles.add(usuario)
-                                    }
-                                }
-                            } else {
-                                when (estadoActual) {
-                                    "recibida" -> listaRecibidas.add(usuario)
-                                    "pendiente" -> listaEnviadas.add(usuario)
-                                    "aceptado" -> {}
-                                    else -> {
-                                        if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
-                                            !medicosQueMeEnviaronSolicitud.contains(usuario.uid)) {
-                                            estadoSolicitudes[usuario.uid] = "no_disponible"
-                                        }
-                                        listaDisponibles.add(usuario)
-                                    }
-                                }
-                            }
-                        }
-
-                        actualizarUI()
-                        mostrarCargando(false)
-                    }
-            }
-            .addOnFailureListener {
-                mostrarCargando(false)
-                toast("Error al cargar usuarios")
-            }
-    }
-
-
     private fun enviarSolicitud(receptorId: String) {
         val data = hashMapOf(
             "emisorId" to uidActual,
@@ -215,7 +245,6 @@ class UsuariosActivity : AppCompatActivity() {
         db.collection("solicitudes").add(data)
             .addOnSuccessListener {
                 toast("Solicitud enviada")
-                cargarUsuarios()
             }
     }
 
@@ -229,7 +258,6 @@ class UsuariosActivity : AppCompatActivity() {
                 docs.forEach { batch.delete(it.reference) }
                 batch.commit().addOnSuccessListener {
                     toast("Solicitud cancelada")
-                    cargarUsuarios()
                 }
             }
     }
@@ -244,7 +272,6 @@ class UsuariosActivity : AppCompatActivity() {
                 docs.forEach { batch.update(it.reference, "estado", "aceptado") }
                 batch.commit().addOnSuccessListener {
                     toast("Solicitud aceptada")
-                    cargarUsuarios()
                 }
             }
     }

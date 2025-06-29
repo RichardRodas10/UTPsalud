@@ -21,4 +21,5 @@
     <color name="fondo_fragment">#f2f2f2</color>
     <color name="letra_fragment">#4a4a4a</color>
     <color name="azul_marino">#2a3247</color>
+    <color name="badge">#fd2a53</color>
 </resources>
