@@ -1,5 +1,6 @@
 package com.example.utpsalud
 
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -94,11 +95,17 @@ class BuscarActivity : AppCompatActivity() {
             esAdmin,
             onAgregar = { usuario -> enviarSolicitud(usuario.uid) },
             onCancelar = { usuario -> cancelarSolicitud(usuario.uid) },
-            onConfirmar = { usuario -> aceptarSolicitud(usuario.uid) }
+            onConfirmar = { usuario -> aceptarSolicitud(usuario.uid) },
+            onClickItem = { usuario ->
+                val intent = Intent(this, PerfilActivity::class.java)
+                intent.putExtra("uid", usuario.uid)
+                startActivity(intent)
+            }
         )
         binding.rvResultados.layoutManager = LinearLayoutManager(this)
         binding.rvResultados.adapter = adapter
     }
+
 
     private fun configurarBusqueda() {
         binding.editBuscar.addTextChangedListener(object : TextWatcher {
@@ -207,8 +214,14 @@ class BuscarActivity : AppCompatActivity() {
                             val estado = sol.getString("estado") ?: "pendiente"
 
                             if (estado == "aceptado") {
-                                pacientesVinculados.add(emisorId)
-                                pacientesVinculados.add(receptorId)
+                                if (uidActual == emisorId || uidActual == receptorId) {
+                                    // Está vinculado conmigo
+                                    estadoSolicitudes[if (uidActual == emisorId) receptorId else emisorId] = "aceptado"
+                                } else {
+                                    // Está vinculado con otro médico
+                                    pacientesVinculados.add(emisorId)
+                                    pacientesVinculados.add(receptorId)
+                                }
                             }
 
                             if (emisorId == uidActual) estadoSolicitudes[receptorId] = estado
@@ -229,7 +242,8 @@ class BuscarActivity : AppCompatActivity() {
 
                             if (esAdmin) {
                                 when {
-                                    pacientesVinculados.contains(uid) -> estadoSolicitudes[uid] = "aceptado"
+                                    estadoActual == "aceptado" -> {} // ya se asignó correctamente arriba
+                                    pacientesVinculados.contains(uid) -> estadoSolicitudes[uid] = "no_disponible"
                                     estadoActual == "recibida" || estadoActual == "pendiente" -> {}
                                     pacientesConSolicitudPendienteDeOtro.contains(uid) -> estadoSolicitudes[uid] = "no_disponible"
                                 }

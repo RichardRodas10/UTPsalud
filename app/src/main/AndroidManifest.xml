@@ -53,6 +53,9 @@
         <activity android:name=".UsuariosActivity"
             android:exported="true">
         </activity>
+        <activity android:name=".PerfilActivity"
+            android:exported="true">
+        </activity>
     </application>
 
 </manifest>

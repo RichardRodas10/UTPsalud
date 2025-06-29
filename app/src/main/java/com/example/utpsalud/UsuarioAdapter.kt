@@ -22,7 +22,8 @@ class UsuarioAdapter(
     private val esAdmin: Boolean,
     private val onAgregar: (Usuario) -> Unit,
     private val onCancelar: (Usuario) -> Unit,
-    private val onConfirmar: (Usuario) -> Unit
+    private val onConfirmar: (Usuario) -> Unit,
+    private val onClickItem: ((Usuario) -> Unit)? = null // callback click en item
 ) : RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder>() {
 
     inner class UsuarioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -64,6 +65,11 @@ class UsuarioAdapter(
         )
         holder.btnAccion.setTextColor(Color.WHITE)
         holder.btnAccion.isEnabled = true
+
+        // Click en el item completo
+        holder.itemView.setOnClickListener {
+            onClickItem?.invoke(usuario)
+        }
 
         when {
             estado == "pendiente" -> {

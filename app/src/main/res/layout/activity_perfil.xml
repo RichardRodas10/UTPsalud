@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo_fragment">
+
+    <!-- Encabezado -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="@color/fondo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/iconBack"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_flecha_izquierda"
+            app:tint="@color/button" />
+
+        <TextView
+            android:id="@+id/textPerfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Perfil"
+            android:textColor="@color/letra_fragment"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Fila foto + nombres -->
+    <LinearLayout
+        android:id="@+id/filaFotoNombres"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_account" />
+
+        <LinearLayout
+            android:id="@+id/contenedorNombres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/textNombre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nombre"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/letra_fragment" />
+
+            <TextView
+                android:id="@+id/textApellido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apellido"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/letra_fragment"
+                />
+
+            <TextView
+                android:id="@+id/textDni"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DNI"
+                android:textColor="@color/letra_fragment"
+                android:textSize="16sp"
+                android:drawableStart="@drawable/ic_dni"
+                android:drawableTint="@color/letra_fragment"
+                android:drawablePadding="6dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Botones debajo de la fila anterior -->
+    <LinearLayout
+        android:id="@+id/contenedorBotones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/filaFotoNombres"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnEstadoSolicitud"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="no disponible"
+            android:backgroundTint="@color/azul_marino"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnMensaje"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="Mensaje"
+            android:backgroundTint="@color/button"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:drawableLeft="@drawable/ic_chat"
+            android:drawableTint="@color/white"/>
+    </LinearLayout>
+
+    <!-- Separador debajo de los botones -->
+    <View
+        android:id="@+id/separadorPerfil"
+        android:layout_width="wrap_content"
+        android:layout_height="2dp"
+        android:layout_marginVertical="12dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/gray_suave"
+        app:layout_constraintTop_toBottomOf="@id/contenedorBotones"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textDatos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:text="Datos personales"
+        android:textColor="@color/black"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/separadorPerfil" />
+
+    <!-- Contenedor para datos personales -->
+    <LinearLayout
+        android:id="@+id/contenedorDatos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:background="@drawable/contenedor_cuadrado"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textDatos">
+
+        <TextView
+            android:id="@+id/textCelular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="20dp"
+            android:text="Celular"
+            android:drawableStart="@drawable/ic_telephone"
+            android:drawableTint="@color/letra_fragment"
+            android:drawablePadding="10dp"
+            android:background="@drawable/contenedor_clickclable"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:id="@+id/separadorDatos"
+            android:layout_width="wrap_content"
+            android:layout_height="2dp"
+            android:background="@color/fondo_fragment"
+            app:layout_constraintTop_toBottomOf="@id/contenedorBotones"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
+            android:id="@+id/textEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="20dp"
+            android:text="correo@gmail.com"
+            android:drawableStart="@drawable/email"
+            android:drawableTint="@color/letra_fragment"
+            android:drawablePadding="10dp"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textContactoEmergencia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:text="Contacto de emergencia"
+        android:textColor="@color/black"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/contenedorDatos" />
+
+    <LinearLayout
+        android:id="@+id/contenedorContactoEm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginVertical="10dp"
+        android:orientation="vertical"
+        android:background="@drawable/contenedor_cuadrado"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textContactoEmergencia">
+
+        <TextView
+            android:id="@+id/textCelularEmergencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="Celular de emergencia"
+            android:drawableStart="@drawable/ic_alerta"
+            android:drawableTint="@color/letra_fragment"
+            android:drawablePadding="10dp"
+            android:background="@drawable/contenedor_clickclable"
+            android:textColor="@color/letra_fragment"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:gravity="center_vertical" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnDesvincular"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="40dp"
+        android:backgroundTint="@color/fondo_fragment"
+        android:padding="12dp"
+        android:text="¿Desvincular?"
+        android:textColor="@color/badge"
+        android:textStyle="bold"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/badge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
