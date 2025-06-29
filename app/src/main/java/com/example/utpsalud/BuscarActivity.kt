@@ -7,17 +7,15 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.MotionEvent
 import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.utpsalud.adapter.UsuarioAdapter
 import com.example.utpsalud.databinding.ActivityBuscarBinding
 import com.example.utpsalud.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class BuscarActivity : AppCompatActivity() {
 
@@ -33,6 +31,7 @@ class BuscarActivity : AppCompatActivity() {
     private var ultimaBusqueda = ""
     private val handler = Handler()
     private var runnableBusqueda: Runnable? = null
+    private var solicitudesListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,9 +48,9 @@ class BuscarActivity : AppCompatActivity() {
         obtenerRolUsuarioActual {
             configurarAdapter()
             configurarBusqueda()
+            escucharSolicitudesTiempoReal()
         }
 
-        // Manejamos el clic en el drawableEnd (ícono X)
         binding.editBuscar.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 val drawableEnd = binding.editBuscar.compoundDrawables[2]
@@ -68,6 +67,11 @@ class BuscarActivity : AppCompatActivity() {
             }
             false
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        solicitudesListener?.remove()
     }
 
     private fun obtenerRolUsuarioActual(onComplete: () -> Unit) {
@@ -102,8 +106,6 @@ class BuscarActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val texto = s.toString().trim()
-
-                // Mostrar u ocultar el ícono X
                 val icon = if (texto.isNotEmpty()) R.drawable.ic_clear else 0
                 binding.editBuscar.setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
 
@@ -113,15 +115,9 @@ class BuscarActivity : AppCompatActivity() {
                 }
 
                 runnableBusqueda?.let { handler.removeCallbacks(it) }
-
                 runnableBusqueda = Runnable {
-                    if (texto.length >= 2) {
-                        buscarUsuarios(texto)
-                    } else {
-                        limpiarResultados()
-                    }
+                    if (texto.length >= 2) buscarUsuarios(texto) else limpiarResultados()
                 }
-
                 handler.postDelayed(runnableBusqueda!!, 300)
             }
 
@@ -136,6 +132,14 @@ class BuscarActivity : AppCompatActivity() {
         binding.rvResultados.visibility = View.GONE
         binding.tvNoResultados.visibility = View.GONE
         binding.progressBarBuscar.visibility = View.GONE
+    }
+
+    private fun escucharSolicitudesTiempoReal() {
+        solicitudesListener = db.collection("solicitudes")
+            .addSnapshotListener { _, _ ->
+                val texto = binding.editBuscar.text.toString().trim()
+                if (texto.length >= 2) buscarUsuarios(texto)
+            }
     }
 
     private fun buscarUsuarios(texto: String) {
@@ -185,18 +189,6 @@ class BuscarActivity : AppCompatActivity() {
                     } else null
                 }
 
-                if (textoNormalizado != ultimaBusqueda) {
-                    binding.progressBarBuscar.visibility = View.GONE
-                    return@addOnSuccessListener
-                }
-
-                if (candidatos.isEmpty()) {
-                    binding.rvResultados.visibility = View.GONE
-                    binding.tvNoResultados.visibility = View.VISIBLE
-                    binding.progressBarBuscar.visibility = View.GONE
-                    return@addOnSuccessListener
-                }
-
                 db.collection("solicitudes")
                     .get()
                     .addOnSuccessListener { solicitudes ->
@@ -219,10 +211,7 @@ class BuscarActivity : AppCompatActivity() {
                                 pacientesVinculados.add(receptorId)
                             }
 
-                            if (emisorId == uidActual) {
-                                estadoSolicitudes[receptorId] = estado
-                            }
-
+                            if (emisorId == uidActual) estadoSolicitudes[receptorId] = estado
                             if (receptorId == uidActual && estado == "pendiente") {
                                 estadoSolicitudes[emisorId] = "recibida"
                                 medicosQueMeEnviaronSolicitud.add(emisorId)
@@ -240,7 +229,7 @@ class BuscarActivity : AppCompatActivity() {
 
                             if (esAdmin) {
                                 when {
-                                    pacientesVinculados.contains(uid) -> estadoSolicitudes[uid] = "no_disponible"
+                                    pacientesVinculados.contains(uid) -> estadoSolicitudes[uid] = "aceptado"
                                     estadoActual == "recibida" || estadoActual == "pendiente" -> {}
                                     pacientesConSolicitudPendienteDeOtro.contains(uid) -> estadoSolicitudes[uid] = "no_disponible"
                                 }
@@ -250,6 +239,9 @@ class BuscarActivity : AppCompatActivity() {
                                     else -> {
                                         if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
                                             !medicosQueMeEnviaronSolicitud.contains(uid)) {
+                                            estadoSolicitudes[uid] = "no_disponible"
+                                        }
+                                        if (pacientesVinculados.contains(uidActual)) {
                                             estadoSolicitudes[uid] = "no_disponible"
                                         }
                                     }

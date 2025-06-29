@@ -79,7 +79,6 @@ class UsuariosActivity : AppCompatActivity() {
     }
 
     private fun procesarDatos() {
-        // Si aún no tenemos ambos snapshots, esperar
         val usuariosDocs = usuariosSnapshot?.documents ?: return
         val solicitudesDocs = solicitudesSnapshot?.documents ?: return
 
@@ -92,7 +91,6 @@ class UsuariosActivity : AppCompatActivity() {
 
         val todos = mutableListOf<Usuario>()
 
-        // Construir lista usuarios sin el actual
         for (doc in usuariosDocs) {
             val uid = doc.id
             if (uid == uidActual) continue
@@ -110,6 +108,8 @@ class UsuariosActivity : AppCompatActivity() {
         val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
         val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
 
+        var idMedicoVinculado: String? = null // <- nuevo
+
         for (sol in solicitudesDocs) {
             val emisorId = sol.getString("emisorId") ?: continue
             val receptorId = sol.getString("receptorId") ?: continue
@@ -118,6 +118,11 @@ class UsuariosActivity : AppCompatActivity() {
             if (estado == "aceptado") {
                 pacientesVinculados.add(emisorId)
                 pacientesVinculados.add(receptorId)
+
+                // Si soy usuario y estoy vinculado con un médico
+                if (!esAdmin && (emisorId == uidActual || receptorId == uidActual)) {
+                    idMedicoVinculado = if (emisorId == uidActual) receptorId else emisorId
+                }
             }
 
             if (emisorId == uidActual) {
@@ -133,7 +138,6 @@ class UsuariosActivity : AppCompatActivity() {
                 if (emisorId != uidActual) {
                     pacientesConSolicitudPendienteDeOtro.add(receptorId)
                 }
-
                 if (receptorId != uidActual) {
                     pacientesConSolicitudPendienteDeOtro.add(emisorId)
                 }
@@ -145,32 +149,37 @@ class UsuariosActivity : AppCompatActivity() {
 
             if (esAdmin) {
                 when {
-                    pacientesVinculados.contains(usuario.uid) -> {
-                        continue
-                    }
+                    pacientesVinculados.contains(usuario.uid) -> continue
 
-                    estadoActual == "recibida" -> {
-                        listaRecibidas.add(usuario)
-                    }
+                    estadoActual == "recibida" -> listaRecibidas.add(usuario)
 
-                    estadoActual == "pendiente" -> {
-                        listaEnviadas.add(usuario)
-                    }
+                    estadoActual == "pendiente" -> listaEnviadas.add(usuario)
 
                     pacientesConSolicitudPendienteDeOtro.contains(usuario.uid) -> {
                         estadoSolicitudes[usuario.uid] = "no_disponible"
                         listaDisponibles.add(usuario)
                     }
 
-                    else -> {
+                    else -> listaDisponibles.add(usuario)
+                }
+
+            } else {
+                when {
+                    // Ya estoy vinculado con este médico → no lo muestro
+                    usuario.uid == idMedicoVinculado -> {
+                        // No se muestra
+                    }
+
+                    // Estoy vinculado con otro médico → este debe aparecer como no disponible
+                    idMedicoVinculado != null -> {
+                        estadoSolicitudes[usuario.uid] = "no_disponible"
                         listaDisponibles.add(usuario)
                     }
-                }
-            } else {
-                when (estadoActual) {
-                    "recibida" -> listaRecibidas.add(usuario)
-                    "pendiente" -> listaEnviadas.add(usuario)
-                    "aceptado" -> {}
+
+                    estadoActual == "recibida" -> listaRecibidas.add(usuario)
+
+                    estadoActual == "pendiente" -> listaEnviadas.add(usuario)
+
                     else -> {
                         if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
                             !medicosQueMeEnviaronSolicitud.contains(usuario.uid)) {
