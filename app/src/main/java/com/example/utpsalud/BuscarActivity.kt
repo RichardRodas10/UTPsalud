@@ -1,11 +1,17 @@
 package com.example.utpsalud
 
+import android.graphics.Rect
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.utpsalud.adapter.UsuarioAdapter
 import com.example.utpsalud.databinding.ActivityBuscarBinding
@@ -24,6 +30,9 @@ class BuscarActivity : AppCompatActivity() {
     private val listaUsuarios = mutableListOf<Usuario>()
     private val estadoSolicitudes = mutableMapOf<String, String>()
     private lateinit var adapter: UsuarioAdapter
+    private var ultimaBusqueda = ""
+    private val handler = Handler()
+    private var runnableBusqueda: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,10 +44,29 @@ class BuscarActivity : AppCompatActivity() {
         uidActual = auth.currentUser?.uid ?: ""
 
         binding.iconInfo.setOnClickListener { finish() }
+        binding.progressBarBuscar.visibility = View.GONE
 
         obtenerRolUsuarioActual {
             configurarAdapter()
             configurarBusqueda()
+        }
+
+        // Manejamos el clic en el drawableEnd (ícono X)
+        binding.editBuscar.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                val drawableEnd = binding.editBuscar.compoundDrawables[2]
+                drawableEnd?.let {
+                    val bounds: Rect = it.bounds
+                    val x = event.rawX.toInt()
+                    val editTextRight = binding.editBuscar.right
+                    val drawableWidth = bounds.width()
+                    if (x >= (editTextRight - drawableWidth - binding.editBuscar.paddingEnd)) {
+                        binding.editBuscar.text?.clear()
+                        return@setOnTouchListener true
+                    }
+                }
+            }
+            false
         }
     }
 
@@ -71,59 +99,114 @@ class BuscarActivity : AppCompatActivity() {
     private fun configurarBusqueda() {
         binding.editBuscar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val texto = s.toString().trim()
-                if (texto.length >= 2) {
-                    buscarUsuarios(texto)
-                } else {
-                    listaUsuarios.clear()
-                    adapter.notifyDataSetChanged()
-                    binding.rvResultados.visibility = View.GONE
-                    binding.tvNoResultados.visibility = View.VISIBLE
+
+                // Mostrar u ocultar el ícono X
+                val icon = if (texto.isNotEmpty()) R.drawable.ic_clear else 0
+                binding.editBuscar.setCompoundDrawablesWithIntrinsicBounds(0, 0, icon, 0)
+
+                if (texto.isEmpty()) {
+                    limpiarResultados()
+                    return
                 }
+
+                runnableBusqueda?.let { handler.removeCallbacks(it) }
+
+                runnableBusqueda = Runnable {
+                    if (texto.length >= 2) {
+                        buscarUsuarios(texto)
+                    } else {
+                        limpiarResultados()
+                    }
+                }
+
+                handler.postDelayed(runnableBusqueda!!, 300)
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    // BuscarActivity.kt (igual que antes pero con validación para pacientes ya vinculados)
+    private fun limpiarResultados() {
+        listaUsuarios.clear()
+        estadoSolicitudes.clear()
+        adapter.notifyDataSetChanged()
+        binding.rvResultados.visibility = View.GONE
+        binding.tvNoResultados.visibility = View.GONE
+        binding.progressBarBuscar.visibility = View.GONE
+    }
 
     private fun buscarUsuarios(texto: String) {
-        val coleccion = db.collection("usuarios")
+        val textoNormalizado = texto.trim().lowercase()
+        ultimaBusqueda = textoNormalizado
 
-        coleccion
+        binding.progressBarBuscar.visibility = View.VISIBLE
+        binding.rvResultados.visibility = View.GONE
+        binding.tvNoResultados.visibility = View.GONE
+
+        db.collection("usuarios")
             .whereEqualTo("esAdministrador", !esAdmin)
             .get()
             .addOnSuccessListener { documentos ->
+                if (textoNormalizado != ultimaBusqueda) {
+                    binding.progressBarBuscar.visibility = View.GONE
+                    return@addOnSuccessListener
+                }
+
                 listaUsuarios.clear()
                 estadoSolicitudes.clear()
+                adapter.notifyDataSetChanged()
 
-                val candidatos = mutableListOf<Usuario>()
-                for (doc in documentos) {
+                val candidatos = documentos.mapNotNull { doc ->
                     val uid = doc.id
+                    if (uid == uidActual) return@mapNotNull null
+
                     val nombre = doc.getString("nombre") ?: ""
                     val apellido = doc.getString("apellido") ?: ""
+                    val nombreCompleto = "$nombre $apellido".lowercase()
+                    val palabras = textoNormalizado.split(" ").filter { it.isNotBlank() }
+                    val palabrasNombre = nombreCompleto.split(" ").filter { it.isNotBlank() }
 
-                    if (nombre.contains(texto, ignoreCase = true) || apellido.contains(texto, ignoreCase = true)) {
-                        candidatos.add(
-                            Usuario(
-                                uid = uid,
-                                nombre = nombre,
-                                apellido = apellido,
-                                esAdministrador = doc.getBoolean("esAdministrador") ?: false,
-                                fotoPerfilBase64 = doc.getString("fotoPerfilBase64")
-                            )
-                        )
+                    val coincide = palabras.all { palabraBuscada ->
+                        palabraBuscada.length >= 3 &&
+                                palabrasNombre.any { it.startsWith(palabraBuscada) }
                     }
+
+                    if (coincide) {
+                        Usuario(
+                            uid = uid,
+                            nombre = nombre,
+                            apellido = apellido,
+                            esAdministrador = doc.getBoolean("esAdministrador") ?: false,
+                            fotoPerfilBase64 = doc.getString("fotoPerfilBase64")
+                        )
+                    } else null
+                }
+
+                if (textoNormalizado != ultimaBusqueda) {
+                    binding.progressBarBuscar.visibility = View.GONE
+                    return@addOnSuccessListener
+                }
+
+                if (candidatos.isEmpty()) {
+                    binding.rvResultados.visibility = View.GONE
+                    binding.tvNoResultados.visibility = View.VISIBLE
+                    binding.progressBarBuscar.visibility = View.GONE
+                    return@addOnSuccessListener
                 }
 
                 db.collection("solicitudes")
                     .get()
                     .addOnSuccessListener { solicitudes ->
+                        if (textoNormalizado != ultimaBusqueda) {
+                            binding.progressBarBuscar.visibility = View.GONE
+                            return@addOnSuccessListener
+                        }
 
                         val pacientesVinculados = mutableSetOf<String>()
-                        val solicitudesEnCurso = mutableSetOf<String>()
+                        val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
                         val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
 
                         for (sol in solicitudes) {
@@ -131,59 +214,55 @@ class BuscarActivity : AppCompatActivity() {
                             val receptorId = sol.getString("receptorId") ?: continue
                             val estado = sol.getString("estado") ?: "pendiente"
 
-                            // Pacientes ya vinculados (para médicos)
                             if (estado == "aceptado") {
                                 pacientesVinculados.add(emisorId)
                                 pacientesVinculados.add(receptorId)
                             }
 
-                            // Estado de solicitudes relacionadas al usuario actual
                             if (emisorId == uidActual) {
                                 estadoSolicitudes[receptorId] = estado
-                            } else if (receptorId == uidActual) {
-                                estadoSolicitudes[emisorId] = if (estado == "pendiente") "recibida" else estado
-
-                                // Si soy paciente (no admin) y un médico me envió solicitud
-                                if (!esAdmin && estado == "pendiente") {
-                                    medicosQueMeEnviaronSolicitud.add(emisorId)
-                                }
                             }
 
-                            // Pacientes que ya enviaron solicitud a otro médico (para médicos)
+                            if (receptorId == uidActual && estado == "pendiente") {
+                                estadoSolicitudes[emisorId] = "recibida"
+                                medicosQueMeEnviaronSolicitud.add(emisorId)
+                            }
+
                             if (esAdmin && estado == "pendiente") {
-                                solicitudesEnCurso.add(emisorId)
+                                if (emisorId != uidActual) pacientesConSolicitudPendienteDeOtro.add(receptorId)
+                                if (receptorId != uidActual) pacientesConSolicitudPendienteDeOtro.add(emisorId)
                             }
                         }
 
                         for (usuario in candidatos) {
-                            val estadoActual = estadoSolicitudes[usuario.uid]
+                            val uid = usuario.uid
+                            val estadoActual = estadoSolicitudes[uid]
 
-                            if (esAdmin && estadoActual == null) {
+                            if (esAdmin) {
                                 when {
-                                    pacientesVinculados.contains(usuario.uid) -> {
-                                        estadoSolicitudes[usuario.uid] = "vinculado_admin"
-                                    }
-                                    solicitudesEnCurso.contains(usuario.uid) -> {
-                                        estadoSolicitudes[usuario.uid] = "solicitud_en_curso"
+                                    pacientesVinculados.contains(uid) -> estadoSolicitudes[uid] = "no_disponible"
+                                    estadoActual == "recibida" || estadoActual == "pendiente" -> {}
+                                    pacientesConSolicitudPendienteDeOtro.contains(uid) -> estadoSolicitudes[uid] = "no_disponible"
+                                }
+                            } else {
+                                when (estadoActual) {
+                                    "recibida", "pendiente", "aceptado" -> {}
+                                    else -> {
+                                        if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
+                                            !medicosQueMeEnviaronSolicitud.contains(uid)) {
+                                            estadoSolicitudes[uid] = "no_disponible"
+                                        }
                                     }
                                 }
                             }
 
-                            if (!esAdmin && estadoActual == null) {
-                                val tieneSolicitudRecibida = estadoSolicitudes.values.any { it == "recibida" }
-
-                                if (tieneSolicitudRecibida) {
-                                    estadoSolicitudes[usuario.uid] = "no_disponible"
-                                }
-                            }
-
-                            // Evita duplicados
-                            if (listaUsuarios.none { it.uid == usuario.uid }) {
+                            if (listaUsuarios.none { it.uid == uid }) {
                                 listaUsuarios.add(usuario)
                             }
                         }
 
                         adapter.notifyDataSetChanged()
+                        binding.progressBarBuscar.visibility = View.GONE
 
                         if (listaUsuarios.isEmpty()) {
                             binding.rvResultados.visibility = View.GONE
@@ -196,70 +275,13 @@ class BuscarActivity : AppCompatActivity() {
             }
     }
 
-
-
-    private fun cargarSolicitudesBusqueda() {
-        db.collection("solicitudes")
-            .get()
-            .addOnSuccessListener { docs ->
-                val pacientesYaVinculados = mutableSetOf<String>()
-
-                for (doc in docs) {
-                    val emisorId = doc.getString("emisorId") ?: continue
-                    val receptorId = doc.getString("receptorId") ?: continue
-                    val estado = doc.getString("estado") ?: "pendiente"
-
-                    // Si el paciente ya está vinculado con un médico, lo anotamos
-                    if (estado == "aceptado") {
-                        if (!esAdmin && emisorId == uidActual) {
-                            estadoSolicitudes[receptorId] = estado
-                        } else if (!esAdmin && receptorId == uidActual) {
-                            estadoSolicitudes[emisorId] = estado
-                        } else if (esAdmin) {
-                            pacientesYaVinculados.add(emisorId)
-                            pacientesYaVinculados.add(receptorId)
-                        }
-                    } else {
-                        if (emisorId == uidActual) {
-                            estadoSolicitudes[receptorId] = estado
-                        } else if (receptorId == uidActual) {
-                            estadoSolicitudes[emisorId] =
-                                if (estado == "pendiente") "recibida" else estado
-                        }
-                    }
-                }
-
-                // Si soy médico, marco los pacientes que ya tienen médico como "no_disponible"
-                if (esAdmin) {
-                    for (usuario in listaUsuarios) {
-                        if (pacientesYaVinculados.contains(usuario.uid) &&
-                            !estadoSolicitudes.containsKey(usuario.uid)
-                        ) {
-                            estadoSolicitudes[usuario.uid] = "no_disponible"
-                        }
-                    }
-                }
-
-                if (listaUsuarios.isEmpty()) {
-                    binding.rvResultados.visibility = View.GONE
-                    binding.tvNoResultados.visibility = View.VISIBLE
-                } else {
-                    binding.rvResultados.visibility = View.VISIBLE
-                    binding.tvNoResultados.visibility = View.GONE
-                    adapter.notifyDataSetChanged()
-                }
-            }
-    }
-
-
     private fun enviarSolicitud(receptorId: String) {
         val solicitud = hashMapOf(
             "emisorId" to uidActual,
             "receptorId" to receptorId,
             "estado" to "pendiente"
         )
-        db.collection("solicitudes")
-            .add(solicitud)
+        db.collection("solicitudes").add(solicitud)
             .addOnSuccessListener {
                 estadoSolicitudes[receptorId] = "pendiente"
                 adapter.actualizarEstado(receptorId, "pendiente")

@@ -116,80 +116,82 @@ class UsuariosActivity : AppCompatActivity() {
                 }
 
                 db.collection("solicitudes")
-                    .whereIn("emisorId", listOf(uidActual) + todos.map { it.uid })
                     .get()
                     .addOnSuccessListener { solicitudesDocs ->
 
-                        // Para recolectar solicitudes para lógica extra
-                        val solicitudes = solicitudesDocs.documents
-
-                        // Estado solicitudes y sets auxiliares
                         val pacientesVinculados = mutableSetOf<String>()
-                        val pacientesConSolicitudPendiente = mutableSetOf<String>()
-
-                        // NUEVO: ids de médicos que enviaron solicitud al usuario actual (solo si no soy admin)
+                        val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
                         val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
 
-                        for (sol in solicitudes) {
+                        for (sol in solicitudesDocs) {
                             val emisorId = sol.getString("emisorId") ?: continue
                             val receptorId = sol.getString("receptorId") ?: continue
                             val estado = sol.getString("estado") ?: "pendiente"
 
-                            if (emisorId == uidActual) {
-                                estadoSolicitudes[receptorId] = estado
-                            } else if (receptorId == uidActual) {
-                                estadoSolicitudes[emisorId] =
-                                    if (estado == "pendiente") "recibida" else estado
-                            }
-
                             if (estado == "aceptado") {
                                 pacientesVinculados.add(emisorId)
                                 pacientesVinculados.add(receptorId)
-                            } else if (estado == "pendiente" && esAdmin) {
-                                // paciente envió solicitud
-                                pacientesConSolicitudPendiente.add(emisorId)
-
-                                // paciente recibió solicitud de otro médico (que no soy yo)
-                                if (receptorId != uidActual) {
-                                    pacientesConSolicitudPendiente.add(receptorId)
-                                }
                             }
 
-                            // NUEVO: Si soy usuario normal y este médico me envió solicitud pendiente
-                            if (!esAdmin && estado == "pendiente" && receptorId == uidActual) {
+                            if (emisorId == uidActual) {
+                                estadoSolicitudes[receptorId] = estado
+                            }
+
+                            if (receptorId == uidActual && estado == "pendiente") {
+                                estadoSolicitudes[emisorId] = "recibida"
                                 medicosQueMeEnviaronSolicitud.add(emisorId)
+                            }
+
+                            if (esAdmin && estado == "pendiente") {
+                                if (emisorId != uidActual) {
+                                    pacientesConSolicitudPendienteDeOtro.add(receptorId)
+                                }
+
+                                if (receptorId != uidActual) {
+                                    pacientesConSolicitudPendienteDeOtro.add(emisorId)
+                                }
                             }
                         }
 
-                        // Clasificación final de usuarios
-                        for (u in todos) {
-                            val estadoActual = estadoSolicitudes[u.uid]
+                        for (usuario in todos) {
+                            val estadoActual = estadoSolicitudes[usuario.uid]
 
-                            if (esAdmin && estadoActual == null) {
+                            if (esAdmin) {
                                 when {
-                                    pacientesVinculados.contains(u.uid) -> {
-                                        estadoSolicitudes[u.uid] = "vinculado_admin"
+                                    pacientesVinculados.contains(usuario.uid) -> {
+                                        continue
                                     }
-                                    pacientesConSolicitudPendiente.contains(u.uid) -> {
-                                        estadoSolicitudes[u.uid] = "solicitud_en_curso"
+
+                                    estadoActual == "recibida" -> {
+                                        listaRecibidas.add(usuario) // ✅ Mostrar en recycler de recibidas
+                                    }
+
+                                    estadoActual == "pendiente" -> {
+                                        listaEnviadas.add(usuario)
+                                    }
+
+                                    pacientesConSolicitudPendienteDeOtro.contains(usuario.uid) -> {
+                                        estadoSolicitudes[usuario.uid] = "no_disponible"
+                                        listaDisponibles.add(usuario)
+                                    }
+
+                                    else -> {
+                                        listaDisponibles.add(usuario)
                                     }
                                 }
-                            }
-
-                            if (!esAdmin && medicosQueMeEnviaronSolicitud.isNotEmpty()) {
-                                // Si tengo solicitud recibida de algún médico
-                                // Y el médico actual no es uno que me envió solicitud
-                                if (!medicosQueMeEnviaronSolicitud.contains(u.uid)) {
-                                    estadoSolicitudes[u.uid] = "no_disponible"
+                            } else {
+                                when (estadoActual) {
+                                    "recibida" -> listaRecibidas.add(usuario)
+                                    "pendiente" -> listaEnviadas.add(usuario)
+                                    "aceptado" -> {}
+                                    else -> {
+                                        if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
+                                            !medicosQueMeEnviaronSolicitud.contains(usuario.uid)) {
+                                            estadoSolicitudes[usuario.uid] = "no_disponible"
+                                        }
+                                        listaDisponibles.add(usuario)
+                                    }
                                 }
-                            }
-
-                            when (estadoSolicitudes[u.uid]) {
-                                null -> listaDisponibles.add(u)
-                                "pendiente" -> listaEnviadas.add(u)
-                                "recibida" -> listaRecibidas.add(u)
-                                "aceptado" -> {} // omitido
-                                "vinculado_admin", "solicitud_en_curso", "no_disponible" -> listaDisponibles.add(u) // mostramos pero restringidos
                             }
                         }
 
@@ -202,6 +204,7 @@ class UsuariosActivity : AppCompatActivity() {
                 toast("Error al cargar usuarios")
             }
     }
+
 
     private fun enviarSolicitud(receptorId: String) {
         val data = hashMapOf(

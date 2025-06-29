@@ -40,9 +40,11 @@
             android:inputType="text"
             android:maxLines="1"
             android:padding="12dp"
+            android:imeOptions="actionSearch"
             android:textColor="@color/letra_fragment"
             android:textColorHint="@color/gray_suave"
-            android:textSize="16dp" />
+            android:textSize="16sp"
+            android:drawableEnd="@drawable/ic_clear" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -68,5 +70,19 @@
         app:layout_constraintTop_toBottomOf="@id/containerEditBuscar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBarBuscar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/button"
+        app:layout_constraintTop_toBottomOf="@id/containerEditBuscar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
