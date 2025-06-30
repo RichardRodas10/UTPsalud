@@ -123,7 +123,7 @@ class BuscarActivity : AppCompatActivity() {
 
                 runnableBusqueda?.let { handler.removeCallbacks(it) }
                 runnableBusqueda = Runnable {
-                    if (texto.length >= 2) buscarUsuarios(texto) else limpiarResultados()
+                    if (texto.length >= 1) buscarUsuarios(texto) else limpiarResultados()
                 }
                 handler.postDelayed(runnableBusqueda!!, 300)
             }
@@ -181,7 +181,7 @@ class BuscarActivity : AppCompatActivity() {
                     val palabrasNombre = nombreCompleto.split(" ").filter { it.isNotBlank() }
 
                     val coincide = palabras.all { palabraBuscada ->
-                        palabraBuscada.length >= 3 &&
+                        palabraBuscada.length >= 1 &&
                                 palabrasNombre.any { it.startsWith(palabraBuscada) }
                     }
 

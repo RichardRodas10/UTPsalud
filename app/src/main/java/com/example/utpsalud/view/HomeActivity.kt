@@ -1,22 +1,24 @@
-package com.example.utpsalud
+package com.example.utpsalud.view
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.utpsalud.BuscarActivity
+import com.example.utpsalud.R
+import com.example.utpsalud.UsuariosActivity
 import com.example.utpsalud.databinding.ActivityHomeBinding
 import com.example.utpsalud.ui.chat.ChatFragment
 import com.example.utpsalud.ui.historial.HistorialFragment
 import com.example.utpsalud.ui.home.HomeFragment
 import com.example.utpsalud.ui.home.ListapacientesFragment
 import com.example.utpsalud.ui.perfil.PerfilFragment
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.utpsalud.viewmodel.HomeViewModel
 import com.google.firebase.firestore.ListenerRegistration
-
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
@@ -25,16 +27,28 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var badgeIconImage: ImageView
     private var solicitudListener: ListenerRegistration? = null
 
+    private val viewModel: HomeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
+        // Observamos el rol desde ViewModel
+        viewModel.esAdmin.observe(this) { admin ->
+            esAdmin = admin
+            inicializarUI()
+        }
+
+        viewModel.obtenerRolUsuarioActual()
+    }
+
+    private fun inicializarUI() {
+        val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
         val currentUser = auth.currentUser
 
-        // Cargar badge personalizado al ítem de menú
+        // Configuración Badge en menú
         val menu = binding.topAppBar.menu
         val navUsuariosItem = menu.findItem(R.id.navUsuarios)
         val actionView = layoutInflater.inflate(R.layout.badge_action_view, null)
@@ -42,35 +56,22 @@ class HomeActivity : AppCompatActivity() {
         badgeCountText = actionView.findViewById(R.id.badgeCount)
         badgeIconImage = actionView.findViewById(R.id.iconImage)
 
-        // Hacer clic sobre el icono personalizado
         actionView.setOnClickListener {
             binding.topAppBar.menu.performIdentifierAction(R.id.navUsuarios, 0)
         }
 
         if (currentUser != null) {
             val uid = currentUser.uid
-            db.collection("usuarios").document(uid).get()
-                .addOnSuccessListener { doc ->
-                    if (doc.exists()) {
-                        esAdmin = doc.getBoolean("esAdministrador") ?: false
-                        if (esAdmin) {
-                            replaceFragment(ListapacientesFragment())
-                        } else {
-                            replaceFragment(HomeFragment())
-                        }
-                        escucharSolicitudesEnTiempoReal(uid)
-                    } else {
-                        replaceFragment(HomeFragment())
-                    }
-                }
-                .addOnFailureListener {
-                    replaceFragment(HomeFragment())
-                }
+            if (esAdmin) {
+                replaceFragment(ListapacientesFragment())
+            } else {
+                replaceFragment(HomeFragment())
+            }
+            escucharSolicitudesEnTiempoReal(uid)
         } else {
             replaceFragment(HomeFragment())
         }
 
-        // Toolbar (menú)
         binding.topAppBar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.navBuscar -> {
@@ -85,7 +86,6 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        // Bottom navigation
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navHome -> {
@@ -129,7 +129,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun escucharSolicitudesEnTiempoReal(userId: String) {
-        val db = FirebaseFirestore.getInstance()
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
         solicitudListener = db.collection("solicitudes")
             .whereEqualTo("receptorId", userId)

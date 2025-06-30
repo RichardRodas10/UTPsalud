@@ -18,10 +18,10 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.utpsalud.EditardatosActivity
-import com.example.utpsalud.HomeActivity
-import com.example.utpsalud.LoginActivity
 import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentPerfilBinding
+import com.example.utpsalud.view.LoginActivity
+import com.example.utpsalud.view.SplashActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
@@ -203,7 +203,7 @@ class PerfilFragment : Fragment() {
 
         dialogView.findViewById<Button>(R.id.btnConfirmLogout).setOnClickListener {
             auth.signOut()
-            startActivity(Intent(requireContext(), LoginActivity::class.java).apply {
+            startActivity(Intent(requireContext(), SplashActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             })
             dialog.dismiss()

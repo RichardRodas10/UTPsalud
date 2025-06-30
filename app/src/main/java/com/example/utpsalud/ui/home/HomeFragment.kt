@@ -10,9 +10,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.utpsalud.BluetoothActivity
-import com.example.utpsalud.LoginActivity
 import com.example.utpsalud.R
-import com.example.utpsalud.RegisterActivity
 import com.example.utpsalud.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {

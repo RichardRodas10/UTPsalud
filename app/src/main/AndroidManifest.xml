@@ -18,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kali"
         tools:targetApi="31">
-        <activity android:name=".SplashActivity"
+        <activity android:name=".view.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.UTPSalud.Splash">
             <intent-filter>
@@ -26,15 +26,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"
+        <activity android:name=".view.LoginActivity"
             android:exported="true">
         </activity>
 
-        <activity android:name=".RegisterActivity"
+        <activity android:name=".view.RegisterActivity"
             android:exported="true">
         </activity>
 
-        <activity android:name=".HomeActivity"
+        <activity android:name=".view.LoadingActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".view.HomeActivity"
             android:windowSoftInputMode="adjustPan"
             android:exported="true">
         </activity>
