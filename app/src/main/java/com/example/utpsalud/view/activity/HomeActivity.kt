@@ -1,4 +1,4 @@
-package com.example.utpsalud.view
+package com.example.utpsalud.view.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -16,7 +16,7 @@ import com.example.utpsalud.view.fragment.ChatFragment
 import com.example.utpsalud.view.fragment.HistorialFragment
 import com.example.utpsalud.view.fragment.HomeFragment
 import com.example.utpsalud.view.fragment.ListapacientesFragment
-import com.example.utpsalud.ui.perfil.PerfilFragment
+import com.example.utpsalud.view.fragment.PerfilFragment
 import com.example.utpsalud.viewmodel.HomeViewModel
 import com.google.firebase.firestore.ListenerRegistration
 class HomeActivity : AppCompatActivity() {

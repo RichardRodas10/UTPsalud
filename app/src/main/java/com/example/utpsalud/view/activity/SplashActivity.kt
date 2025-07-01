@@ -1,4 +1,4 @@
-package com.example.utpsalud.view
+package com.example.utpsalud.view.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.utpsalud.viewmodel.SplashViewModel
-import com.example.utpsalud.view.HomeActivity
 
 
 class SplashActivity : AppCompatActivity() {

@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.utpsalud.BluetoothActivity
 import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentHomeBinding
 import com.example.utpsalud.ui.home.HomeFragmentViewModel
+import com.example.utpsalud.view.activity.BluetoothActivity
 
 class HomeFragment : Fragment() {
 

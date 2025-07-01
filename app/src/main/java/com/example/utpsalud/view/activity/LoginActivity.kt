@@ -1,4 +1,4 @@
-package com.example.utpsalud.view
+package com.example.utpsalud.view.activity
 
 import android.content.Context
 import android.content.Intent

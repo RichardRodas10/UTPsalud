@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.utpsalud.adapter.UsuarioAdapter
 import com.example.utpsalud.databinding.ActivityBuscarBinding
 import com.example.utpsalud.model.Usuario
+import com.example.utpsalud.view.activity.PerfilActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration

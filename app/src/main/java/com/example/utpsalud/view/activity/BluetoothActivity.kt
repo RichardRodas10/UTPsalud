@@ -1,4 +1,4 @@
-package com.example.utpsalud
+package com.example.utpsalud.view.activity
 
 import android.content.Intent
 import android.os.Bundle
