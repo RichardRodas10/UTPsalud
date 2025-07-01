@@ -1,4 +1,4 @@
-package com.example.utpsalud.adapter
+package com.example.utpsalud.view.adapter
 
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -12,7 +12,7 @@ import com.example.utpsalud.model.Usuario
 import de.hdodenhof.circleimageview.CircleImageView
 
 class PacienteAdapter(
-    private val pacientes: List<Usuario>
+    private var pacientes: List<Usuario>
 ) : RecyclerView.Adapter<PacienteAdapter.PacienteViewHolder>() {
 
     inner class PacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -42,4 +42,9 @@ class PacienteAdapter(
     }
 
     override fun getItemCount(): Int = pacientes.size
+
+    fun actualizarLista(nuevaLista: List<Usuario>) {
+        pacientes = nuevaLista
+        notifyDataSetChanged()
+    }
 }

@@ -1,4 +1,4 @@
-package com.example.utpsalud.ui.historial
+package com.example.utpsalud.view.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater

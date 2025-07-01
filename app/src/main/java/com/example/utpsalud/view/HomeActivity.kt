@@ -12,10 +12,10 @@ import com.example.utpsalud.BuscarActivity
 import com.example.utpsalud.R
 import com.example.utpsalud.UsuariosActivity
 import com.example.utpsalud.databinding.ActivityHomeBinding
-import com.example.utpsalud.ui.chat.ChatFragment
-import com.example.utpsalud.ui.historial.HistorialFragment
-import com.example.utpsalud.ui.home.HomeFragment
-import com.example.utpsalud.ui.home.ListapacientesFragment
+import com.example.utpsalud.view.fragment.ChatFragment
+import com.example.utpsalud.view.fragment.HistorialFragment
+import com.example.utpsalud.view.fragment.HomeFragment
+import com.example.utpsalud.view.fragment.ListapacientesFragment
 import com.example.utpsalud.ui.perfil.PerfilFragment
 import com.example.utpsalud.viewmodel.HomeViewModel
 import com.google.firebase.firestore.ListenerRegistration

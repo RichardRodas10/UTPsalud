@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA"/>
-
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -29,12 +27,7 @@
         <activity android:name=".view.LoginActivity"
             android:exported="true">
         </activity>
-
         <activity android:name=".view.RegisterActivity"
-            android:exported="true">
-        </activity>
-
-        <activity android:name=".view.LoadingActivity"
             android:exported="true">
         </activity>
         <activity android:name=".view.HomeActivity"
@@ -60,5 +53,4 @@
             android:exported="true">
         </activity>
     </application>
-
 </manifest>
