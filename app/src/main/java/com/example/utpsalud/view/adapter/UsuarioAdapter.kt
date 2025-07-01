@@ -1,4 +1,4 @@
-package com.example.utpsalud.adapter
+package com.example.utpsalud.view.adapter
 
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -16,14 +16,14 @@ import com.google.android.material.snackbar.Snackbar
 import de.hdodenhof.circleimageview.CircleImageView
 
 class UsuarioAdapter(
-    private val usuarios: List<Usuario>,
-    private val estadoSolicitudes: MutableMap<String, String>,
-    private val uidActual: String,
-    private val esAdmin: Boolean,
+    var usuarios: List<Usuario>,
+    var estadoSolicitudes: MutableMap<String, String>,
+    var uidActual: String,
+    var esAdmin: Boolean,
     private val onAgregar: (Usuario) -> Unit,
     private val onCancelar: (Usuario) -> Unit,
     private val onConfirmar: (Usuario) -> Unit,
-    private val onClickItem: ((Usuario) -> Unit)? = null // callback click en item
+    private val onClickItem: ((Usuario) -> Unit)? = null
 ) : RecyclerView.Adapter<UsuarioAdapter.UsuarioViewHolder>() {
 
     inner class UsuarioViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -135,4 +135,34 @@ class UsuarioAdapter(
             notifyItemChanged(index)
         }
     }
+
+    // Para facilitar copias parciales (útil si quieres crear nuevos adapters con cambios mínimos)
+    fun copy(
+        usuarios: List<Usuario> = this.usuarios,
+        estadoSolicitudes: MutableMap<String, String> = this.estadoSolicitudes,
+        uidActual: String = this.uidActual,
+        esAdmin: Boolean = this.esAdmin
+    ): UsuarioAdapter {
+        return UsuarioAdapter(
+            usuarios,
+            estadoSolicitudes,
+            uidActual,
+            esAdmin,
+            onAgregar,
+            onCancelar,
+            onConfirmar,
+            onClickItem
+        )
+    }
+
+    fun actualizarUsuarios(nuevosUsuarios: List<Usuario>) {
+        usuarios = nuevosUsuarios
+        notifyDataSetChanged()
+    }
+
+    fun actualizarEstadoSolicitudes(nuevosEstados: MutableMap<String, String>) {
+        estadoSolicitudes = nuevosEstados
+        notifyDataSetChanged()
+    }
+
 }

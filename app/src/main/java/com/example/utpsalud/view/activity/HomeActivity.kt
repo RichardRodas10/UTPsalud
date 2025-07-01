@@ -8,9 +8,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.utpsalud.BuscarActivity
 import com.example.utpsalud.R
-import com.example.utpsalud.UsuariosActivity
 import com.example.utpsalud.databinding.ActivityHomeBinding
 import com.example.utpsalud.view.fragment.ChatFragment
 import com.example.utpsalud.view.fragment.HistorialFragment
