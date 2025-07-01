@@ -35,7 +35,7 @@ class UsuarioAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UsuarioViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_contenedor_perfil, parent, false)
+            .inflate(R.layout.recycle_perfil, parent, false)
         return UsuarioViewHolder(view)
     }
 

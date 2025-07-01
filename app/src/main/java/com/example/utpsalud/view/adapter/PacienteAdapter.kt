@@ -22,7 +22,7 @@ class PacienteAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PacienteViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_contenedor_pacientes, parent, false)
+            .inflate(R.layout.recycle_pacientes, parent, false)
         return PacienteViewHolder(view)
     }
 
