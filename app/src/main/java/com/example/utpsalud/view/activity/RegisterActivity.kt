@@ -125,7 +125,8 @@ class RegisterActivity : AppCompatActivity() {
         viewModel.registroEstado.observe(this) { estado ->
             when (estado) {
                 is RegisterViewModel.RegistroEstado.Success -> {
-                    // Si registro fue exitoso, regreso a login y aviso con extra que se registró bien
+                    // Registro exitoso: habilito botón y regreso a login con extra
+                    binding.btnRegister.isEnabled = true
                     val intent = Intent(this, LoginActivity::class.java).apply {
                         putExtra("registro_exitoso", true)
                     }
@@ -133,11 +134,13 @@ class RegisterActivity : AppCompatActivity() {
                     finish()
                 }
                 is RegisterViewModel.RegistroEstado.Error -> {
-                    // Si hubo error, muestro snackbar con mensaje
+                    // Error: habilito botón y muestro snackbar con mensaje
+                    binding.btnRegister.isEnabled = true
                     Snackbar.make(binding.root, estado.mensaje, Snackbar.LENGTH_LONG).show()
                 }
-                else -> {
-                    // Otros estados los ignoro (como cargando)
+                RegisterViewModel.RegistroEstado.Loading -> {
+                    // Mientras carga: deshabilito botón para evitar múltiples clicks
+                    binding.btnRegister.isEnabled = false
                 }
             }
         }

@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.utpsalud.R
 import com.example.utpsalud.databinding.ActivityUsuariosBinding
 import com.example.utpsalud.model.Usuario
 import com.example.utpsalud.view.adapter.UsuarioAdapter
@@ -132,8 +133,21 @@ class UsuariosActivity : AppCompatActivity() {
     }
 
     private fun actualizarVisibilidad(view: View, lista: List<Usuario>) {
-        view.visibility = if (lista.isNotEmpty()) View.VISIBLE else View.GONE
+        val mostrar = lista.isNotEmpty()
+        view.visibility = if (mostrar) View.VISIBLE else View.GONE
+
+        when (view.id) {
+            R.id.rvSolicitudesRecibidas -> {
+                binding.tvSolicitudesRecibidas.visibility = if (mostrar) View.VISIBLE else View.GONE
+                binding.separadorRecibidas.visibility = if (mostrar) View.VISIBLE else View.GONE
+            }
+            R.id.rvSolicitudesEnviadas -> {
+                binding.tvSolicitudesEnviadas.visibility = if (mostrar) View.VISIBLE else View.GONE
+                binding.separadorEnviadas.visibility = if (mostrar) View.VISIBLE else View.GONE
+            }
+        }
     }
+
 
     private fun mostrarCargando(cargando: Boolean) {
         binding.progressBarUsuarios.visibility = if (cargando) View.VISIBLE else View.GONE

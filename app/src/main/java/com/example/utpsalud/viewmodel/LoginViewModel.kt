@@ -21,8 +21,11 @@ class LoginViewModel : ViewModel() {
         // Primero verifico que no estén vacíos los campos
         if (email.isBlank() || password.isBlank()) {
             _loginEstado.value = LoginEstado.Error("Completa los campos")
-            return // Salgo para no hacer la llamada si está vacío
+            return
         }
+
+        // Emito estado de carga para que la UI desactive el botón mientras intenta loguear
+        _loginEstado.value = LoginEstado.Loading
 
         // Intento autenticar con Firebase Auth
         auth.signInWithEmailAndPassword(email, password)
@@ -59,5 +62,6 @@ class LoginViewModel : ViewModel() {
     sealed class LoginEstado {
         data class Success(val esAdmin: Boolean) : LoginEstado()  // Login OK con info admin
         data class Error(val mensaje: String) : LoginEstado()     // Login fallido con mensaje
+        object Loading : LoginEstado()                             // Estado mientras se está procesando login
     }
 }

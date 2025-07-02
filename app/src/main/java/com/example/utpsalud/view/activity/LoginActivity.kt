@@ -38,6 +38,9 @@ class LoginActivity : AppCompatActivity() {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString()
 
+            // Desactivo el botón mientras se procesa el login (para evitar múltiples clics)
+            binding.btnLogin.isEnabled = false
+
             // Le pido al ViewModel que haga login con esos datos
             viewModel.login(email, password)
         }
@@ -60,17 +63,24 @@ class LoginActivity : AppCompatActivity() {
         viewModel.loginEstado.observe(this) { estado ->
             when (estado) {
                 is LoginViewModel.LoginEstado.Success -> {
+                    // Reactivo el botón por si vuelve a esta pantalla en otra ocasión
+                    binding.btnLogin.isEnabled = true
+
                     // Si el login fue exitoso, abro Home y cierro esta actividad
                     val intent = Intent(this, HomeActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
                 is LoginViewModel.LoginEstado.Error -> {
+                    // Reactivo el botón para permitir intentar nuevamente
+                    binding.btnLogin.isEnabled = true
+
                     // Si hubo error, muestro un mensaje al usuario con snackbar
                     Snackbar.make(binding.root, estado.mensaje, Snackbar.LENGTH_LONG).show()
                 }
-                else -> {
-                    // Otros estados (como cargando) no hago nada aquí
+                is LoginViewModel.LoginEstado.Loading -> {
+                    // Desactivo el botón mientras se está procesando el login
+                    binding.btnLogin.isEnabled = false
                 }
             }
         }
