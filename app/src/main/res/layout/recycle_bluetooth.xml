@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/subContainerDispositivo"
+        android:id="@+id/containerDispositivo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
-            android:id="@+id/imageHeart"
+            android:id="@+id/imageBluetooth"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="16dp"
@@ -35,15 +35,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@id/imageHeart"
+            app:layout_constraintBottom_toBottomOf="@id/imageBluetooth"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageHeart"
-            app:layout_constraintTop_toTopOf="@id/imageHeart"
+            app:layout_constraintStart_toEndOf="@id/imageBluetooth"
+            app:layout_constraintTop_toTopOf="@id/imageBluetooth"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp">
 
             <TextView
-                android:id="@+id/textFrecuencia"
+                android:id="@+id/textDispositivo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Dispositivo 1"
@@ -52,7 +52,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/textMedFrecuencia"
+                android:id="@+id/textDireccionMac"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="MAC: AA:BB:CC:DD:EE:FF"
