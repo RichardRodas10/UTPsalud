@@ -75,14 +75,13 @@ class PerfilFragment : Fragment() {
             binding.textCelular.text = user.celular
             binding.textCelularEmergencia.text = user.celularEmergencia
 
-            if (user.fotoBase64 != null) {
+            if (!user.fotoBase64.isNullOrEmpty()) {
                 val decodedBytes = Base64.decode(user.fotoBase64, Base64.DEFAULT)
                 val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
                 binding.profileImage.setImageBitmap(bitmap)
             } else {
                 binding.profileImage.setImageResource(R.drawable.ic_account)
             }
-
             if (user.esAdmin) {
                 binding.textContactoEmergencia.visibility = View.GONE
                 binding.contenedorContactoEm.visibility = View.GONE
