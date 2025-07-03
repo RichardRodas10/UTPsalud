@@ -56,6 +56,12 @@ class LoginActivity : AppCompatActivity() {
         if (fueRegistroExitoso) {
             Snackbar.make(findViewById(android.R.id.content), "Registro exitoso", Snackbar.LENGTH_LONG).show()
         }
+
+        // Si vengo de eliminación de cuenta, muestro snackbar informativo
+        val cuentaEliminada = intent.getBooleanExtra("cuenta_eliminada", false)
+        if (cuentaEliminada) {
+            Snackbar.make(findViewById(android.R.id.content), "Cuenta eliminada correctamente", Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private fun observarViewModel() {

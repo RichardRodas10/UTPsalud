@@ -19,9 +19,11 @@ import com.example.utpsalud.databinding.FragmentPerfilBinding
 import com.example.utpsalud.view.activity.SplashActivity
 import com.example.utpsalud.viewmodel.PerfilFragmentViewModel
 import java.io.ByteArrayOutputStream
-import android.widget.Toast
 import android.util.Base64
 import com.example.utpsalud.view.activity.EditardatosActivity
+import com.example.utpsalud.view.activity.LoadingActivity
+import com.example.utpsalud.view.activity.LoginActivity
+import com.google.android.material.snackbar.Snackbar
 
 class PerfilFragment : Fragment() {
 
@@ -59,6 +61,10 @@ class PerfilFragment : Fragment() {
             intent.type = "image/*"
             startActivityForResult(intent, IMAGE_PICK_CODE)
         }
+
+        binding.btnDelete.setOnClickListener {
+            mostrarDialogEliminar()
+        }
     }
 
     override fun onResume() {
@@ -82,6 +88,7 @@ class PerfilFragment : Fragment() {
             } else {
                 binding.profileImage.setImageResource(R.drawable.ic_account)
             }
+
             if (user.esAdmin) {
                 binding.textContactoEmergencia.visibility = View.GONE
                 binding.contenedorContactoEm.visibility = View.GONE
@@ -93,9 +100,28 @@ class PerfilFragment : Fragment() {
 
         viewModel.fotoActualizada.observe(viewLifecycleOwner) { fueExitosa ->
             if (fueExitosa) {
-                Toast.makeText(requireContext(), "Foto actualizada", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Foto actualizada", Snackbar.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireContext(), "Error al actualizar la foto", Toast.LENGTH_SHORT).show()
+                Snackbar.make(binding.root, "Error al actualizar la foto", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        viewModel.eliminacionEstado.observe(viewLifecycleOwner) { estado ->
+            when (estado) {
+                is PerfilFragmentViewModel.EliminacionEstado.Cargando -> {
+                    startActivity(Intent(requireContext(), LoadingActivity::class.java))
+                }
+                is PerfilFragmentViewModel.EliminacionEstado.Exito -> {
+                    val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+                        putExtra("cuenta_eliminada", true)
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    startActivity(intent)
+                    requireActivity().finish()
+                }
+                is PerfilFragmentViewModel.EliminacionEstado.Error -> {
+                    Snackbar.make(binding.root, estado.mensaje, Snackbar.LENGTH_LONG).show()
+                }
             }
         }
     }
@@ -169,6 +195,26 @@ class PerfilFragment : Fragment() {
         }
 
         dialogView.findViewById<Button>(R.id.btnCancelLogout).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.show()
+    }
+
+    private fun mostrarDialogEliminar() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_eliminar, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        dialogView.findViewById<Button>(R.id.btnConfirmDelete).setOnClickListener {
+            viewModel.eliminarCuenta()
+            dialog.dismiss()
+        }
+
+        dialogView.findViewById<Button>(R.id.btnCancelDelete).setOnClickListener {
             dialog.dismiss()
         }
 

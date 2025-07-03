@@ -94,6 +94,42 @@ class PerfilFragmentViewModel : ViewModel() {
         val esAdmin: Boolean
     )
 
+    private val _cuentaEliminada = MutableLiveData<Boolean>()
+    val cuentaEliminada: LiveData<Boolean> get() = _cuentaEliminada
+
+    fun eliminarCuenta() {
+        val user = auth.currentUser ?: return
+
+        _eliminacionEstado.value = EliminacionEstado.Cargando
+
+        val userId = user.uid
+
+        // Eliminar Firestore primero
+        db.collection("usuarios").document(userId).delete()
+            .addOnSuccessListener {
+                // Luego FirebaseAuth
+                user.delete()
+                    .addOnSuccessListener {
+                        _eliminacionEstado.value = EliminacionEstado.Exito
+                    }
+                    .addOnFailureListener {
+                        _eliminacionEstado.value = EliminacionEstado.Error("No se pudo eliminar la cuenta de autenticación")
+                    }
+            }
+            .addOnFailureListener {
+                _eliminacionEstado.value = EliminacionEstado.Error("No se pudo eliminar los datos del usuario")
+            }
+    }
+
+    sealed class EliminacionEstado {
+        object Cargando : EliminacionEstado()
+        object Exito : EliminacionEstado()
+        data class Error(val mensaje: String) : EliminacionEstado()
+    }
+
+    private val _eliminacionEstado = MutableLiveData<EliminacionEstado>()
+    val eliminacionEstado: LiveData<EliminacionEstado> get() = _eliminacionEstado
+
     fun signOut() {
         FirebaseAuth.getInstance().signOut()
     }
