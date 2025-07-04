@@ -1,0 +1,11 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textFecha"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Hoy"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:textColor="@color/letra_fragment"
+    android:gravity="center"
+    android:paddingVertical="8dp"
+    android:background="@android:color/transparent" />

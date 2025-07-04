@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingTop="1dp">
+
+    <!-- Contenedor del mensaje recibido -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/contenedor_chat_recibido"
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:layout_marginEnd="6dp"
+        android:maxWidth="250dp">
+
+        <TextView
+            android:id="@+id/textMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hola, ¿cómo estás? Este mensaje puede ser más largo para probar el comportamiento."
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:maxWidth="250dp" />
+    </LinearLayout>
+
+    <!-- Hora afuera, a la derecha -->
+    <TextView
+        android:id="@+id/textHora"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="14:22"
+        android:textSize="12sp"
+        android:textColor="@color/gray_suave"
+        android:layout_marginTop="11dp"
+        android:gravity="center_vertical" />
+
+</LinearLayout>

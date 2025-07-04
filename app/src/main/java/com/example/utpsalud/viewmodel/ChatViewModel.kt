@@ -3,6 +3,7 @@ package com.example.utpsalud.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.utpsalud.model.ChatMessage
 import com.example.utpsalud.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
@@ -113,6 +114,54 @@ class ChatViewModel : ViewModel() {
     fun obtenerRolUsuario(callback: (Boolean) -> Unit) {
         callback(esAdminActual)
     }
+
+    private val _mensajes = MutableLiveData<List<ChatMessage>>()
+    val mensajes: LiveData<List<ChatMessage>> get() = _mensajes
+
+    private var mensajesListener: ListenerRegistration? = null
+
+    fun escucharMensajes(receptorId: String) {
+        val chatId = generarChatId(uidActual, receptorId)
+        mensajesListener?.remove() // Limpiar escucha previa si la hay
+
+        mensajesListener = db.collection("chats")
+            .document(chatId)
+            .collection("mensajes")
+            .orderBy("timestamp")
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) {
+                    _mensajes.value = emptyList()
+                    return@addSnapshotListener
+                }
+
+                val listaMensajes = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(ChatMessage::class.java)
+                }
+                _mensajes.value = listaMensajes
+            }
+    }
+
+    fun enviarMensaje(receptorId: String, mensaje: String) {
+        if (mensaje.isBlank()) return
+
+        val chatId = generarChatId(uidActual, receptorId)
+        val mensajeObj = ChatMessage(
+            emisorId = uidActual,
+            receptorId = receptorId,
+            mensaje = mensaje,
+            timestamp = System.currentTimeMillis()
+        )
+
+        db.collection("chats")
+            .document(chatId)
+            .collection("mensajes")
+            .add(mensajeObj)
+    }
+
+    private fun generarChatId(uid1: String, uid2: String): String {
+        return if (uid1 < uid2) "${uid1}_$uid2" else "${uid2}_$uid1"
+    }
+
 
     override fun onCleared() {
         super.onCleared()
