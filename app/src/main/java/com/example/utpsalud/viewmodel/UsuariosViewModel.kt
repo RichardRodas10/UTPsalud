@@ -107,26 +107,35 @@ class UsuariosViewModel : ViewModel() {
                             val receptorId = sol.getString("receptorId") ?: continue
                             val estado = sol.getString("estado") ?: "pendiente"
 
+                            // Marcar ambos como vinculados si ya fue aceptado
                             if (estado == "aceptado") {
                                 pacientesVinculados.add(emisorId)
                                 pacientesVinculados.add(receptorId)
-                            }
 
-                            if (emisorId == uidActual) {
-                                estadoMap[receptorId] = estado
-                            }
-
-                            if (receptorId == uidActual && estado == "pendiente") {
-                                estadoMap[emisorId] = "recibida"
-                                medicosQueMeEnviaronSolicitud.add(emisorId)
-                            }
-
-                            if (esAdmin && estado == "pendiente") {
-                                if (emisorId != uidActual) {
-                                    pacientesConSolicitudPendienteDeOtro.add(receptorId)
+                                // Asegurar que se registre como vínculo según quién es el usuario actual
+                                if (emisorId == uidActual) {
+                                    estadoMap[receptorId] = "aceptado"
+                                } else if (receptorId == uidActual) {
+                                    estadoMap[emisorId] = "aceptado"
                                 }
-                                if (receptorId != uidActual) {
-                                    pacientesConSolicitudPendienteDeOtro.add(emisorId)
+                            }
+
+                            // Registrar solicitudes pendientes
+                            if (estado == "pendiente") {
+                                if (emisorId == uidActual) {
+                                    estadoMap[receptorId] = "pendiente"
+                                } else if (receptorId == uidActual) {
+                                    estadoMap[emisorId] = "recibida"
+                                    medicosQueMeEnviaronSolicitud.add(emisorId)
+                                }
+
+                                if (esAdmin) {
+                                    if (emisorId != uidActual) {
+                                        pacientesConSolicitudPendienteDeOtro.add(receptorId)
+                                    }
+                                    if (receptorId != uidActual) {
+                                        pacientesConSolicitudPendienteDeOtro.add(emisorId)
+                                    }
                                 }
                             }
                         }
