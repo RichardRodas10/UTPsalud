@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.example.utpsalud.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class BuscarViewModel : ViewModel() {
 
@@ -35,6 +36,8 @@ class BuscarViewModel : ViewModel() {
 
     private val handler = Handler()
     private var runnableBusqueda: Runnable? = null
+
+    private var solicitudesListener: ListenerRegistration? = null
 
     init {
         _uidActual.value = auth.currentUser?.uid ?: ""
@@ -109,9 +112,23 @@ class BuscarViewModel : ViewModel() {
                     } else null
                 }
 
-                db.collection("solicitudes")
-                    .get()
-                    .addOnSuccessListener { solicitudes ->
+                // Remueve cualquier listener previo antes de añadir uno nuevo
+                solicitudesListener?.remove()
+                solicitudesListener = db.collection("solicitudes")
+                    .addSnapshotListener { snapshot, error ->
+                        if (error != null) {
+                            _toast.value = "Error al cargar solicitudes en tiempo real"
+                            _loading.value = false
+                            return@addSnapshotListener
+                        }
+
+                        if (snapshot == null) {
+                            _loading.value = false
+                            return@addSnapshotListener
+                        }
+
+                        val solicitudes = snapshot.documents
+
                         val estadoMap = mutableMapOf<String, String>()
                         val pacientesVinculados = mutableSetOf<String>()
                         val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
@@ -182,10 +199,6 @@ class BuscarViewModel : ViewModel() {
                         _usuarios.value = listaFinal
                         _loading.value = false
                     }
-                    .addOnFailureListener {
-                        _toast.value = "Error al cargar solicitudes"
-                        _loading.value = false
-                    }
             }
             .addOnFailureListener {
                 _toast.value = "Error al buscar usuarios"
@@ -250,5 +263,10 @@ class BuscarViewModel : ViewModel() {
             .addOnFailureListener {
                 _toast.value = "Error al aceptar solicitud"
             }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        solicitudesListener?.remove()
     }
 }

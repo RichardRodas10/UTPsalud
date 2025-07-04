@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.utpsalud.model.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 class UsuariosViewModel : ViewModel() {
 
@@ -36,6 +37,9 @@ class UsuariosViewModel : ViewModel() {
     private val _listaRecibidas = MutableLiveData<List<Usuario>>(emptyList())
     val listaRecibidas: LiveData<List<Usuario>> = _listaRecibidas
 
+    private var usuariosListener: ListenerRegistration? = null
+    private var solicitudesListener: ListenerRegistration? = null
+
     fun obtenerRolYUsuarios() {
         _loading.value = true
         val uid = auth.currentUser?.uid ?: return
@@ -57,13 +61,20 @@ class UsuariosViewModel : ViewModel() {
     private fun cargarUsuarios(esAdmin: Boolean, uidActual: String) {
         _loading.value = true
 
-        db.collection("usuarios")
+        usuariosListener?.remove()
+        solicitudesListener?.remove()
+
+        usuariosListener = db.collection("usuarios")
             .whereEqualTo("esAdministrador", !esAdmin)
-            .get()
-            .addOnSuccessListener { usuariosDocs ->
+            .addSnapshotListener { snapshotUsuarios, errorUsuarios ->
+                if (errorUsuarios != null || snapshotUsuarios == null) {
+                    _loading.value = false
+                    _toast.value = "Error al escuchar usuarios"
+                    return@addSnapshotListener
+                }
 
                 val todos = mutableListOf<Usuario>()
-                for (doc in usuariosDocs) {
+                for (doc in snapshotUsuarios) {
                     val uid = doc.id
                     if (uid == uidActual) continue
 
@@ -78,16 +89,20 @@ class UsuariosViewModel : ViewModel() {
                     )
                 }
 
-                db.collection("solicitudes").get()
-                    .addOnSuccessListener { solicitudesDocs ->
+                solicitudesListener = db.collection("solicitudes")
+                    .addSnapshotListener { snapshotSolicitudes, errorSolicitudes ->
+                        if (errorSolicitudes != null || snapshotSolicitudes == null) {
+                            _loading.value = false
+                            _toast.value = "Error al escuchar solicitudes"
+                            return@addSnapshotListener
+                        }
 
                         val pacientesVinculados = mutableSetOf<String>()
                         val pacientesConSolicitudPendienteDeOtro = mutableSetOf<String>()
                         val medicosQueMeEnviaronSolicitud = mutableSetOf<String>()
-
                         val estadoMap = mutableMapOf<String, String>()
 
-                        for (sol in solicitudesDocs) {
+                        for (sol in snapshotSolicitudes) {
                             val emisorId = sol.getString("emisorId") ?: continue
                             val receptorId = sol.getString("receptorId") ?: continue
                             val estado = sol.getString("estado") ?: "pendiente"
@@ -125,9 +140,7 @@ class UsuariosViewModel : ViewModel() {
 
                             if (esAdmin) {
                                 when {
-                                    pacientesVinculados.contains(usuario.uid) -> {
-                                        // No mostrar
-                                    }
+                                    pacientesVinculados.contains(usuario.uid) -> {}
                                     estadoActual == "recibida" -> recibidas.add(usuario)
                                     estadoActual == "pendiente" -> enviadas.add(usuario)
                                     pacientesConSolicitudPendienteDeOtro.contains(usuario.uid) -> {
@@ -140,11 +153,10 @@ class UsuariosViewModel : ViewModel() {
                                 when (estadoActual) {
                                     "recibida" -> recibidas.add(usuario)
                                     "pendiente" -> enviadas.add(usuario)
-                                    "aceptado" -> {} // no agregar
+                                    "aceptado" -> {}
                                     else -> {
                                         if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
-                                            !medicosQueMeEnviaronSolicitud.contains(usuario.uid)
-                                        ) {
+                                            !medicosQueMeEnviaronSolicitud.contains(usuario.uid)) {
                                             estadoMap[usuario.uid] = "no_disponible"
                                         }
                                         disponibles.add(usuario)
@@ -157,17 +169,8 @@ class UsuariosViewModel : ViewModel() {
                         _listaDisponibles.value = disponibles
                         _listaEnviadas.value = enviadas
                         _listaRecibidas.value = recibidas
-
                         _loading.value = false
                     }
-                    .addOnFailureListener {
-                        _loading.value = false
-                        _toast.value = "Error al cargar solicitudes"
-                    }
-            }
-            .addOnFailureListener {
-                _loading.value = false
-                _toast.value = "Error al cargar usuarios"
             }
     }
 
@@ -224,5 +227,11 @@ class UsuariosViewModel : ViewModel() {
             .addOnFailureListener {
                 _toast.value = "Error al aceptar solicitud"
             }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        usuariosListener?.remove()
+        solicitudesListener?.remove()
     }
 }
