@@ -36,13 +36,13 @@
             android:clickable="true">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/profileImagePaciente"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:id="@+id/profileImageContacto"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:src="@drawable/ic_account" />
 
             <TextView
-                android:id="@+id/textNombrePaciente"
+                android:id="@+id/textNombreContacto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nombre Apellido"
@@ -62,7 +62,6 @@
         android:padding="12dp"
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_mensaje"
         app:layout_constraintTop_toBottomOf="@id/header"
         app:layout_constraintBottom_toTopOf="@id/chatInputContainer"
         app:layout_constraintStart_toStartOf="parent"
@@ -78,15 +77,18 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <EditText
-            android:id="@+id/editBuscar"
+            android:id="@+id/editMensaje"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
             android:background="@drawable/contenedor_fragmenthome"
-            android:gravity="center_vertical|start"
+            android:gravity="start|top"
             android:hint="Mensaje"
-            android:inputType="text"
-            android:maxLines="1"
+            android:inputType="textMultiLine"
+            android:maxLines="5"
+            android:scrollbars="vertical"
+            android:overScrollMode="ifContentScrolls"
             android:padding="12dp"
             android:textColor="@color/letra_fragment"
             android:textColorHint="@color/gray_suave"
@@ -94,20 +96,24 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnSend"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:paddingEnd="24dp"
+            />
+
 
         <ImageButton
             android:id="@+id/btnSend"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/contenedor_button_send"
             android:contentDescription="@string/send_message"
             android:src="@drawable/ic_send"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:scaleType="center"
+            app:layout_constraintBottom_toBottomOf="@id/editMensaje"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/button" />
+            app:tint="@android:color/white" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

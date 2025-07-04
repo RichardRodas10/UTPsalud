@@ -27,13 +27,16 @@ class ChatViewModel : ViewModel() {
     private var solicitudesListener2: ListenerRegistration? = null
     private var usuariosListener: ListenerRegistration? = null
 
+    private var esAdminActual: Boolean = false
+
     fun cargarContactos() {
         _mostrarLoading.value = true
+        _mostrarSinResultados.value = false
 
         db.collection("usuarios").document(uidActual).get()
             .addOnSuccessListener { userSnapshot ->
-                val esAdmin = userSnapshot.getBoolean("esAdministrador") == true
-                consultarContactos(esAdmin)
+                esAdminActual = userSnapshot.getBoolean("esAdministrador") == true
+                consultarContactos()
             }
             .addOnFailureListener {
                 _mostrarLoading.value = false
@@ -41,9 +44,8 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    private fun consultarContactos(esAdmin: Boolean) {
+    private fun consultarContactos() {
         val solicitudesRef = db.collection("solicitudes")
-
         val idsRelacionados = mutableSetOf<String>()
 
         solicitudesListener1 = solicitudesRef
@@ -57,28 +59,26 @@ class ChatViewModel : ViewModel() {
                     if (!receptor.isNullOrEmpty()) idsRelacionados.add(receptor)
                 }
 
-                actualizarUsuarios(idsRelacionados)
-            }
+                solicitudesListener2 = solicitudesRef
+                    .whereEqualTo("estado", "aceptado")
+                    .whereEqualTo("receptorId", uidActual)
+                    .addSnapshotListener { snapshot2, e2 ->
+                        if (e2 != null) return@addSnapshotListener
 
-        solicitudesListener2 = solicitudesRef
-            .whereEqualTo("estado", "aceptado")
-            .whereEqualTo("receptorId", uidActual)
-            .addSnapshotListener { snapshot2, e2 ->
-                if (e2 != null) return@addSnapshotListener
+                        snapshot2?.forEach { doc ->
+                            val emisor = doc.getString("emisorId")
+                            if (!emisor.isNullOrEmpty()) idsRelacionados.add(emisor)
+                        }
 
-                snapshot2?.forEach { doc ->
-                    val emisor = doc.getString("emisorId")
-                    if (!emisor.isNullOrEmpty()) idsRelacionados.add(emisor)
-                }
-
-                actualizarUsuarios(idsRelacionados)
+                        actualizarUsuarios(idsRelacionados)
+                    }
             }
     }
 
     private fun actualizarUsuarios(ids: Set<String>) {
         if (ids.isEmpty()) {
-            _mostrarLoading.value = false
             _listaContactos.value = emptyList()
+            _mostrarLoading.value = false
             _mostrarSinResultados.value = true
             return
         }
@@ -108,6 +108,10 @@ class ChatViewModel : ViewModel() {
                 _listaContactos.value = contactos
                 _mostrarSinResultados.value = contactos.isEmpty()
             }
+    }
+
+    fun obtenerRolUsuario(callback: (Boolean) -> Unit) {
+        callback(esAdminActual)
     }
 
     override fun onCleared() {
