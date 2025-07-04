@@ -149,12 +149,17 @@ class UsuariosViewModel : ViewModel() {
 
                             if (esAdmin) {
                                 when {
-                                    pacientesVinculados.contains(usuario.uid) -> {}
+                                    pacientesVinculados.contains(usuario.uid) -> {
+                                        // Ocultar usuario ya vinculado
+                                    }
                                     estadoActual == "recibida" -> recibidas.add(usuario)
                                     estadoActual == "pendiente" -> enviadas.add(usuario)
                                     pacientesConSolicitudPendienteDeOtro.contains(usuario.uid) -> {
                                         estadoMap[usuario.uid] = "no_disponible"
-                                        disponibles.add(usuario)
+                                        // NO lo agregamos a la lista
+                                    }
+                                    estadoActual == "no_disponible" -> {
+                                        // NO lo agregamos
                                     }
                                     else -> disponibles.add(usuario)
                                 }
@@ -162,7 +167,7 @@ class UsuariosViewModel : ViewModel() {
                                 when (estadoActual) {
                                     "recibida" -> recibidas.add(usuario)
                                     "pendiente" -> enviadas.add(usuario)
-                                    "aceptado" -> {}
+                                    "aceptado" -> {} // no mostrarlo
                                     else -> {
                                         if (medicosQueMeEnviaronSolicitud.isNotEmpty() &&
                                             !medicosQueMeEnviaronSolicitud.contains(usuario.uid)) {

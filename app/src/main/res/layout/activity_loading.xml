@@ -4,11 +4,21 @@
     android:layout_height="match_parent"
     android:background="@color/fondo"
     android:gravity="center">
-
     <ProgressBar
         android:id="@+id/progressBarCargando"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:indeterminateTint="@color/button"/>
+    <TextView
+        android:id="@+id/tvMensajeCarga"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cargando..."
+        android:textStyle="bold"
+        android:textColor="@color/azul_marino"
+        android:textSize="18sp"
+        android:layout_below="@id/progressBarCargando"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 </RelativeLayout>
