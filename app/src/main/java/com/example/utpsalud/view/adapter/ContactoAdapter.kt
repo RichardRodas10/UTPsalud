@@ -33,12 +33,10 @@ class ContactoAdapter(
     override fun onBindViewHolder(holder: ContactoViewHolder, position: Int) {
         val contacto = contactos[position]
 
-        // Mostrar solo primer nombre y primer apellido
         val primerNombre = contacto.nombre.split(" ").firstOrNull() ?: ""
         val primerApellido = contacto.apellido.split(" ").firstOrNull() ?: ""
         holder.textNombre.text = "$primerNombre $primerApellido"
 
-        // Imagen de perfil
         if (!contacto.fotoPerfilBase64.isNullOrEmpty()) {
             val decodedBytes = Base64.decode(contacto.fotoPerfilBase64, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
@@ -47,10 +45,17 @@ class ContactoAdapter(
             holder.imgPerfil.setImageResource(R.drawable.ic_account)
         }
 
-        // Simulación de último mensaje y hora (lógica real se puede conectar luego)
-        holder.textUltimoMensaje.text = "Último mensaje aquí"
-        holder.textHora.text = "12:00"
-        holder.textBadge.text = "1"
+        // Mostrar último mensaje y hora si existen
+        holder.textUltimoMensaje.text = contacto.ultimoMensaje ?: ""
+
+        holder.textHora.text = contacto.timestampUltimoMensaje?.let {
+            val date = java.util.Date(it)
+            val formatoHora = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+            formatoHora.format(date)
+        } ?: ""
+
+        // Ocultar badge (puedes implementar lógica real después)
+        holder.textBadge.visibility = View.GONE
 
         holder.itemView.setOnClickListener {
             onClickItem?.invoke(contacto)

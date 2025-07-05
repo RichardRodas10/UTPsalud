@@ -1,43 +1,52 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:gravity="end"
     android:orientation="horizontal"
+    android:gravity="end"
     android:paddingEnd="8dp"
     android:paddingTop="1dp">
 
-    <!-- Hora afuera, a la izquierda -->
-    <TextView
-        android:id="@+id/textHora"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="14:22"
-        android:textSize="12sp"
-        android:textColor="@color/gray_suave"
-        android:layout_marginTop="11dp"
-        android:layout_marginEnd="6dp"
-        android:gravity="center_vertical" />
-
-    <!-- Contenedor del mensaje -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/contenedor_chat_enviado"
-        android:padding="10dp"
-        android:maxWidth="250dp">
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/textMensaje"
+        <!-- Contenedor del mensaje y hora -->
+        <LinearLayout
+            android:id="@+id/contenedorInterno"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hola, esto es un mensaje que puede ser largo para probar el comportamiento"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:maxWidth="250dp"
+            android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:maxWidth="250dp">
+
+            <!-- Mensaje -->
+            <TextView
+                android:id="@+id/textMensaje"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Hola, esto es un mensaje que puede ser largo para probar el comportamiento"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:maxWidth="250dp" />
+
+            <!-- Hora en la esquina inferior derecha -->
+            <TextView
+                android:id="@+id/textHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14:22"
+                android:textSize="12sp"
+                android:textColor="@color/gray_suave"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

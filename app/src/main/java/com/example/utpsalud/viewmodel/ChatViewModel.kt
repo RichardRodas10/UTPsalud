@@ -84,30 +84,45 @@ class ChatViewModel : ViewModel() {
             return
         }
 
-        usuariosListener?.remove()
-        usuariosListener = db.collection("usuarios")
-            .whereIn(FieldPath.documentId(), ids.toList())
-            .addSnapshotListener { snapshot, error ->
-                _mostrarLoading.value = false
+        val usuarios = mutableListOf<Usuario>()
+        val usuariosRef = db.collection("usuarios")
 
-                if (error != null || snapshot == null) {
-                    _listaContactos.value = emptyList()
-                    _mostrarSinResultados.value = true
-                    return@addSnapshotListener
-                }
+        usuariosRef.whereIn(FieldPath.documentId(), ids.toList()).get()
+            .addOnSuccessListener { snapshot ->
+                val docs = snapshot.documents
+                var completados = 0
 
-                val contactos = snapshot.documents.map { doc ->
-                    Usuario(
+                docs.forEach { doc ->
+                    val usuario = Usuario(
                         uid = doc.id,
                         nombre = doc.getString("nombre") ?: "",
                         apellido = doc.getString("apellido") ?: "",
                         fotoPerfilBase64 = doc.getString("fotoPerfilBase64"),
                         esAdministrador = doc.getBoolean("esAdministrador") ?: false
                     )
-                }
 
-                _listaContactos.value = contactos
-                _mostrarSinResultados.value = contactos.isEmpty()
+                    val chatId = generarChatId(uidActual, usuario.uid)
+
+                    db.collection("chats").document(chatId)
+                        .collection("mensajes")
+                        .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { msgSnapshot ->
+                            if (!msgSnapshot.isEmpty) {
+                                val ultimo = msgSnapshot.documents.first().toObject(ChatMessage::class.java)
+                                usuario.ultimoMensaje = if (ultimo?.emisorId == uidActual) "Tú: ${ultimo.mensaje}" else ultimo?.mensaje
+                                usuario.timestampUltimoMensaje = ultimo?.timestamp
+                            }
+                            usuarios.add(usuario)
+                            completados++
+                            if (completados == docs.size) {
+                                _listaContactos.value = usuarios.sortedByDescending { it.timestampUltimoMensaje ?: 0L }
+                                _mostrarLoading.value = false
+                                _mostrarSinResultados.value = usuarios.isEmpty()
+                            }
+                        }
+                }
             }
     }
 
@@ -161,7 +176,6 @@ class ChatViewModel : ViewModel() {
     private fun generarChatId(uid1: String, uid2: String): String {
         return if (uid1 < uid2) "${uid1}_$uid2" else "${uid2}_$uid1"
     }
-
 
     override fun onCleared() {
         super.onCleared()

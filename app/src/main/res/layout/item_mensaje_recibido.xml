@@ -8,34 +8,45 @@
     android:paddingTop="1dp">
 
     <!-- Contenedor del mensaje recibido -->
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/contenedor_chat_recibido"
-        android:padding="10dp"
-        android:orientation="vertical"
-        android:layout_marginEnd="6dp"
-        android:maxWidth="250dp">
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/textMensaje"
+        <!-- Internamente usamos LinearLayout para mensaje y hora -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hola, ¿cómo estás? Este mensaje puede ser más largo para probar el comportamiento."
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:maxWidth="250dp" />
-    </LinearLayout>
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:maxWidth="250dp">
 
-    <!-- Hora afuera, a la derecha -->
-    <TextView
-        android:id="@+id/textHora"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="14:22"
-        android:textSize="12sp"
-        android:textColor="@color/gray_suave"
-        android:layout_marginTop="11dp"
-        android:gravity="center_vertical" />
+            <!-- Mensaje -->
+            <TextView
+                android:id="@+id/textMensaje"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hola, ¿cómo estás? Este mensaje puede ser más largo para probar el comportamiento."
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:maxWidth="250dp" />
+
+            <!-- Hora dentro, parte inferior derecha -->
+            <TextView
+                android:id="@+id/textHora"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="14:22"
+                android:textSize="12sp"
+                android:textColor="@color/gray_suave"
+                android:layout_gravity="end"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

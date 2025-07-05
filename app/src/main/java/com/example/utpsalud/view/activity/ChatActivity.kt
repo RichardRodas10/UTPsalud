@@ -70,7 +70,6 @@ class ChatActivity : AppCompatActivity() {
         setupRecyclerView()
         observarMensajes()
 
-        // Escuchar mensajes en tiempo real
         uidReceptor?.let {
             chatViewModel.escucharMensajes(it)
         }
@@ -96,8 +95,8 @@ class ChatActivity : AppCompatActivity() {
 
     private fun observarMensajes() {
         chatViewModel.mensajes.observe(this, Observer { lista ->
-            chatAdapter.actualizarMensajes(lista)
-            recyclerMensajes.scrollToPosition(lista.size - 1)
+            chatAdapter.actualizarMensajesConEncabezados(lista)
+            recyclerMensajes.scrollToPosition(chatAdapter.itemCount - 1)
         })
     }
 }
