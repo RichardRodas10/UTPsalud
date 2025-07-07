@@ -56,6 +56,13 @@ class ChatAdapter(
                 holder.textMensaje.text = item.chatMessage.mensaje
                 holder.textHora.text = formatearHora(item.chatMessage.timestamp)
 
+                val esUltimoMensaje = obtenerUltimoMensajeEnviado()?.timestamp == item.chatMessage.timestamp
+                if (esUltimoMensaje && item.chatMessage.leido == true) {
+                    holder.textVisto.visibility = View.VISIBLE
+                } else {
+                    holder.textVisto.visibility = View.GONE
+                }
+
                 aplicarMargenSiCambiaTipo(holder.itemView, position, item.chatMessage.emisorId)
             }
             is RecibidoViewHolder -> if (item is ChatItem.Mensaje) {
@@ -98,6 +105,7 @@ class ChatAdapter(
     class EnviadoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textMensaje: TextView = view.findViewById(R.id.textMensaje)
         val textHora: TextView = view.findViewById(R.id.textHora)
+        val textVisto: TextView = view.findViewById(R.id.textVisto)
     }
 
     class RecibidoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -112,6 +120,14 @@ class ChatAdapter(
     private fun formatearHora(timestamp: Long): String {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
         return sdf.format(Date(timestamp))
+    }
+
+    private fun obtenerUltimoMensajeEnviado(): ChatMessage? {
+        return items
+            .filterIsInstance<ChatItem.Mensaje>()
+            .map { it.chatMessage }
+            .filter { it.emisorId == uidActual }
+            .maxByOrNull { it.timestamp }
     }
 }
 

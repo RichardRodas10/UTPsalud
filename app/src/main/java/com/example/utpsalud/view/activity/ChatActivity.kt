@@ -72,6 +72,7 @@ class ChatActivity : AppCompatActivity() {
 
         uidReceptor?.let {
             chatViewModel.escucharMensajes(it)
+            chatViewModel.marcarMensajesComoLeidos(uidReceptor!!)
         }
 
         btnSend.setOnClickListener {

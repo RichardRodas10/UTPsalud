@@ -49,4 +49,17 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Texto "Visto" debajo de la burbuja -->
+    <TextView
+        android:id="@+id/textVisto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:text="Visto"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@color/gray_suave"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="end"
+        android:visibility="gone" />
 </LinearLayout>

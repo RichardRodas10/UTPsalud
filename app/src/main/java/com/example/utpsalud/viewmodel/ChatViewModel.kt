@@ -173,8 +173,20 @@ class ChatViewModel : ViewModel() {
                 }
 
                 _mensajes.value = listaMensajes
+
+                // 🔥 Marcar como leídos los mensajes que el usuario actual ha recibido y aún no están leídos
+                snapshot.documents.forEach { doc ->
+                    val mensaje = doc.toObject(ChatMessage::class.java)
+                    if (mensaje != null &&
+                        mensaje.receptorId == uidActual &&
+                        mensaje.leido != true
+                    ) {
+                        doc.reference.update("leido", true)
+                    }
+                }
             }
     }
+
 
     fun enviarMensaje(receptorId: String, mensaje: String) {
         if (mensaje.isBlank()) return
@@ -195,6 +207,22 @@ class ChatViewModel : ViewModel() {
 
     private fun generarChatId(uid1: String, uid2: String): String {
         return if (uid1 < uid2) "${uid1}_$uid2" else "${uid2}_$uid1"
+    }
+
+    fun marcarMensajesComoLeidos(receptorId: String) {
+        val chatId = generarChatId(uidActual, receptorId)
+
+        db.collection("chats")
+            .document(chatId)
+            .collection("mensajes")
+            .whereEqualTo("receptorId", uidActual)
+            .whereEqualTo("leido", false)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                for (doc in snapshot.documents) {
+                    doc.reference.update("leido", true)
+                }
+            }
     }
 
     override fun onCleared() {
