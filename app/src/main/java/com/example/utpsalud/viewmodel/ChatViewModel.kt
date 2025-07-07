@@ -28,6 +28,8 @@ class ChatViewModel : ViewModel() {
     private var solicitudesListener2: ListenerRegistration? = null
     private var usuariosListener: ListenerRegistration? = null
 
+    private val chatListeners = mutableMapOf<String, ListenerRegistration>()
+
     private var esAdminActual: Boolean = false
 
     fun cargarContactos() {
@@ -37,7 +39,7 @@ class ChatViewModel : ViewModel() {
         db.collection("usuarios").document(uidActual).get()
             .addOnSuccessListener { userSnapshot ->
                 esAdminActual = userSnapshot.getBoolean("esAdministrador") == true
-                consultarContactos()
+                consultarContactosTiempoReal()
             }
             .addOnFailureListener {
                 _mostrarLoading.value = false
@@ -45,7 +47,7 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    private fun consultarContactos() {
+    private fun consultarContactosTiempoReal() {
         val solicitudesRef = db.collection("solicitudes")
         val idsRelacionados = mutableSetOf<String>()
 
@@ -56,8 +58,7 @@ class ChatViewModel : ViewModel() {
                 if (e1 != null) return@addSnapshotListener
 
                 snapshot1?.forEach { doc ->
-                    val receptor = doc.getString("receptorId")
-                    if (!receptor.isNullOrEmpty()) idsRelacionados.add(receptor)
+                    doc.getString("receptorId")?.let { idsRelacionados.add(it) }
                 }
 
                 solicitudesListener2 = solicitudesRef
@@ -67,16 +68,15 @@ class ChatViewModel : ViewModel() {
                         if (e2 != null) return@addSnapshotListener
 
                         snapshot2?.forEach { doc ->
-                            val emisor = doc.getString("emisorId")
-                            if (!emisor.isNullOrEmpty()) idsRelacionados.add(emisor)
+                            doc.getString("emisorId")?.let { idsRelacionados.add(it) }
                         }
 
-                        actualizarUsuarios(idsRelacionados)
+                        actualizarUsuariosEnTiempoReal(idsRelacionados)
                     }
             }
     }
 
-    private fun actualizarUsuarios(ids: Set<String>) {
+    private fun actualizarUsuariosEnTiempoReal(ids: Set<String>) {
         if (ids.isEmpty()) {
             _listaContactos.value = emptyList()
             _mostrarLoading.value = false
@@ -84,15 +84,21 @@ class ChatViewModel : ViewModel() {
             return
         }
 
-        val usuarios = mutableListOf<Usuario>()
         val usuariosRef = db.collection("usuarios")
+        usuariosListener?.remove()
 
-        usuariosRef.whereIn(FieldPath.documentId(), ids.toList()).get()
-            .addOnSuccessListener { snapshot ->
-                val docs = snapshot.documents
-                var completados = 0
+        usuariosListener = usuariosRef
+            .whereIn(FieldPath.documentId(), ids.toList())
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) {
+                    _mostrarLoading.value = false
+                    _mostrarSinResultados.value = true
+                    return@addSnapshotListener
+                }
 
-                docs.forEach { doc ->
+                val usuariosTemporales = mutableListOf<Usuario>()
+
+                snapshot.documents.forEach { doc ->
                     val usuario = Usuario(
                         uid = doc.id,
                         nombre = doc.getString("nombre") ?: "",
@@ -103,26 +109,39 @@ class ChatViewModel : ViewModel() {
 
                     val chatId = generarChatId(uidActual, usuario.uid)
 
-                    db.collection("chats").document(chatId)
+                    // Remueve listener anterior si existía
+                    chatListeners[chatId]?.remove()
+
+                    // Agrega nuevo listener de mensajes en tiempo real
+                    val chatListener = db.collection("chats")
+                        .document(chatId)
                         .collection("mensajes")
                         .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                         .limit(1)
-                        .get()
-                        .addOnSuccessListener { msgSnapshot ->
-                            if (!msgSnapshot.isEmpty) {
-                                val ultimo = msgSnapshot.documents.first().toObject(ChatMessage::class.java)
-                                usuario.ultimoMensaje = if (ultimo?.emisorId == uidActual) "Tú: ${ultimo.mensaje}" else ultimo?.mensaje
-                                usuario.timestampUltimoMensaje = ultimo?.timestamp
+                        .addSnapshotListener { msgSnapshot, errorMsg ->
+                            if (errorMsg != null || msgSnapshot == null) return@addSnapshotListener
+
+                            val ultimo = msgSnapshot.documents.firstOrNull()?.toObject(ChatMessage::class.java)
+                            usuario.ultimoMensaje = if (ultimo?.emisorId == uidActual) "Tú: ${ultimo.mensaje}" else ultimo?.mensaje
+                            usuario.timestampUltimoMensaje = ultimo?.timestamp
+
+                            val index = usuariosTemporales.indexOfFirst { it.uid == usuario.uid }
+                            if (index >= 0) {
+                                usuariosTemporales[index] = usuario
+                            } else {
+                                usuariosTemporales.add(usuario)
                             }
-                            usuarios.add(usuario)
-                            completados++
-                            if (completados == docs.size) {
-                                _listaContactos.value = usuarios.sortedByDescending { it.timestampUltimoMensaje ?: 0L }
-                                _mostrarLoading.value = false
-                                _mostrarSinResultados.value = usuarios.isEmpty()
-                            }
+
+                            _listaContactos.postValue(
+                                usuariosTemporales.sortedByDescending { it.timestampUltimoMensaje ?: 0L }
+                            )
                         }
+
+                    chatListeners[chatId] = chatListener
                 }
+
+                _mostrarLoading.value = false
+                _mostrarSinResultados.value = usuariosTemporales.isEmpty()
             }
     }
 
@@ -137,7 +156,7 @@ class ChatViewModel : ViewModel() {
 
     fun escucharMensajes(receptorId: String) {
         val chatId = generarChatId(uidActual, receptorId)
-        mensajesListener?.remove() // Limpiar escucha previa si la hay
+        mensajesListener?.remove()
 
         mensajesListener = db.collection("chats")
             .document(chatId)
@@ -149,9 +168,10 @@ class ChatViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
 
-                val listaMensajes = snapshot.documents.mapNotNull { doc ->
-                    doc.toObject(ChatMessage::class.java)
+                val listaMensajes = snapshot.documents.mapNotNull {
+                    it.toObject(ChatMessage::class.java)
                 }
+
                 _mensajes.value = listaMensajes
             }
     }
@@ -182,5 +202,8 @@ class ChatViewModel : ViewModel() {
         solicitudesListener1?.remove()
         solicitudesListener2?.remove()
         usuariosListener?.remove()
+        mensajesListener?.remove()
+        chatListeners.values.forEach { it.remove() }
+        chatListeners.clear()
     }
 }
