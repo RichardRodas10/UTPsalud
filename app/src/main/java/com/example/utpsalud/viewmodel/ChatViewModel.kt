@@ -116,14 +116,20 @@ class ChatViewModel : ViewModel() {
                     val chatListener = db.collection("chats")
                         .document(chatId)
                         .collection("mensajes")
-                        .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-                        .limit(1)
                         .addSnapshotListener { msgSnapshot, errorMsg ->
                             if (errorMsg != null || msgSnapshot == null) return@addSnapshotListener
 
-                            val ultimo = msgSnapshot.documents.firstOrNull()?.toObject(ChatMessage::class.java)
+                            val mensajes = msgSnapshot.documents.mapNotNull { it.toObject(ChatMessage::class.java) }
+
+                            val ultimo = mensajes.maxByOrNull { it.timestamp }
+
                             usuario.ultimoMensaje = if (ultimo?.emisorId == uidActual) "Tú: ${ultimo.mensaje}" else ultimo?.mensaje
                             usuario.timestampUltimoMensaje = ultimo?.timestamp
+
+                            // 🔥 Calcular mensajes no leídos recibidos
+                            usuario.mensajesNoLeidos = mensajes.count {
+                                it.receptorId == uidActual && it.leido != true
+                            }
 
                             val index = usuariosTemporales.indexOfFirst { it.uid == usuario.uid }
                             if (index >= 0) {

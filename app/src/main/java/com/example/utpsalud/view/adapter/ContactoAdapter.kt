@@ -1,6 +1,7 @@
 package com.example.utpsalud.view.adapter
 
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -55,7 +56,28 @@ class ContactoAdapter(
         } ?: ""
 
         // Ocultar badge (puedes implementar lógica real después)
-        holder.textBadge.visibility = View.GONE
+        if (contacto.mensajesNoLeidos > 0) {
+            // Mostrar badge
+            holder.textBadge.text = contacto.mensajesNoLeidos.toString()
+            holder.textBadge.visibility = View.VISIBLE
+
+            // Cambiar color y estilo de hora a destacado
+            holder.textHora.setTextColor(holder.itemView.context.getColor(R.color.button))
+            holder.textHora.setTypeface(null, android.graphics.Typeface.BOLD)
+
+            holder.textUltimoMensaje.setTextColor(holder.itemView.context.getColor(R.color.gris))
+            holder.textUltimoMensaje.setTypeface(null, android.graphics.Typeface.BOLD)
+        } else {
+            // Ocultar badge
+            holder.textBadge.visibility = View.GONE
+
+            // Restaurar color y estilo original de hora
+            holder.textHora.setTextColor(Color.parseColor("#888888"))
+            holder.textHora.setTypeface(null, android.graphics.Typeface.NORMAL)
+
+            holder.textUltimoMensaje.setTextColor(Color.parseColor("#888888"))
+            holder.textUltimoMensaje.setTypeface(null, android.graphics.Typeface.NORMAL)
+        }
 
         holder.itemView.setOnClickListener {
             onClickItem?.invoke(contacto)
