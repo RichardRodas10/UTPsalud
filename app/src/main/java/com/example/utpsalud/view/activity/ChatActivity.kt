@@ -85,7 +85,11 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        chatAdapter = ChatAdapter(emptyList())
+        // Obten la cadena Base64 o la URL de la imagen (en este caso es Base64)
+        val fotoPerfilBase64 = intent.getStringExtra("fotoPerfilBase64") ?: ""
+
+        chatAdapter = ChatAdapter(emptyList(), fotoPerfilBase64)
+
         recyclerMensajes.apply {
             layoutManager = LinearLayoutManager(this@ChatActivity).apply {
                 stackFromEnd = true
