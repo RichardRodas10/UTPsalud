@@ -32,6 +32,9 @@ class ChatViewModel : ViewModel() {
 
     private var esAdminActual: Boolean = false
 
+    private val _totalMensajesNoLeidos = MutableLiveData<Int>()
+    val totalMensajesNoLeidos: LiveData<Int> get() = _totalMensajesNoLeidos
+
     fun cargarContactos() {
         _mostrarLoading.value = true
         _mostrarSinResultados.value = false
@@ -81,6 +84,7 @@ class ChatViewModel : ViewModel() {
             _listaContactos.value = emptyList()
             _mostrarLoading.value = false
             _mostrarSinResultados.value = true
+            _totalMensajesNoLeidos.value = 0
             return
         }
 
@@ -93,6 +97,7 @@ class ChatViewModel : ViewModel() {
                 if (error != null || snapshot == null) {
                     _mostrarLoading.value = false
                     _mostrarSinResultados.value = true
+                    _totalMensajesNoLeidos.value = 0
                     return@addSnapshotListener
                 }
 
@@ -109,10 +114,8 @@ class ChatViewModel : ViewModel() {
 
                     val chatId = generarChatId(uidActual, usuario.uid)
 
-                    // Remueve listener anterior si existía
                     chatListeners[chatId]?.remove()
 
-                    // Agrega nuevo listener de mensajes en tiempo real
                     val chatListener = db.collection("chats")
                         .document(chatId)
                         .collection("mensajes")
@@ -126,7 +129,6 @@ class ChatViewModel : ViewModel() {
                             usuario.ultimoMensaje = if (ultimo?.emisorId == uidActual) "Tú: ${ultimo.mensaje}" else ultimo?.mensaje
                             usuario.timestampUltimoMensaje = ultimo?.timestamp
 
-                            // 🔥 Calcular mensajes no leídos recibidos
                             usuario.mensajesNoLeidos = mensajes.count {
                                 it.receptorId == uidActual && it.leido != true
                             }
@@ -141,6 +143,9 @@ class ChatViewModel : ViewModel() {
                             _listaContactos.postValue(
                                 usuariosTemporales.sortedByDescending { it.timestampUltimoMensaje ?: 0L }
                             )
+
+                            val totalNoLeidos = usuariosTemporales.sumOf { it.mensajesNoLeidos }
+                            _totalMensajesNoLeidos.postValue(totalNoLeidos)
                         }
 
                     chatListeners[chatId] = chatListener
@@ -180,7 +185,6 @@ class ChatViewModel : ViewModel() {
 
                 _mensajes.value = listaMensajes
 
-                // 🔥 Marcar como leídos los mensajes que el usuario actual ha recibido y aún no están leídos
                 snapshot.documents.forEach { doc ->
                     val mensaje = doc.toObject(ChatMessage::class.java)
                     if (mensaje != null &&
@@ -192,7 +196,6 @@ class ChatViewModel : ViewModel() {
                 }
             }
     }
-
 
     fun enviarMensaje(receptorId: String, mensaje: String) {
         if (mensaje.isBlank()) return
