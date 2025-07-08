@@ -65,6 +65,31 @@ class PerfilFragment : Fragment() {
         binding.btnDelete.setOnClickListener {
             mostrarDialogEliminar()
         }
+
+        binding.btnEnviar.setOnClickListener {
+            val sugerencia = binding.editSugerencia.text.toString().trim()
+
+            if (sugerencia.isNotEmpty()) {
+                // Desactiva el botón para evitar múltiples envíos
+                binding.btnEnviar.isEnabled = false
+                binding.btnEnviar.text = "Enviando..."
+
+                viewModel.enviarSugerencia(sugerencia) { exito ->
+                    // Reactiva el botón
+                    binding.btnEnviar.isEnabled = true
+                    binding.btnEnviar.text = "Enviar"
+
+                    if (exito) {
+                        binding.editSugerencia.text.clear()
+                        Snackbar.make(binding.root, "¡Gracias por tu sugerencia!", Snackbar.LENGTH_SHORT).show()
+                    } else {
+                        Snackbar.make(binding.root, "Error al enviar la sugerencia", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                Snackbar.make(binding.root, "Escribe una sugerencia primero", Snackbar.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onResume() {

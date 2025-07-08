@@ -30,7 +30,7 @@ class EditardatosViewModel : ViewModel() {
                 if (document != null && document.exists()) {
                     val editable = UsuarioEditable(
                         celular = document.getString("celular") ?: "",
-                        correo = document.getString("correo") ?: user.email ?: "",
+                        correo = document.getString("email") ?: user.email ?: "",
                         celularEmergencia = document.getString("celularEmergencia") ?: "",
                         esAdministrador = document.getBoolean("esAdministrador") ?: false
                     )
@@ -87,12 +87,12 @@ class EditardatosViewModel : ViewModel() {
                     val datosActualizados = if (nuevo.esAdministrador) {
                         mapOf(
                             "celular" to nuevo.celular,
-                            "correo" to nuevo.correo
+                            "email" to nuevo.correo
                         )
                     } else {
                         mapOf(
                             "celular" to nuevo.celular,
-                            "correo" to nuevo.correo,
+                            "email" to nuevo.correo,
                             "celularEmergencia" to nuevo.celularEmergencia
                         )
                     }

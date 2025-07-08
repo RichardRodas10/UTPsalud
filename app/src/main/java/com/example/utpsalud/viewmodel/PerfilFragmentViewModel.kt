@@ -31,7 +31,7 @@ class PerfilFragmentViewModel : ViewModel() {
                 val datos = UserUIState(
                     nombre = document.getString("nombre") ?: "Nombre no disponible",
                     apellido = document.getString("apellido") ?: "Apellido no disponible",
-                    correo = document.getString("correo") ?: user.email ?: "Correo no disponible",
+                    correo = document.getString("email") ?: user.email ?: "Correo no disponible",
                     dni = document.getString("dni") ?: "DNI no disponible",
                     celular = document.getString("celular") ?: "Celular no disponible",
                     celularEmergencia = document.getString("celularEmergencia") ?: "Contacto no disponible",
@@ -129,6 +129,31 @@ class PerfilFragmentViewModel : ViewModel() {
 
     private val _eliminacionEstado = MutableLiveData<EliminacionEstado>()
     val eliminacionEstado: LiveData<EliminacionEstado> get() = _eliminacionEstado
+
+    fun enviarSugerencia(mensaje: String, onResult: (Boolean) -> Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val nombreCompleto = doc.getString("nombre") + " " + doc.getString("apellido")
+
+                val sugerencia = hashMapOf(
+                    "uid" to uid,
+                    "nombre" to nombreCompleto,
+                    "mensaje" to mensaje,
+                    "timestamp" to System.currentTimeMillis()
+                )
+
+                db.collection("sugerencias")
+                    .add(sugerencia)
+                    .addOnSuccessListener { onResult(true) }
+                    .addOnFailureListener { onResult(false) }
+            }
+            .addOnFailureListener {
+                onResult(false)
+            }
+    }
 
     fun signOut() {
         FirebaseAuth.getInstance().signOut()
