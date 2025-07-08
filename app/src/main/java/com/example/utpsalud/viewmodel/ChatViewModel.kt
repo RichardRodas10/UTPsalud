@@ -242,6 +242,16 @@ class ChatViewModel : ViewModel() {
             }
     }
 
+    fun obtenerNumeroDeUsuario(uid: String, callback: (String?) -> Unit) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                callback(doc.getString("celular"))
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
+
     override fun onCleared() {
         super.onCleared()
         solicitudesListener1?.remove()

@@ -1,12 +1,15 @@
 package com.example.utpsalud.view.activity
 
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -90,6 +93,48 @@ class ChatActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         recyclerMensajes.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
+
+        val iconOption: ImageView = findViewById(R.id.iconOption)
+
+        iconOption.setOnClickListener { view ->
+            val popupMenu = PopupMenu(this, view, 0, 0, R.style.CustomPopupMenu)
+            popupMenu.menuInflater.inflate(R.menu.chat_menu, popupMenu.menu)
+
+            for (i in 0 until popupMenu.menu.size()) {
+                val menuItem = popupMenu.menu.getItem(i)
+                val spanString = android.text.SpannableString(menuItem.title)
+                spanString.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, spanString.length, 0)
+                spanString.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.WHITE), 0, spanString.length, 0)
+                menuItem.title = spanString
+            }
+
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.menu_ver_perfil -> {
+                        val intent = Intent(this, PerfilActivity::class.java)
+                        intent.putExtra("uid", uidReceptor)
+                        startActivity(intent)
+                        true
+                    }
+                    R.id.menu_llamar -> {
+                        uidReceptor?.let { uid ->
+                            chatViewModel.obtenerNumeroDeUsuario(uid) { numero ->
+                                if (!numero.isNullOrEmpty()) {
+                                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$numero"))
+                                    startActivity(intent)
+                                } else {
+                                    android.widget.Toast.makeText(this, "Número no disponible", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+
+            popupMenu.show()
+        }
     }
 
     private fun setupRecyclerView() {
