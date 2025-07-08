@@ -70,9 +70,19 @@
             android:layout_height="24dp"
             android:background="@drawable/badge_circle_chat"
             android:text="3"
+            android:textStyle="bold"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             android:gravity="center"/>
+        <!-- Añadir este ImageView dentro del LinearLayout del badge y hora -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageVisto"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Visto"
+            android:visibility="gone"
+            android:src="@drawable/ic_account" />
+
     </LinearLayout>
 
 </LinearLayout>

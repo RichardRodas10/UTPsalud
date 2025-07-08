@@ -21,6 +21,7 @@ class ChatAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val uidActual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+    private var posicionHoraVisible: Int? = null
 
     companion object {
         const val VIEW_TYPE_ENVIADO = 1
@@ -37,18 +38,15 @@ class ChatAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_ENVIADO -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_mensaje_enviado, parent, false)
-                EnviadoViewHolder(view)
-            }
-            VIEW_TYPE_RECIBIDO -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_mensaje_recibido, parent, false)
-                RecibidoViewHolder(view)
-            }
-            VIEW_TYPE_ENCABEZADO -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.item_header_fecha, parent, false)
-                EncabezadoViewHolder(view)
-            }
+            VIEW_TYPE_ENVIADO -> EnviadoViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_mensaje_enviado, parent, false)
+            )
+            VIEW_TYPE_RECIBIDO -> RecibidoViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_mensaje_recibido, parent, false)
+            )
+            VIEW_TYPE_ENCABEZADO -> EncabezadoViewHolder(
+                LayoutInflater.from(parent.context).inflate(R.layout.item_header_fecha, parent, false)
+            )
             else -> throw IllegalArgumentException("Tipo de vista desconocido")
         }
     }
@@ -67,6 +65,21 @@ class ChatAdapter(
             is EnviadoViewHolder -> if (item is ChatItem.Mensaje) {
                 holder.textMensaje.text = item.chatMessage.mensaje
                 holder.textHora.text = formatearHora(item.chatMessage.timestamp)
+                holder.textHora.visibility =
+                    if (holder.adapterPosition == posicionHoraVisible) View.VISIBLE else View.GONE
+
+                holder.itemView.setOnClickListener {
+                    val posActual = holder.adapterPosition
+                    if (posicionHoraVisible == posActual) {
+                        posicionHoraVisible = null
+                        notifyItemChanged(posActual)
+                    } else {
+                        val anterior = posicionHoraVisible
+                        posicionHoraVisible = posActual
+                        anterior?.let { notifyItemChanged(it) }
+                        notifyItemChanged(posActual)
+                    }
+                }
 
                 if (item.chatMessage.timestamp == timestampVisto && item.chatMessage.emisorId == uidActual) {
                     holder.imageVisto.visibility = View.VISIBLE
@@ -81,6 +94,21 @@ class ChatAdapter(
             is RecibidoViewHolder -> if (item is ChatItem.Mensaje) {
                 holder.textMensaje.text = item.chatMessage.mensaje
                 holder.textHora.text = formatearHora(item.chatMessage.timestamp)
+                holder.textHora.visibility =
+                    if (holder.adapterPosition == posicionHoraVisible) View.VISIBLE else View.GONE
+
+                holder.itemView.setOnClickListener {
+                    val posActual = holder.adapterPosition
+                    if (posicionHoraVisible == posActual) {
+                        posicionHoraVisible = null
+                        notifyItemChanged(posActual)
+                    } else {
+                        val anterior = posicionHoraVisible
+                        posicionHoraVisible = posActual
+                        anterior?.let { notifyItemChanged(it) }
+                        notifyItemChanged(posActual)
+                    }
+                }
 
                 if (item.chatMessage.timestamp == timestampVisto && item.chatMessage.receptorId == uidActual) {
                     holder.imageVisto.visibility = View.VISIBLE
@@ -175,7 +203,6 @@ class ChatAdapter(
 }
 
 // Extensión para añadir encabezados a la lista de mensajes
-
 fun List<ChatMessage>.conEncabezados(): List<ChatItem> {
     if (this.isEmpty()) return emptyList()
 

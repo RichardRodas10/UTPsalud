@@ -33,9 +33,9 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ContactoAdapter(emptyList()) { usuario ->
+        adapter = ContactoAdapter(emptyList(), { usuario ->
             abrirChatConUsuario(usuario)
-        }
+        }, esFragment = true)
 
         binding.rvPacientes.layoutManager = LinearLayoutManager(requireContext())
         binding.rvPacientes.adapter = adapter

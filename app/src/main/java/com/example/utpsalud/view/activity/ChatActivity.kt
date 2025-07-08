@@ -3,9 +3,11 @@ package com.example.utpsalud.view.activity
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +30,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var btnSend: ImageButton
 
     private lateinit var chatAdapter: ChatAdapter
+
+    private lateinit var progressBar: ProgressBar
 
     private val chatViewModel: ChatViewModel by viewModels()
 
@@ -82,6 +86,10 @@ class ChatActivity : AppCompatActivity() {
                 editMensaje.text.clear()
             }
         }
+
+        progressBar = findViewById(R.id.progressBar)
+        recyclerMensajes.visibility = View.GONE
+        progressBar.visibility = View.VISIBLE
     }
 
     private fun setupRecyclerView() {
@@ -100,6 +108,8 @@ class ChatActivity : AppCompatActivity() {
 
     private fun observarMensajes() {
         chatViewModel.mensajes.observe(this, Observer { lista ->
+            progressBar.visibility = View.GONE
+            recyclerMensajes.visibility = View.VISIBLE
             chatAdapter.actualizarMensajesConEncabezados(lista)
             recyclerMensajes.scrollToPosition(chatAdapter.itemCount - 1)
         })

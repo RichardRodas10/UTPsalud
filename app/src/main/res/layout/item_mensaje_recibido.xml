@@ -14,7 +14,7 @@
         android:background="@drawable/contenedor_chat_recibido"
         android:padding="10dp">
 
-        <!-- Internamente usamos LinearLayout para mensaje y hora -->
+        <!-- Internamente usamos LinearLayout para mensaje -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,24 +32,27 @@
                 android:layout_height="wrap_content"
                 android:text="Hola, ¿cómo estás? Este mensaje puede ser más largo para probar el comportamiento."
                 android:textColor="@android:color/black"
+                android:textStyle="bold"
                 android:textSize="16sp"
                 android:maxWidth="250dp" />
-
-            <!-- Hora dentro, parte inferior derecha -->
-            <TextView
-                android:id="@+id/textHora"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="14:22"
-                android:textSize="12sp"
-                android:textColor="@color/gray_suave"
-                android:layout_gravity="end"
-                android:layout_marginTop="4dp" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Texto "Visto" debajo de la burbuja -->
+    <!-- Hora FUERA de la burbuja y alineada a la izquierda -->
+    <TextView
+        android:id="@+id/textHora"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="14:22"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@color/gray_suave"
+        android:layout_gravity="start"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="10dp" />
+
+    <!-- Imagen de "Visto" si se aplica (puedes eliminarla si no va con mensajes recibidos) -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imageVisto"
         android:layout_width="20dp"

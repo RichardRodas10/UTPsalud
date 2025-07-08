@@ -109,7 +109,8 @@ class ChatViewModel : ViewModel() {
                         nombre = doc.getString("nombre") ?: "",
                         apellido = doc.getString("apellido") ?: "",
                         fotoPerfilBase64 = doc.getString("fotoPerfilBase64"),
-                        esAdministrador = doc.getBoolean("esAdministrador") ?: false
+                        esAdministrador = doc.getBoolean("esAdministrador") ?: false,
+                        ultimoMensajeEsMio = false // valor por defecto inicial
                     )
 
                     val chatId = generarChatId(uidActual, usuario.uid)
@@ -128,10 +129,17 @@ class ChatViewModel : ViewModel() {
 
                             usuario.ultimoMensaje = if (ultimo?.emisorId == uidActual) "Tú: ${ultimo.mensaje}" else ultimo?.mensaje
                             usuario.timestampUltimoMensaje = ultimo?.timestamp
+                            usuario.ultimoMensajeEsMio = ultimo?.emisorId == uidActual
 
                             usuario.mensajesNoLeidos = mensajes.count {
                                 it.receptorId == uidActual && it.leido != true
                             }
+
+                            val ultimoMensajeEnviado = mensajes
+                                .filter { it.emisorId == uidActual }
+                                .maxByOrNull { it.timestamp }
+
+                            usuario.ultimoMensajeEnviadoLeido = ultimoMensajeEnviado?.leido == true
 
                             val index = usuariosTemporales.indexOfFirst { it.uid == usuario.uid }
                             if (index >= 0) {

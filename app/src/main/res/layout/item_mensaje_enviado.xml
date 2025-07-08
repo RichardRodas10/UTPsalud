@@ -35,22 +35,26 @@
                 android:text="Hola, esto es un mensaje que puede ser largo para probar el comportamiento"
                 android:textColor="@android:color/white"
                 android:textSize="16sp"
+                android:textStyle="bold"
                 android:maxWidth="250dp" />
 
-            <!-- Hora -->
-            <TextView
-                android:id="@+id/textHora"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="14:22"
-                android:textSize="12sp"
-                android:textColor="@color/gray_suave"
-                android:layout_gravity="end"
-                android:layout_marginTop="4dp" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Texto "Visto" debajo de la burbuja -->
+    <!-- Hora FUERA de la burbuja -->
+    <TextView
+        android:id="@+id/textHora"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="14:22"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        android:textColor="@color/gray_suave"
+        android:layout_gravity="end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="10dp" />
+
+    <!-- Imagen de "Visto" -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/imageVisto"
         android:layout_width="20dp"
@@ -60,6 +64,5 @@
         android:layout_gravity="end"
         android:visibility="gone"
         android:src="@drawable/ic_account" />
-
 
 </LinearLayout>
