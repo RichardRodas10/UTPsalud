@@ -180,6 +180,32 @@ class PerfilViewModel : ViewModel() {
             }
     }
 
+    fun desvincular(uidPerfil: String) {
+        val uidActual = auth.currentUser?.uid ?: return
+
+        db.collection("solicitudes")
+            .whereIn("emisorId", listOf(uidActual, uidPerfil))
+            .whereIn("receptorId", listOf(uidActual, uidPerfil))
+            .get()
+            .addOnSuccessListener { docs ->
+                for (doc in docs) {
+                    val emisor = doc.getString("emisorId") ?: continue
+                    val receptor = doc.getString("receptorId") ?: continue
+
+                    val entreAmbos = (emisor == uidActual && receptor == uidPerfil) ||
+                            (receptor == uidActual && emisor == uidPerfil)
+
+                    if (entreAmbos) {
+                        db.collection("solicitudes").document(doc.id).delete()
+                    }
+                }
+                _mensaje.value = "Desvinculación exitosa"
+            }
+            .addOnFailureListener {
+                _mensaje.value = "Error al desvincular"
+            }
+    }
+
     override fun onCleared() {
         super.onCleared()
         solicitudListener?.remove()

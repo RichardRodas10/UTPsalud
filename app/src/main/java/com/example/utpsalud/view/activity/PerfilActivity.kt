@@ -1,12 +1,15 @@
 package com.example.utpsalud.view.activity
 
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -53,6 +56,10 @@ class PerfilActivity : AppCompatActivity() {
             } else {
                 Snackbar.make(binding.root, "No puedes enviar mensaje en este estado", Snackbar.LENGTH_SHORT).show()
             }
+        }
+
+        binding.btnDesvincular.setOnClickListener {
+            mostrarDialogoDesvincular()
         }
 
     }
@@ -180,5 +187,32 @@ class PerfilActivity : AppCompatActivity() {
             "No disponible."
         }
         Snackbar.make(binding.root, mensaje, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun mostrarDialogoDesvincular() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_desvincular, null)
+        val dialog = Dialog(this)
+        dialog.setContentView(dialogView)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setCancelable(false)
+        dialog.show()
+
+        val btnConfirm = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnConfirmLogout)
+        val btnCancel = dialogView.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancelLogout)
+        val titulo = dialogView.findViewById<TextView>(R.id.tvLogoutMessage)
+
+        titulo.text = "¿Deseas desvincularte de este usuario?"
+        btnConfirm.text = "Desvincular"
+
+        btnConfirm.setOnClickListener {
+            viewModel.desvincular(uidPerfil)
+            dialog.dismiss()
+        }
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }
