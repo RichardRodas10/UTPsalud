@@ -70,6 +70,7 @@ class RegisterActivity : AppCompatActivity() {
             val esAdmin = binding.switch1.isChecked
             val colegAdmin = binding.etColegiatura.text.toString().trim()
             val fechaEmision = binding.etFechaEmision.text.toString().trim()
+            val fechaNacimiento = binding.etFechaNacimiento.text.toString().trim()
 
             // Solo paso los campos de admin si el switch está activado (esAdmin)
             viewModel.validarYRegistrar(
@@ -84,8 +85,9 @@ class RegisterActivity : AppCompatActivity() {
                 esAdmin,
                 colegAdmin.takeIf { esAdmin },         // si no es admin, será null
                 fechaEmision.takeIf { esAdmin },        // idem
-                profileImageBase64.takeIf { profileImageBase64.isNotEmpty() } // solo si hay imagen
-            )
+                profileImageBase64.takeIf { profileImageBase64.isNotEmpty() }, // solo si hay imagen
+                fechaNacimiento
+                )
         }
 
         // Link para volver a login si ya tengo cuenta
@@ -96,6 +98,36 @@ class RegisterActivity : AppCompatActivity() {
 
         // Empiezo a observar los cambios de estado del ViewModel para reaccionar
         observarViewModel()
+
+        binding.etFechaNacimiento.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val datePicker = DatePickerDialog(this, { _, y, m, d ->
+                val selectedCalendar = Calendar.getInstance()
+                selectedCalendar.set(y, m, d)
+                val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                binding.etFechaNacimiento.setText(formato.format(selectedCalendar.time))
+            }, year, month, day)
+
+            // Limitar el rango de fechas: entre hoy - 120 años y hoy - 18 años
+            val hoy = Calendar.getInstance()
+            val minFecha = Calendar.getInstance().apply { add(Calendar.YEAR, -120) } // máx 120 años
+            val maxFecha = Calendar.getInstance().apply { add(Calendar.YEAR, -18) }   // mínimo 18 años
+
+            datePicker.datePicker.minDate = minFecha.timeInMillis
+            datePicker.datePicker.maxDate = maxFecha.timeInMillis
+
+            // Mostrar primero el selector de año
+            try {
+                datePicker.datePicker.touchables[0].performClick()
+            } catch (_: Exception) {
+            }
+
+            datePicker.show()
+        }
     }
 
     // Esta función me muestra u oculta campos extra para admin según switch

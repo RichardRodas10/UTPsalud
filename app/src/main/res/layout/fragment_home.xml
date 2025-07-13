@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-        tools:context=".ui.perfil.PerfilFragment">
+        tools:context=".view.fragment.HomeFragment">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.home.HomeFragment">
+        tools:context=".view.fragment.HomeFragment">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -244,8 +244,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
         <Button
             android:id="@+id/btnInstrucciones"
             android:layout_width="match_parent"
@@ -257,7 +255,7 @@
             android:text="INSTRUCCIONES"
             android:textColor="@color/white"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@+id/containerFecha" />
+            app:layout_constraintTop_toBottomOf="@+id/containerFecha"/>
 
         <Button
             android:id="@+id/btnIniciarMedicion"
@@ -272,9 +270,24 @@
             android:textStyle="bold"
             app:strokeColor="@color/azul_marino"
             app:strokeWidth="2dp"
+            app:layout_constraintTop_toBottomOf="@+id/btnInstrucciones"/>
+
+        <Button
+            android:id="@+id/btnIniciarManual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@color/fondo_fragment"
+            android:padding="12dp"
+            android:text="MEDICIÓN MANUALMENTE"
+            android:textColor="@color/azul_marino"
+            android:textStyle="bold"
+            app:strokeColor="@color/azul_marino"
+            app:strokeWidth="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnInstrucciones"/>
+            app:layout_constraintTop_toBottomOf="@+id/btnIniciarMedicion"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
