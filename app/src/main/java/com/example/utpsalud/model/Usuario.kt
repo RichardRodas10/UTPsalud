@@ -9,5 +9,8 @@ data class Usuario(
     var estadoSolicitud: String? = null, // puede ser "enviada", "recibida", "confirmada", null
     // Campos nuevos para último mensaje y hora
     var ultimoMensaje: String? = null,
-    var timestampUltimoMensaje: Long? = null
+    var timestampUltimoMensaje: Long? = null,
+    var mensajesNoLeidos: Int = 0,
+    var ultimoMensajeEnviadoLeido: Boolean = false,
+    var ultimoMensajeEsMio: Boolean = false
 )

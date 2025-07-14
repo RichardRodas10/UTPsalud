@@ -29,4 +29,7 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="CustomPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@drawable/popup_menu_background</item>
+    </style>
 </resources>

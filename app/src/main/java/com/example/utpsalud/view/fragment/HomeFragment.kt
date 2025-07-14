@@ -14,9 +14,13 @@ import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentHomeBinding
 import com.example.utpsalud.ui.home.HomeFragmentViewModel
 import com.example.utpsalud.view.activity.BluetoothActivity
+
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+import com.example.utpsalud.view.activity.MedicionmanualActivity
+
 
 class HomeFragment : Fragment() {
 
@@ -82,6 +86,11 @@ class HomeFragment : Fragment() {
 
         binding.btnIniciarMedicion.setOnClickListener {
             val intent = Intent(requireContext(), BluetoothActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.btnIniciarManual.setOnClickListener {
+            val intent = Intent(requireContext(), MedicionmanualActivity::class.java)
             startActivity(intent)
         }
     }

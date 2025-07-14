@@ -1,6 +1,7 @@
 package com.example.utpsalud.view.adapter
 
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,8 @@ import de.hdodenhof.circleimageview.CircleImageView
 
 class ContactoAdapter(
     private var contactos: List<Usuario>,
-    private val onClickItem: ((Usuario) -> Unit)? = null
+    private val onClickItem: ((Usuario) -> Unit)? = null,
+    private val esFragment: Boolean = false
 ) : RecyclerView.Adapter<ContactoAdapter.ContactoViewHolder>() {
 
     inner class ContactoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -22,6 +24,7 @@ class ContactoAdapter(
         val textUltimoMensaje: TextView = itemView.findViewById(R.id.textUltimoMensaje)
         val textHora: TextView = itemView.findViewById(R.id.textHoraChat)
         val textBadge: TextView = itemView.findViewById(R.id.textBadgeMensajes)
+        val imageVisto: CircleImageView = itemView.findViewById(R.id.imageVisto)  // Cambiado a CircleImageView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactoViewHolder {
@@ -37,6 +40,7 @@ class ContactoAdapter(
         val primerApellido = contacto.apellido.split(" ").firstOrNull() ?: ""
         holder.textNombre.text = "$primerNombre $primerApellido"
 
+        // Foto perfil principal
         if (!contacto.fotoPerfilBase64.isNullOrEmpty()) {
             val decodedBytes = Base64.decode(contacto.fotoPerfilBase64, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
@@ -45,7 +49,6 @@ class ContactoAdapter(
             holder.imgPerfil.setImageResource(R.drawable.ic_account)
         }
 
-        // Mostrar último mensaje y hora si existen
         holder.textUltimoMensaje.text = contacto.ultimoMensaje ?: ""
 
         holder.textHora.text = contacto.timestampUltimoMensaje?.let {
@@ -54,8 +57,44 @@ class ContactoAdapter(
             formatoHora.format(date)
         } ?: ""
 
-        // Ocultar badge (puedes implementar lógica real después)
-        holder.textBadge.visibility = View.GONE
+        if (contacto.mensajesNoLeidos > 0) {
+            // Mostrar badge y ocultar visto
+            holder.textBadge.text = contacto.mensajesNoLeidos.toString()
+            holder.textBadge.visibility = View.VISIBLE
+
+            holder.imageVisto.visibility = View.GONE
+
+            holder.textHora.setTextColor(holder.itemView.context.getColor(R.color.button))
+            holder.textHora.setTypeface(null, android.graphics.Typeface.BOLD)
+
+            holder.textUltimoMensaje.setTextColor(holder.itemView.context.getColor(R.color.gris))
+            holder.textUltimoMensaje.setTypeface(null, android.graphics.Typeface.BOLD)
+
+        } else {
+            // Sin mensajes no leídos
+
+            holder.textBadge.visibility = View.GONE
+
+            // Mostrar foto de perfil en "visto" solo si el último mensaje enviado fue leído
+            if (
+                contacto.ultimoMensajeEnviadoLeido &&
+                !contacto.fotoPerfilBase64.isNullOrEmpty() &&
+                (!esFragment || contacto.ultimoMensajeEsMio == true) // Solo en fragment si es mío
+            ) {
+                val decodedBytes = Base64.decode(contacto.fotoPerfilBase64, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                holder.imageVisto.setImageBitmap(bitmap)
+                holder.imageVisto.visibility = View.VISIBLE
+            } else {
+                holder.imageVisto.visibility = View.GONE
+            }
+
+            holder.textHora.setTextColor(Color.parseColor("#888888"))
+            holder.textHora.setTypeface(null, android.graphics.Typeface.NORMAL)
+
+            holder.textUltimoMensaje.setTextColor(Color.parseColor("#888888"))
+            holder.textUltimoMensaje.setTypeface(null, android.graphics.Typeface.NORMAL)
+        }
 
         holder.itemView.setOnClickListener {
             onClickItem?.invoke(contacto)

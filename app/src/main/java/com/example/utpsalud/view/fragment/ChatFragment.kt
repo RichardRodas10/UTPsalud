@@ -33,12 +33,16 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = ContactoAdapter(emptyList()) { usuario ->
+        adapter = ContactoAdapter(emptyList(), { usuario ->
             abrirChatConUsuario(usuario)
-        }
+        }, esFragment = true)
 
         binding.rvPacientes.layoutManager = LinearLayoutManager(requireContext())
         binding.rvPacientes.adapter = adapter
+
+        // Ocultamos por defecto
+        binding.tvSinPacientes.visibility = View.GONE
+        binding.rvPacientes.visibility = View.GONE
 
         observarViewModel()
         viewModel.cargarContactos()
@@ -65,24 +69,19 @@ class ChatFragment : Fragment() {
             if (contactos.isNotEmpty()) {
                 binding.rvPacientes.visibility = View.VISIBLE
                 binding.tvSinPacientes.visibility = View.GONE
-            }
-        }
-
-        viewModel.mostrarSinResultados.observe(viewLifecycleOwner) { sinResultados ->
-            if (sinResultados && viewModel.listaContactos.value.isNullOrEmpty()) {
+            } else {
                 viewModel.obtenerRolUsuario { esAdmin ->
                     binding.tvSinPacientes.text = if (esAdmin) {
                         "No tienes pacientes vinculados"
                     } else {
                         "No tienes un médico vinculado"
                     }
-
                     binding.tvSinPacientes.visibility = View.VISIBLE
                     binding.rvPacientes.visibility = View.GONE
                 }
-            } else {
-                binding.tvSinPacientes.visibility = View.GONE
             }
+
+            binding.progressBarContactos.visibility = View.GONE
         }
     }
 

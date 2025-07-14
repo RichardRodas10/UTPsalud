@@ -39,7 +39,8 @@ class RegisterViewModel : ViewModel() {
         esAdmin: Boolean,
         colegAdmin: String?,
         fechaEmisionStr: String?,
-        fotoBase64: String?
+        fotoBase64: String?,
+        fechaNacimientoStr: String?
     ) {
         // Validaciones comunes para todos los usuarios
         if (nombre.isBlank() || apellido.isBlank() || dni.isBlank() || celular.isBlank() || email.isBlank()
@@ -98,6 +99,32 @@ class RegisterViewModel : ViewModel() {
             return
         }
 
+        if (fechaNacimientoStr.isNullOrBlank()) {
+            _registroEstado.value = RegistroEstado.Error("Por favor, selecciona tu fecha de nacimiento")
+            return
+        }
+
+        val fechaNacimiento: Date = try {
+            dateFormat.parse(fechaNacimientoStr)!!
+        } catch (e: Exception) {
+            _registroEstado.value = RegistroEstado.Error("Formato de fecha de nacimiento inválido")
+            return
+        }
+
+        val hoy = Calendar.getInstance()
+        val fechaNacimientoCal = Calendar.getInstance().apply { time = fechaNacimiento }
+
+        if (fechaNacimientoCal.after(hoy)) {
+            _registroEstado.value = RegistroEstado.Error("La fecha de nacimiento no puede ser en el futuro")
+            return
+        }
+
+        hoy.add(Calendar.YEAR, -18)
+        if (fechaNacimientoCal.after(hoy)) {
+            _registroEstado.value = RegistroEstado.Error("Debes tener al menos 18 años para registrarte")
+            return
+        }
+
         // Validaciones exclusivas para administrador
         if (esAdmin) {
             if (colegAdmin == null || colegAdmin.length != 10) {
@@ -130,7 +157,7 @@ class RegisterViewModel : ViewModel() {
         // Procedemos con la verificación y posterior creación del usuario
         verificarDniYCelularYColegiaturaYCrear(
             nombre, apellido, dni, celular, celularEmergencia,
-            email, password, esAdmin, colegAdmin, fechaEmisionStr, fotoBase64
+            email, password, esAdmin, colegAdmin, fechaEmisionStr, fotoBase64, fechaNacimientoStr
         )
     }
 
@@ -146,7 +173,8 @@ class RegisterViewModel : ViewModel() {
         esAdmin: Boolean,
         colegAdmin: String?,
         fechaEmisionStr: String?,
-        fotoBase64: String?
+        fotoBase64: String?,
+        fechaNacimientoStr: String?
     ) {
         db.collection("usuarios").whereEqualTo("dni", dni)
             .get()
@@ -177,7 +205,7 @@ class RegisterViewModel : ViewModel() {
                                     // Si todo está validado, se procede a crear usuario
                                     crearUsuarioAuthYFirestore(
                                         nombre, apellido, dni, celular, celularEmergencia,
-                                        email, password, esAdmin, colegAdmin, fechaEmisionStr, fotoBase64
+                                        email, password, esAdmin, colegAdmin, fechaEmisionStr, fotoBase64, fechaNacimientoStr
                                     )
                                 }
                                 .addOnFailureListener {
@@ -187,7 +215,7 @@ class RegisterViewModel : ViewModel() {
                             // Si no es admin, se crea directamente el usuario
                             crearUsuarioAuthYFirestore(
                                 nombre, apellido, dni, celular, celularEmergencia,
-                                email, password, esAdmin, colegAdmin, fechaEmisionStr, fotoBase64
+                                email, password, esAdmin, colegAdmin, fechaEmisionStr, fotoBase64,   fechaNacimientoStr
                             )
                         }
                     }
@@ -212,7 +240,8 @@ class RegisterViewModel : ViewModel() {
         esAdmin: Boolean,
         colegAdmin: String?,
         fechaEmisionStr: String?,
-        fotoBase64: String?
+        fotoBase64: String?,
+        fechaNacimientoStr: String?
     ) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -227,7 +256,8 @@ class RegisterViewModel : ViewModel() {
                         "celular" to celular,
                         "email" to email,
                         "esAdministrador" to esAdmin,
-                        "fotoPerfilBase64" to (fotoBase64 ?: "")
+                        "fotoPerfilBase64" to (fotoBase64 ?: ""),
+                        "fechaNacimiento" to (fechaNacimientoStr ?: "")
                     ).apply {
                         // Agregamos campos según el tipo de usuario
                         if (!esAdmin) {

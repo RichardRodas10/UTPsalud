@@ -15,6 +15,7 @@ import com.example.utpsalud.view.fragment.HistorialFragment
 import com.example.utpsalud.view.fragment.HomeFragment
 import com.example.utpsalud.view.fragment.ListapacientesFragment
 import com.example.utpsalud.view.fragment.PerfilFragment
+import com.example.utpsalud.viewmodel.ChatViewModel
 import com.example.utpsalud.viewmodel.HomeViewModel
 import com.google.firebase.firestore.ListenerRegistration
 
@@ -27,6 +28,7 @@ class HomeActivity : AppCompatActivity() {
     private var solicitudListener: ListenerRegistration? = null
 
     private val viewModel: HomeViewModel by viewModels()
+    private val chatViewModel: ChatViewModel by viewModels()  // <-- Nuevo ViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +41,23 @@ class HomeActivity : AppCompatActivity() {
         }
 
         viewModel.obtenerRolUsuarioActual()
+
+        // Cargar contactos y mensajes no leídos en ChatViewModel
+        chatViewModel.cargarContactos()
+
+        // Observar badge de mensajes no leídos y actualizar badge en BottomNavigationView
+        chatViewModel.totalMensajesNoLeidos.observe(this) { total ->
+            val badge = binding.bottomNavigation.getOrCreateBadge(R.id.navChat)
+            if (total > 0) {
+                badge.isVisible = true
+                badge.number = total
+                badge.backgroundColor = getColor(R.color.button)
+                badge.badgeTextColor = getColor(android.R.color.white)
+            } else {
+                badge.isVisible = false
+                badge.clearNumber()
+            }
+        }
     }
 
     private fun inicializarUI() {
