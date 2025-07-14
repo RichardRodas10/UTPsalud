@@ -17,6 +17,7 @@ import com.example.utpsalud.view.fragment.ListapacientesFragment
 import com.example.utpsalud.view.fragment.PerfilFragment
 import com.example.utpsalud.viewmodel.HomeViewModel
 import com.google.firebase.firestore.ListenerRegistration
+
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
@@ -32,7 +33,6 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Observamos el rol desde ViewModel
         viewModel.esAdmin.observe(this) { admin ->
             esAdmin = admin
             inicializarUI()
@@ -60,11 +60,29 @@ class HomeActivity : AppCompatActivity() {
 
         if (currentUser != null) {
             val uid = currentUser.uid
+
             if (esAdmin) {
                 replaceFragment(ListapacientesFragment())
             } else {
-                replaceFragment(HomeFragment())
+                // Recoger datos enviados desde LecturaActivity
+                val hr = intent.getIntExtra("frecuencia_cardiaca", -1)
+                val spo2 = intent.getIntExtra("saturacion_oxigeno", -1)
+                val temp = intent.getFloatExtra("temperatura_promedio", -1f)
+
+                val homeFragment = HomeFragment()
+
+                if (hr != -1 && spo2 != -1 && temp != -1f) {
+                    val bundle = Bundle().apply {
+                        putInt("frecuencia_cardiaca", hr)
+                        putInt("saturacion_oxigeno", spo2)
+                        putFloat("temperatura_promedio", temp)
+                    }
+                    homeFragment.arguments = bundle
+                }
+
+                replaceFragment(homeFragment)
             }
+
             escucharSolicitudesEnTiempoReal(uid)
         } else {
             replaceFragment(HomeFragment())
@@ -90,7 +108,22 @@ class HomeActivity : AppCompatActivity() {
                     if (esAdmin) {
                         replaceFragment(ListapacientesFragment())
                     } else {
-                        replaceFragment(HomeFragment())
+                        // Volver a crear el HomeFragment con los datos si están disponibles
+                        val hr = intent.getIntExtra("frecuencia_cardiaca", -1)
+                        val spo2 = intent.getIntExtra("saturacion_oxigeno", -1)
+                        val temp = intent.getFloatExtra("temperatura_promedio", -1f)
+
+                        val homeFragment = HomeFragment().apply {
+                            if (hr != -1 && spo2 != -1 && temp != -1f) {
+                                arguments = Bundle().apply {
+                                    putInt("frecuencia_cardiaca", hr)
+                                    putInt("saturacion_oxigeno", spo2)
+                                    putFloat("temperatura_promedio", temp)
+                                }
+                            }
+                        }
+
+                        replaceFragment(homeFragment)
                     }
                     true
                 }
@@ -109,6 +142,7 @@ class HomeActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
     }
 
     override fun onDestroy() {

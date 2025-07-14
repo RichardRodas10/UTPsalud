@@ -41,7 +41,6 @@ android {
 }
 
 dependencies {
-
     implementation("androidx.core:core-ktx:1.13.1")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -60,4 +59,6 @@ dependencies {
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("com.google.firebase:firebase-storage:20.1.0")
     implementation ("com.google.android.material:material:1.8.0")
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
 }
