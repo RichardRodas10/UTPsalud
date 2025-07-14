@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/fondo_fragment">
 
-    <!-- Encabezado -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="0dp"
@@ -37,7 +36,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Contenido desplazable -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="0dp"
@@ -55,12 +53,11 @@
             android:padding="16dp"
             android:gravity="center_horizontal">
 
-            <!-- Etiqueta Frecuencia Cardíaca -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="30dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="15dp"
                 android:text="Frecuencia cardíaca (ppm)"
                 android:textColor="@color/letra_fragment"
                 android:textSize="16sp"
@@ -83,7 +80,6 @@
                 android:textColorHint="@color/gray_suave"
                 android:textSize="16sp" />
 
-            <!-- Etiqueta Oxígeno en sangre -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -95,7 +91,6 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="4dp"/>
 
-            <!-- Botón ENVIAR -->
             <EditText
                 android:id="@+id/editOxigenoSangre"
                 android:layout_width="match_parent"
@@ -112,11 +107,38 @@
                 android:textColorHint="@color/gray_suave"
                 android:textSize="16sp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="30dp"
+                android:text="Temperatura corporal (°C)"
+                android:textColor="@color/letra_fragment"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"/>
+
+            <EditText
+                android:id="@+id/editTemperatura"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30dp"
+                android:background="@drawable/contenedor_sugerencia"
+                android:drawablePadding="10dp"
+                android:gravity="top|start"
+                android:inputType="numberDecimal"
+                android:maxLength="4"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:textColor="@color/letra_fragment"
+                android:textColorHint="@color/gray_suave"
+                android:textSize="16sp" />
+
             <Button
                 android:id="@+id/btnInstrucciones"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="25dp"
                 android:layout_marginHorizontal="30dp"
                 android:backgroundTint="@color/azul_marino"
                 android:padding="12dp"
@@ -124,7 +146,6 @@
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
-            <!-- Contenedor del resultado -->
             <LinearLayout
                 android:id="@+id/contenedorResultado"
                 android:layout_width="match_parent"
@@ -134,8 +155,7 @@
                 android:layout_marginTop="24dp"
                 android:padding="25dp"
                 android:background="@drawable/contenedor_fragmenthome"
-                android:visibility="gone"
-                >
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/tvTituloResultado"

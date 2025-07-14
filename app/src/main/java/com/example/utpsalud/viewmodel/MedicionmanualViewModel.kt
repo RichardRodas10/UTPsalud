@@ -27,7 +27,7 @@ class MedicionmanualViewModel : ViewModel() {
         data class Error(val error: String) : EstadoGuardado()
     }
 
-    fun guardarMedicion(frecCardiaca: Int, oxiSangre: Int) {
+    fun guardarMedicion(frecCardiaca: Int, oxiSangre: Int, temperatura: Float) {
         val usuario = auth.currentUser
         if (usuario == null) {
             _estadoGuardado.value = EstadoGuardado.Error("Usuario no autenticado")
@@ -74,7 +74,8 @@ class MedicionmanualViewModel : ViewModel() {
                 resultadoFrecuenciaCardiaca = resultadoFC,
                 resultadoOxigeno = resultadoOxi,
                 fechaMedicion = System.currentTimeMillis(),
-                estadoSalud = estadoSalud
+                estadoSalud = estadoSalud,
+                temperatura = temperatura
             )
 
             db.collection("usuarios").document(usuario.uid)

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/contenedor_seleccion"
+    android:layout_marginHorizontal="24dp"
+    android:layout_marginVertical="12dp"
+    android:elevation="2dp">
+
+    <!-- Frecuencia cardíaca -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/textFrecuencia"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Frecuencia cardíaca: 85 ppm"
+            android:textStyle="bold"
+            android:textColor="@color/letra_fragment"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/resultadoFrecuencia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textColor="@color/letra_fragment"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Oxígeno en sangre -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/textOxigeno"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Oxígeno en sangre: 97%"
+            android:textStyle="bold"
+            android:textColor="@color/letra_fragment"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/resultadoOxigeno"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:textStyle="bold"
+            android:textColor="@color/letra_fragment"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Temperatura corporal -->
+    <TextView
+        android:id="@+id/textTemperatura"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text="Temperatura corporal: 36.5°C"
+        android:textStyle="bold"
+        android:textColor="@color/letra_fragment"
+        android:textSize="16sp" />
+
+    <!-- Estado de salud -->
+    <TextView
+        android:id="@+id/textEstadoSalud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Estado de salud: Saludable"
+        android:textStyle="bold"
+        android:textColor="@color/letra_fragment"
+        android:textSize="16sp"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Hora -->
+    <TextView
+        android:id="@+id/textHoraMedicion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hora: 14:30"
+        android:textColor="@color/letra_fragment"
+        android:textSize="14sp"
+        android:gravity="end" />
+
+</LinearLayout>

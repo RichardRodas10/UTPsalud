@@ -6,5 +6,6 @@ data class MedicionManual(
     val resultadoFrecuenciaCardiaca: String = "",
     val resultadoOxigeno: String = "",
     val fechaMedicion: Long = 0L,
-    val estadoSalud: String = ""
+    val estadoSalud: String = "",
+    val temperatura: Float = 0.0f
 )

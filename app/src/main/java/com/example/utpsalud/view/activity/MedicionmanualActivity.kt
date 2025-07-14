@@ -89,6 +89,7 @@ class MedicionmanualActivity : AppCompatActivity() {
 
                     binding.editFrecuenciCardiaca.text?.clear()
                     binding.editOxigenoSangre.text?.clear()
+                    binding.editTemperatura.text?.clear()
                 }
 
                 is MedicionmanualViewModel.EstadoGuardado.Error -> {
@@ -108,6 +109,7 @@ class MedicionmanualActivity : AppCompatActivity() {
 
             val frecStr = binding.editFrecuenciCardiaca.text?.toString()
             val oxiStr = binding.editOxigenoSangre.text?.toString()
+            val tempStr = binding.editTemperatura.text?.toString()
 
             when {
                 frecStr.isNullOrBlank() -> {
@@ -118,6 +120,10 @@ class MedicionmanualActivity : AppCompatActivity() {
                     Snackbar.make(binding.root, "Por favor ingresa el oxígeno en sangre", Snackbar.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
+                tempStr.isNullOrBlank() -> {
+                    Snackbar.make(binding.root, "Por favor ingresa la temperatura", Snackbar.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 frecStr.toIntOrNull() == null || frecStr.toInt() < 30 || frecStr.toInt() > 220 -> {
                     Snackbar.make(binding.root, "Ingresa una frecuencia cardiaca válida (30-220)", Snackbar.LENGTH_SHORT).show()
                     return@setOnClickListener
@@ -126,10 +132,15 @@ class MedicionmanualActivity : AppCompatActivity() {
                     Snackbar.make(binding.root, "Ingresa un oxígeno en sangre válido (0-100)", Snackbar.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
+                tempStr.toFloatOrNull() == null || tempStr.toFloat() < 30f || tempStr.toFloat() > 45f -> {
+                    Snackbar.make(binding.root, "Ingresa una temperatura válida (30.0 - 45.0 °C)", Snackbar.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 else -> {
                     val frec = frecStr.toInt()
                     val oxi = oxiStr.toInt()
-                    viewModel.guardarMedicion(frec, oxi)
+                    val temp = tempStr.toFloat()
+                    viewModel.guardarMedicion(frec, oxi, temp)
                 }
             }
 
