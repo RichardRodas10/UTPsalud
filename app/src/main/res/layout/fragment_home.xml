@@ -5,7 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+
+    tools:context=".view.fragment.HomeFragment">
+
         tools:context=".view.fragment.HomeFragment">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -61,7 +65,7 @@
                     android:id="@+id/textMedFrecuencia"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="180.12 lpm"
+                    android:text="-- bpm"
                     android:textColor="@color/letra_fragment"
                     android:textSize="40sp"
                     android:textStyle="bold" />
@@ -105,7 +109,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="35.6° C"
+                    android:text="-- °C"
                     android:textColor="@color/letra_fragment"
                     android:textSize="40sp"
                     android:textStyle="bold" />
@@ -178,7 +182,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="90 mmHg"
+                    android:text="-- %"
                     android:textColor="@color/letra_fragment"
                     android:textSize="40sp"
                     android:textStyle="bold" />
@@ -210,7 +214,7 @@
                     android:id="@+id/txtFecha"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Fecha: 20/06/2025"
+                    android:text="Fecha: --/--/--"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/letra_fragment" />
@@ -220,7 +224,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Hora: 21:38"
+                    android:text="Hora: --:--"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/letra_fragment" />

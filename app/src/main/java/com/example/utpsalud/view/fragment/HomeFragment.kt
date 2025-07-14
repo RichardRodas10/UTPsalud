@@ -1,6 +1,7 @@
 package com.example.utpsalud.view.fragment
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,7 +14,13 @@ import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentHomeBinding
 import com.example.utpsalud.ui.home.HomeFragmentViewModel
 import com.example.utpsalud.view.activity.BluetoothActivity
+
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 import com.example.utpsalud.view.activity.MedicionmanualActivity
+
 
 class HomeFragment : Fragment() {
 
@@ -30,13 +37,40 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Mostrar datos recibidos desde LecturaActivity si están presentes
+        val frecuencia = arguments?.getInt("frecuencia_cardiaca", -1) ?: -1
+        val saturacion = arguments?.getInt("saturacion_oxigeno", -1) ?: -1
+        val temperatura = arguments?.getFloat("temperatura_promedio", -1f) ?: -1f
+
+        if (frecuencia != -1 && saturacion != -1 && temperatura != -1f) {
+            binding.textMedFrecuencia.text = "$frecuencia bpm"
+            binding.textMedSaturacion.text = "$saturacion %"
+            binding.textMedTemperatura.text = "%.2f °C".format(temperatura)
+        }
+
+        // Leer fecha y hora desde SharedPreferences
+        val prefs = requireContext().getSharedPreferences("BLE_PREFS", Context.MODE_PRIVATE)
+        val fecha = prefs.getString("ultima_fecha", "Fecha: --/--/----")
+        val hora = prefs.getString("ultima_hora", "Hora: --:--")
+
+        // Mostrar fecha y hora si están disponibles
+        binding.txtFecha.text = fecha
+        binding.txtHora.text = hora
+
+        viewModel.ultimaMedicion.observe(viewLifecycleOwner) { m ->
+            m?.let {
+                binding.textMedFrecuencia.text = "${it.frecuenciaCardiaca} bpm"
+                binding.textMedSaturacion.text = "${it.oxigenoSangre} %"
+                binding.textMedTemperatura.text = "%.2f °C".format(it.temperatura)
+                binding.txtFecha.text =
+                    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                        .format(Date(it.fechaMedicion))
+            }
+        }
+
 
         // Observa LiveData para mostrar el diálogo de instrucciones
         viewModel.mostrarInstrucciones.observe(viewLifecycleOwner) { mostrar ->
@@ -74,5 +108,10 @@ class HomeFragment : Fragment() {
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
