@@ -1,0 +1,54 @@
+* [33m6e706c3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/main[m[33m)[m Fecha de nacimiento al registrar y medición manual.
+* [33m39621c7[m PerfilActivity - botón desvincular funcional
+* [33m73c49c9[m Perfil: estado de solicitud y mensaje - Chat: ver perfil y llamar. (Activity)
+* [33m2bdc038[m Hora y vistos corregidos - Chat
+* [33m6ad167a[m Correcciones Fragment (Chat y Perfil)
+* [33mfffb184[m Badge en Chat del BottomNavigation
+* [33me6ff65d[m Badge funcional en recycle_contacto
+* [33m3785f97[m Visto actualizado
+* [33m702ba6c[m Visto en tiempo real
+* [33mbca7e86[m Chat Fragment en tiempo real
+* [33m78c8101[m Correción de hora,encabezado de chat por día, chatfragment con último mensaje y hora visible
+* [33md590155[m Chat funcional en tiempo real
+* [33me38f50a[m Abrir ChatActivity por su respectivo contacto
+* [33m20085f0[m Lista de contactos - ChatFragment
+* [33m38d00f2[m Ocultar usuarios no disponibles al médico - UsuariosViewModel
+* [33m29ccdc7[m Correción - paciente confirma solicitud y el resto de médicos cambia a estado "no disponible"
+* [33mca652c6[m Datos en tiempo real - Buscar y Usuarios Activity
+* [33m5730dd4[m Volver a añadir local.properties al repositorio
+* [33m774f684[m Eliminar cuenta
+* [33mfc54ce4[m Comentario
+* [33m432c11e[m Mejora en Activity (Register, Login y Usuarios)
+* [33m4928f8e[m Correción foto por default.
+* [33ma698774[m Ignorar local.properties para evitar conflictos de SDK
+* [33mdd8d1dd[m Layout activity_chat.xml
+* [33m07c5a3a[m Renombre a los recycle y uso del mismo en activity_bluetooth
+* [33m2ae9d37[m MVVM (Activity: Buscar y Usuarios)
+* [33m5ea530e[m MVVM (Fragments: Perfil; Activity: Perfil, Bluetooth, Lectura, Editar)
+* [33mcfb242f[m MVVM (Fragments: Home / Listapacientes, Historial y Chat)
+* [33m4ae43af[m MVVM (Splash, login, register y home)
+* [33m99af294[m Información de perfil del usuario (paciente o médico)
+* [33m2acdc1b[m BuscarActivity y UsuariosActivity mejorado (estados actualizado)
+* [33mad9e755[m Número de solicitudes recibidas con Badge, actualización de usuarios en tiempo real (UsuariosActivity y ListapacientesFragment)
+* [33mc1b04c3[m BuscarActivity y UsuariosActivity actualizados
+* [33m33cfb2e[m Usuario paciente - sin disponibilida de vincular otros médicos al tener una solicitud
+* [33m3d62202[m Usuario paciente - "No disponible" al enviar solicitud o estar vinculado a un médico
+* [33m4ee2bf4[m Reorganización de UsuariosActivity (solicitudes recibidas y enviadas)
+* [33m2935bd5[m Mejora de UsuariosActivity y BuscarActivity
+* [33mf9cdeda[m Lista de pacientes en Fragment Inicio
+* [33m7de5cf7[m Funcionalidad de agregar contactos pacientes y médicos
+* [33m3c10347[m Funcionalidad de layouts Buscar, lista de usuarios, implementación de cuenta médica (perfil, editar, inicio)
+* [33m943db79[m Layouts "Lista de pacientes" y "Buscar Contactos"
+* [33m85c31ef[m Eliminar texto Promedio
+* [33mf86dad9[m Validaciones y ocultar campo de contacto de emergencia
+* [33m5da7b03[m Edición de datos del usuario (celular, correo y contacto de emergencia)
+* [33m6403e97[m Correciónes en layouts (Bluetooth y Perfil) y bottomNavigation Layout editar datos
+* [33m88b3959[m Layout Bluetooth y Lectura de datos
+* [33mffd8ada[m Actualización de inicio e implementación de instrucciones
+* [33m04b9bb0[m Avance de layout y actualización de datos en fragment_perfil
+* [33m0ae51ff[m Avance de layout y actualización de datos en fragment_perfil
+* [33md8b2609[m Fragment Inicio y toolbar
+* [33m14bb560[m Implementación de Fragments y barra de navegación para usuarios (perfil y cerrar sesión)
+* [33m7b02d78[m Foto de perfil y validación en registro de DNI y celular ya existente
+* [33m27afbd6[m Nuevos campos de registro para usuario y admin
+* [33m87da0f1[m Primer commit
