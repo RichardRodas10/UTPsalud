@@ -1,11 +1,13 @@
 package com.example.utpsalud.view.activity
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -59,6 +61,8 @@ class RegisterActivity : AppCompatActivity() {
 
         // Cuando presionan el botón registrar, recojo datos y se los paso al ViewModel para validar y registrar
         binding.btnRegister.setOnClickListener {
+            ocultarTeclado(it)
+
             val nombre = binding.etNombre.text.toString().trim()
             val apellido = binding.etApellido.text.toString().trim()
             val dni = binding.etDNI.text.toString().trim()
@@ -157,8 +161,8 @@ class RegisterActivity : AppCompatActivity() {
         viewModel.registroEstado.observe(this) { estado ->
             when (estado) {
                 is RegisterViewModel.RegistroEstado.Success -> {
-                    // Registro exitoso: habilito botón y regreso a login con extra
                     binding.btnRegister.isEnabled = true
+                    binding.btnRegister.text = "Registrar"
                     val intent = Intent(this, LoginActivity::class.java).apply {
                         putExtra("registro_exitoso", true)
                     }
@@ -166,15 +170,21 @@ class RegisterActivity : AppCompatActivity() {
                     finish()
                 }
                 is RegisterViewModel.RegistroEstado.Error -> {
-                    // Error: habilito botón y muestro snackbar con mensaje
                     binding.btnRegister.isEnabled = true
+                    binding.btnRegister.text = "Registrar"
                     Snackbar.make(binding.root, estado.mensaje, Snackbar.LENGTH_LONG).show()
                 }
                 RegisterViewModel.RegistroEstado.Loading -> {
-                    // Mientras carga: deshabilito botón para evitar múltiples clicks
                     binding.btnRegister.isEnabled = false
+                    binding.btnRegister.text = "Registrando..."
                 }
             }
         }
+    }
+
+    // Función para ocultar el teclado, la uso cuando ya no necesito que esté visible
+    private fun ocultarTeclado(view: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

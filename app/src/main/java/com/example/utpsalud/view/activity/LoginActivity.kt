@@ -71,6 +71,7 @@ class LoginActivity : AppCompatActivity() {
                 is LoginViewModel.LoginEstado.Success -> {
                     // Reactivo el botón por si vuelve a esta pantalla en otra ocasión
                     binding.btnLogin.isEnabled = true
+                    binding.btnLogin.text = "Iniciar sesión"
 
                     // Si el login fue exitoso, abro Home y cierro esta actividad
                     val intent = Intent(this, HomeActivity::class.java)
@@ -80,6 +81,7 @@ class LoginActivity : AppCompatActivity() {
                 is LoginViewModel.LoginEstado.Error -> {
                     // Reactivo el botón para permitir intentar nuevamente
                     binding.btnLogin.isEnabled = true
+                    binding.btnLogin.text = "Iniciar sesión"
 
                     // Si hubo error, muestro un mensaje al usuario con snackbar
                     Snackbar.make(binding.root, estado.mensaje, Snackbar.LENGTH_LONG).show()
@@ -87,6 +89,7 @@ class LoginActivity : AppCompatActivity() {
                 is LoginViewModel.LoginEstado.Loading -> {
                     // Desactivo el botón mientras se está procesando el login
                     binding.btnLogin.isEnabled = false
+                    binding.btnLogin.text = "Iniciando..."
                 }
             }
         }

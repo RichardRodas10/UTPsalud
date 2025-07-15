@@ -57,8 +57,6 @@ class BluetoothActivity : AppCompatActivity() {
 
         // Volver a Home
         binding.textVolver.setOnClickListener {
-            val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
             finish()
         }
 
