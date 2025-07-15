@@ -29,6 +29,7 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeFragmentViewModel by viewModels()
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -65,9 +66,13 @@ class HomeFragment : Fragment() {
                 binding.textMedFrecuencia.text = "${it.frecuenciaCardiaca} bpm"
                 binding.textMedSaturacion.text = "${it.oxigenoSangre} %"
                 binding.textMedTemperatura.text = "%.2f °C".format(it.temperatura)
-                binding.txtFecha.text =
-                    SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                        .format(Date(it.fechaMedicion))
+
+                val fecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it.fechaMedicion))
+                val hora = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(it.fechaMedicion))
+
+                binding.txtFecha.text = "Fecha: $fecha"
+                binding.txtHora.text = "Hora: $hora"
+
             }
         }
 

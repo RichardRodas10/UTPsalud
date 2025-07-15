@@ -49,7 +49,15 @@ class ContactoAdapter(
             holder.imgPerfil.setImageResource(R.drawable.ic_account)
         }
 
-        holder.textUltimoMensaje.text = contacto.ultimoMensaje ?: ""
+        if (contacto.ultimoMensaje.isNullOrBlank()) {
+            holder.textUltimoMensaje.text = "Envía un mensaje"
+            holder.textUltimoMensaje.setTypeface(null, android.graphics.Typeface.ITALIC)
+            holder.textUltimoMensaje.setTextColor(Color.parseColor("#888888")) // color gris claro
+        } else {
+            holder.textUltimoMensaje.text = contacto.ultimoMensaje
+            holder.textUltimoMensaje.setTypeface(null, android.graphics.Typeface.NORMAL)
+            holder.textUltimoMensaje.setTextColor(Color.parseColor("#888888"))
+        }
 
         holder.textHora.text = contacto.timestampUltimoMensaje?.let {
             val date = java.util.Date(it)

@@ -12,7 +12,7 @@ import com.google.firebase.firestore.ListenerRegistration
 
 class ChatViewModel : ViewModel() {
 
-    private val db = FirebaseFirestore.getInstance()
+    val db = FirebaseFirestore.getInstance()
     private val uidActual = FirebaseAuth.getInstance().currentUser?.uid ?: ""
 
     private val _listaContactos = MutableLiveData<List<Usuario>>()
@@ -246,6 +246,16 @@ class ChatViewModel : ViewModel() {
         db.collection("usuarios").document(uid).get()
             .addOnSuccessListener { doc ->
                 callback(doc.getString("celular"))
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
+
+    fun obtenerNumeroEmergenciaDeUsuario(uid: String, callback: (String?) -> Unit) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                callback(doc.getString("celularEmergencia"))
             }
             .addOnFailureListener {
                 callback(null)

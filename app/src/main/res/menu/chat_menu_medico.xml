@@ -6,7 +6,4 @@
     <item
         android:id="@+id/menu_llamar"
         android:title="Llamar" />
-    <item
-        android:id="@+id/menu_llamar_emergencia"
-        android:title="Llamar emergencia" />
 </menu>

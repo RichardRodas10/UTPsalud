@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.utpsalud.R
 import com.example.utpsalud.databinding.FragmentHistorialmedicoBinding
 import com.example.utpsalud.view.activity.HistorialActivity
 import com.example.utpsalud.view.adapter.HistorialAdapter
@@ -119,12 +120,12 @@ class HistorialmedicoFragment : Fragment() {
         }
 
         // Configurar spinners
-        val mesAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, meses)
-        mesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val mesAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item_selected, meses)
+        mesAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         binding.spinnerMes.adapter = mesAdapter
 
-        val anioAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, anios)
-        anioAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val anioAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item_selected, anios)
+        anioAdapter.setDropDownViewResource(R.layout.spinner_item_dropdown)
         binding.spinnerAnio.adapter = anioAdapter
 
         // Seleccionar mes y año actual por defecto

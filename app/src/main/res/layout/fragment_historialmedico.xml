@@ -69,7 +69,8 @@
                 android:id="@+id/spinnerMes"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:background="@drawable/spinner_background"/>
 
             <Space
                 android:layout_width="16dp"
@@ -79,7 +80,8 @@
                 android:id="@+id/spinnerAnio"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:background="@drawable/spinner_background"/>
         </LinearLayout>
 
         <TextView
