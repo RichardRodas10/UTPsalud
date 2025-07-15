@@ -1,6 +1,7 @@
 package com.example.utpsalud.view.activity
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -12,8 +13,11 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +43,8 @@ class ChatActivity : AppCompatActivity() {
     private val chatViewModel: ChatViewModel by viewModels()
 
     private var uidReceptor: String? = null
+
+    private var numeroPendienteDeLlamar: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,10 +126,16 @@ class ChatActivity : AppCompatActivity() {
                         uidReceptor?.let { uid ->
                             chatViewModel.obtenerNumeroDeUsuario(uid) { numero ->
                                 if (!numero.isNullOrEmpty()) {
-                                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$numero"))
-                                    startActivity(intent)
+                                    val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$numero"))
+                                    if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                                        startActivity(intent)
+                                    } else {
+                                        // Guarda el número para llamar después si el permiso es concedido
+                                        numeroPendienteDeLlamar = numero
+                                        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CALL_PHONE), 1001)
+                                    }
                                 } else {
-                                    android.widget.Toast.makeText(this, "Número no disponible", android.widget.Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, "Número no disponible", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -134,6 +146,20 @@ class ChatActivity : AppCompatActivity() {
             }
 
             popupMenu.show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            numeroPendienteDeLlamar?.let { numero ->
+                val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$numero"))
+                startActivity(intent)
+                numeroPendienteDeLlamar = null // Limpiamos
+            }
+        } else {
+            Toast.makeText(this, "Permiso para llamadas no concedido", Toast.LENGTH_SHORT).show()
         }
     }
 

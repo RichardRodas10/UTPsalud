@@ -5,6 +5,7 @@ import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.utpsalud.R
@@ -12,12 +13,15 @@ import com.example.utpsalud.model.Usuario
 import de.hdodenhof.circleimageview.CircleImageView
 
 class PacienteAdapter(
-    private var pacientes: List<Usuario>
+    private var pacientes: List<Usuario>,
+    private val onClickPaciente: (Usuario) -> Unit,
+    private val onLlamarPaciente: (Usuario) -> Unit
 ) : RecyclerView.Adapter<PacienteAdapter.PacienteViewHolder>() {
 
     inner class PacienteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgPerfil: CircleImageView = itemView.findViewById(R.id.profileImagePaciente)
         val textNombre: TextView = itemView.findViewById(R.id.textNombrePaciente)
+        val iconLlamada: ImageView = itemView.findViewById(R.id.iconLlamada)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PacienteViewHolder {
@@ -38,6 +42,14 @@ class PacienteAdapter(
             holder.imgPerfil.setImageBitmap(bitmap)
         } else {
             holder.imgPerfil.setImageResource(R.drawable.ic_account)
+        }
+
+        holder.itemView.setOnClickListener {
+            onClickPaciente(paciente)
+        }
+
+        holder.iconLlamada.setOnClickListener {
+            onLlamarPaciente(paciente)
         }
     }
 

@@ -98,6 +98,16 @@ class ListapacientesViewModel : ViewModel() {
             }
     }
 
+    fun obtenerNumeroDeUsuario(uid: String, callback: (String?) -> Unit) {
+        db.collection("usuarios").document(uid).get()
+            .addOnSuccessListener { doc ->
+                callback(doc.getString("celular")) // Asegúrate de que el campo se llame así
+            }
+            .addOnFailureListener {
+                callback(null)
+            }
+    }
+
     override fun onCleared() {
         super.onCleared()
         solicitudesListenerEmisor?.remove()

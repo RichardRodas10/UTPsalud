@@ -12,6 +12,7 @@ import com.example.utpsalud.R
 import com.example.utpsalud.databinding.ActivityHomeBinding
 import com.example.utpsalud.view.fragment.ChatFragment
 import com.example.utpsalud.view.fragment.HistorialFragment
+import com.example.utpsalud.view.fragment.HistorialmedicoFragment
 import com.example.utpsalud.view.fragment.HomeFragment
 import com.example.utpsalud.view.fragment.ListapacientesFragment
 import com.example.utpsalud.view.fragment.PerfilFragment
@@ -147,7 +148,11 @@ class HomeActivity : AppCompatActivity() {
                     true
                 }
                 R.id.navHistorial -> {
-                    replaceFragment(HistorialFragment())
+                    if (esAdmin) {
+                        replaceFragment(HistorialmedicoFragment())
+                    } else {
+                        replaceFragment(HistorialFragment())
+                    }
                     true
                 }
                 R.id.navChat -> {

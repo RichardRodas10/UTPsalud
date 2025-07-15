@@ -51,7 +51,7 @@ class HistorialActivity : AppCompatActivity() {
             .format(Date(fechaSeleccionada))
         binding.textFechaSeleccionada.text = fechaFormateada
 
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        val uid = intent.getStringExtra("uidPaciente") ?: FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             FirebaseFirestore.getInstance().collection("usuarios")
                 .document(uid)
@@ -72,7 +72,9 @@ class HistorialActivity : AppCompatActivity() {
             adapter.actualizarLista(lista)
         }
 
-        historialViewModel.obtenerMedicionesPorDia(fechaSeleccionada)
+        uid?.let {
+            historialViewModel.obtenerMedicionesPorUsuarioPorDia(it, fechaSeleccionada)
+        }
 
         binding.btnDescargar.setOnClickListener {
             mostrarDialogoDescarga(fechaSeleccionada)
