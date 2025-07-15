@@ -136,8 +136,9 @@ class LecturaActivity : AppCompatActivity() {
 
                 tempCharUUID -> {
                     val temp = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).short / 100.0f
-                    temperaturas.add(temp)
-                    actualizarTexto(textTemp, "$temp °C")
+                    val tempAjustada = temp + 14.5f
+                    temperaturas.add(tempAjustada)
+                    actualizarTexto(textTemp, "%.2f °C".format(tempAjustada))
                     tiempoUltimoDato = System.currentTimeMillis()
                 }
 
