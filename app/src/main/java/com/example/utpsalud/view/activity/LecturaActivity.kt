@@ -7,6 +7,7 @@ import android.bluetooth.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.*
 import android.util.Log
 import android.view.Gravity
@@ -20,9 +21,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.activity.viewModels
 import com.example.utpsalud.viewmodel.MedicionesViewModel
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 
 class LecturaActivity : AppCompatActivity() {
 
+    // TextView y otros elementos
     private lateinit var textTemp: TextView
     private lateinit var textPresencia: TextView
     private lateinit var textAccelX: TextView
@@ -32,11 +38,14 @@ class LecturaActivity : AppCompatActivity() {
     private lateinit var textGyroY: TextView
     private lateinit var textGyroZ: TextView
     private lateinit var textTiempo: TextView
+    private lateinit var textPPG: TextView
 
+    // BLE
     private var bluetoothGatt: BluetoothGatt? = null
     private lateinit var service: BluetoothGattService
     private var notifyIterator: Iterator<UUID>? = null
 
+    // Temporizadores y estado
     private val handler = Handler(Looper.getMainLooper())
     private var tiempoRestante = 20
     private var enMedicion = false
@@ -50,6 +59,11 @@ class LecturaActivity : AppCompatActivity() {
     private var spo2Recibido = false
     private var finalDialog: AlertDialog? = null
 
+    private val timeoutProcesamientoHandler = Handler(Looper.getMainLooper())
+    private val procesamientoTimeoutRunnable = Runnable {
+        mostrarDialogoErrorProcesamiento()
+    }
+
     private var tiempoUltimoDato = System.currentTimeMillis()
     private val monitorInactividad = object : Runnable {
         override fun run() {
@@ -61,6 +75,7 @@ class LecturaActivity : AppCompatActivity() {
         }
     }
 
+    // UUIDs
     private val serviceUUID = UUID.fromString("0000180A-0000-1000-8000-00805f9b34fb")
     private val startCharUUID = UUID.fromString("f37ac038-0c83-4f93-9bfa-109ec42d1c35")
     private val tempCharUUID = UUID.fromString("00002A6E-0000-1000-8000-00805f9b34fb")
@@ -69,18 +84,26 @@ class LecturaActivity : AppCompatActivity() {
     private val gyrCharUUID = UUID.fromString("5da304df-e10c-4270-92da-75487e95094a")
     private val hrCharUUID = UUID.fromString("00002A37-0000-1000-8000-00805f9b34fb")
     private val spo2CharUUID = UUID.fromString("8b6ff090-c1a1-42e9-a4b9-3eefc6530c4b")
+    private val ppgCharUUID = UUID.fromString("d44f8caa-fffb-4eb1-b733-7e5511d4ef1c")
 
     private val medicionesViewModel: MedicionesViewModel by viewModels()
 
+    // PPG chart
+    private lateinit var chartPpg: LineChart
+    private lateinit var ppgDataSet: LineDataSet
+    private lateinit var lineData: LineData
+    private var ppgEntryCount = 0
+
     private val notifyCharacteristics = listOf(
         startCharUUID, tempCharUUID, presenceCharUUID,
-        accCharUUID, gyrCharUUID, hrCharUUID, spo2CharUUID
+        accCharUUID, gyrCharUUID, hrCharUUID, spo2CharUUID, ppgCharUUID
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lectura)
 
+        // Inicialización de vistas
         textTemp = findViewById(R.id.textMedTemperatura)
         textPresencia = findViewById(R.id.textMedPresencia)
         textAccelX = findViewById(R.id.textMedAcelerometroX)
@@ -91,9 +114,50 @@ class LecturaActivity : AppCompatActivity() {
         textGyroZ = findViewById(R.id.textMedGiroscopioZ)
         textTiempo = findViewById(R.id.textMedTiempo)
 
+
+        // Configurar gráfico PPG
+        chartPpg = findViewById(R.id.chartPpg)
+        ppgDataSet = LineDataSet(mutableListOf(), "Señal PPG").apply {
+            color = Color.RED
+            setDrawCircles(false)
+            lineWidth = 2f
+            setDrawValues(false)
+            mode = LineDataSet.Mode.LINEAR
+        }
+
+        lineData = LineData(ppgDataSet)
+        chartPpg.data = lineData
+
+        chartPpg.isAutoScaleMinMaxEnabled = true
+
+        chartPpg.xAxis.setDrawLabels(false)
+        chartPpg.xAxis.setDrawGridLines(false)
+        chartPpg.axisLeft.setDrawLabels(false)
+        chartPpg.axisRight.setDrawLabels(false)
+
+        chartPpg.description.isEnabled = false
+        chartPpg.legend.isEnabled = false
+        chartPpg.setTouchEnabled(false)
+        chartPpg.setScaleEnabled(false)
+        chartPpg.invalidate()
+
+
         conectarGattDesdePreferencias()
         mostrarDialogoEspera()
     }
+
+    private fun agregarDatoPPG(valor: Float) {
+        val entry = Entry(ppgEntryCount.toFloat(), valor)
+        ppgDataSet.addEntry(entry)
+        ppgEntryCount++
+
+        chartPpg.data.notifyDataChanged()
+        chartPpg.notifyDataSetChanged()
+        chartPpg.setVisibleXRangeMaximum(100f)
+        chartPpg.moveViewToX(ppgEntryCount.toFloat())
+        chartPpg.invalidate()
+    }
+
 
     @SuppressLint("MissingPermission")
     private fun conectarGattDesdePreferencias() {
@@ -136,8 +200,9 @@ class LecturaActivity : AppCompatActivity() {
 
                 tempCharUUID -> {
                     val temp = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).short / 100.0f
-                    temperaturas.add(temp)
-                    actualizarTexto(textTemp, "$temp °C")
+                    val tempAjustada = temp + 14.5f
+                    temperaturas.add(tempAjustada)
+                    actualizarTexto(textTemp, "%.2f °C".format(tempAjustada))
                     tiempoUltimoDato = System.currentTimeMillis()
                 }
 
@@ -177,6 +242,17 @@ class LecturaActivity : AppCompatActivity() {
                         verificarDatosFinales()
                     }
                 }
+
+                ppgCharUUID -> {
+                    if (bytes.size >= 4) {
+                        val valorOriginal = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).int.toFloat()
+
+                        runOnUiThread {
+                            agregarDatoPPG(valorOriginal)
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -194,26 +270,27 @@ class LecturaActivity : AppCompatActivity() {
     }
 
     private fun iniciarConteoRegresivo() {
-        var contador = 3
-        val runnable = object : Runnable {
-            override fun run() {
-                if (contador > 0) {
-                    dialogText.text = "Iniciando en $contador..."
-                    contador--
-                    handler.postDelayed(this, 1000)
-                } else {
-                    dialog?.dismiss()
-                    iniciarMedicion()
+        runOnUiThread {
+            dialog?.let {
+                var contador = 3
+                val runnable = object : Runnable {
+                    override fun run() {
+                        if (contador > 0) {
+                            dialogText.text = "Iniciando en $contador..."
+                            contador--
+                            handler.postDelayed(this, 1000)
+                        } else {
+                            dialog?.dismiss()
+                            iniciarMedicion()
+                        }
+                    }
                 }
+                handler.post(runnable)
             }
         }
-        handler.post(runnable)
     }
 
     private fun iniciarMedicion() {
-        runOnUiThread {
-            Toast.makeText(this, "Iniciando medición", Toast.LENGTH_SHORT).show()
-        }
         temperaturas.clear()
         hrRecibido = false
         spo2Recibido = false
@@ -228,6 +305,8 @@ class LecturaActivity : AppCompatActivity() {
         handler.removeCallbacks(tickRunnable)
         handler.removeCallbacks(monitorInactividad)
         runOnUiThread {
+            dialog?.dismiss()
+            finalDialog?.dismiss()
             mostrarDialogoInterrupcion()
         }
     }
@@ -251,7 +330,6 @@ class LecturaActivity : AppCompatActivity() {
                 handler.postDelayed(this, 1000)
             } else {
                 enMedicion = false
-                Toast.makeText(this@LecturaActivity, "Medición finalizada", Toast.LENGTH_SHORT).show()
                 mostrarDialogoFinal()
             }
         }
@@ -270,6 +348,7 @@ class LecturaActivity : AppCompatActivity() {
 
     private fun mostrarDialogoEspera() {
         runOnUiThread {
+            dialog?.dismiss()
             val textView = TextView(this).apply {
                 text = "Pulse el botón para comenzar"
                 textSize = 18f
@@ -279,7 +358,7 @@ class LecturaActivity : AppCompatActivity() {
 
             val builder = AlertDialog.Builder(this)
                 .setView(textView)
-                .setCancelable(false)
+                .setCancelable(true)
 
             dialog = builder.create()
             dialog?.show()
@@ -312,8 +391,26 @@ class LecturaActivity : AppCompatActivity() {
 
             finalDialog = builder.create()
             finalDialog?.show()
+
+            // Inicia temporizador de 15 segundos para control de timeout
+            timeoutProcesamientoHandler.postDelayed(procesamientoTimeoutRunnable, 15000)
         }
     }
+
+    private fun mostrarDialogoErrorProcesamiento() {
+        finalDialog?.dismiss()
+        runOnUiThread {
+            AlertDialog.Builder(this)
+                .setTitle("Error de procesamiento")
+                .setMessage("Hubo un problema al procesar los datos. Por favor, repita la medición.")
+                .setCancelable(false)
+                .setPositiveButton("Reintentar") { _, _ ->
+                    mostrarDialogoEspera()
+                }
+                .show()
+        }
+    }
+
 
     private fun verificarDatosFinales() {
         if (hrRecibido && spo2Recibido) {
@@ -322,6 +419,9 @@ class LecturaActivity : AppCompatActivity() {
             // Verificación de valores inválidos o fuera de rango
             val hrValido = ultimoHR in 40..200
             val spo2Valido = ultimoSpO2 in 70..100
+
+            // 🔸 Detener el timeout si ya llegaron los datos
+            timeoutProcesamientoHandler.removeCallbacks(procesamientoTimeoutRunnable)
 
             if (!hrValido || !spo2Valido) {
                 Log.w("LecturaActivity", "Valores fuera de rango: HR=$ultimoHR, SpO2=$ultimoSpO2")
@@ -393,7 +493,11 @@ class LecturaActivity : AppCompatActivity() {
         if (enMedicion) {
             Toast.makeText(this, "Espere a que finalice la medición", Toast.LENGTH_SHORT).show()
         } else {
+            dialog?.dismiss()
+            finalDialog?.dismiss()
             super.onBackPressed()
         }
     }
+
+
 }
