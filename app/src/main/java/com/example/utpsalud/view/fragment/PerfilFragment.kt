@@ -234,6 +234,17 @@ class PerfilFragment : Fragment() {
             .setCancelable(false)
             .create()
 
+        dialogView.findViewById<Button>(R.id.btnConfirmDesactivar).setOnClickListener {
+            viewModel.desactivarCuenta()
+            val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+                putExtra("cuenta_desactivada", true)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            dialog.dismiss()
+            requireActivity().finish()
+        }
+
         dialogView.findViewById<Button>(R.id.btnConfirmDelete).setOnClickListener {
             viewModel.eliminarCuenta()
             dialog.dismiss()

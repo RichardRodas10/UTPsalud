@@ -194,7 +194,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintTop_toBottomOf="@+id/containerOxigeno">
 
             <!-- Contenedor horizontal para centrar los textos juntos -->
@@ -235,7 +235,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="8dp"
             android:backgroundTint="@color/azul_marino"
             android:padding="12dp"
             android:text="INSTRUCCIONES"

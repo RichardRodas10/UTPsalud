@@ -28,14 +28,15 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <androidx.appcompat.widget.SwitchCompat
+        <Switch
             android:id="@+id/switchBluetooth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:thumb="@drawable/ic_thumb"
             android:track="@drawable/selector_track"
-            tools:ignore="TouchTargetSizeCheck" />
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
     </LinearLayout>
 
     <!-- Contenedor vertical de dispositivos -->

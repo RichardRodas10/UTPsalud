@@ -1,12 +1,16 @@
 package com.example.utpsalud.view.activity
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.utpsalud.R
 import com.example.utpsalud.databinding.ActivityHomeBinding
@@ -43,6 +47,12 @@ class HomeActivity : AppCompatActivity() {
 
         viewModel.obtenerRolUsuarioActual()
 
+        // Verificar si se volvió desde una medición manual
+        val desdeMedicion = intent.getBooleanExtra("desde_medicion", false)
+        if (desdeMedicion) {
+            mostrarDialogSiEsNuevaMedicion()
+        }
+
         // Cargar contactos y mensajes no leídos en ChatViewModel
         chatViewModel.cargarContactos()
 
@@ -59,6 +69,83 @@ class HomeActivity : AppCompatActivity() {
                 badge.clearNumber()
             }
         }
+    }
+
+    private fun mostrarDialogSiEsNuevaMedicion() {
+        val prefs = getSharedPreferences("utp_salud_prefs", MODE_PRIVATE)
+        val ultimaIdMostrada = prefs.getString("ultima_medicion_mostrada", "")
+
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        db.collection("usuarios")
+            .document(uid)
+            .collection("mediciones")
+            .orderBy("fechaMedicion", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { result ->
+                val doc = result.documents.firstOrNull()
+                if (doc != null && doc.id != ultimaIdMostrada) {
+                    val resultadoFC = doc.getString("resultadoFrecuenciaCardiaca") ?: return@addOnSuccessListener
+                    val resultadoOxi = doc.getString("resultadoOxigeno") ?: return@addOnSuccessListener
+                    val estado = doc.getString("estadoSalud") ?: return@addOnSuccessListener
+
+                    val mensajeEstado = when (estado) {
+                        "Saludable" -> "¡Buen trabajo! Tus signos vitales están en un rango saludable. Continúa con tu estilo de vida saludable."
+                        "Crítico" -> "Tus signos vitales están en un rango crítico. Busca atención médica inmediata."
+                        "Moderado" -> "Uno o ambos valores están fuera del rango ideal. Se recomienda descanso o consultar a un profesional."
+                        else -> ""
+                    }
+
+                    mostrarDialogSalud(resultadoFC, resultadoOxi, estado, mensajeEstado)
+
+                    // Guardar ID para no mostrarlo otra vez
+                    prefs.edit().putString("ultima_medicion_mostrada", doc.id).apply()
+                }
+            }
+    }
+
+    private fun mostrarDialogSalud(
+        resultadoFrecuencia: String,
+        resultadoOxigeno: String,
+        estadoSalud: String,
+        mensaje: String
+    ) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_salud, null)
+
+        val tvFrecuencia = dialogView.findViewById<TextView>(R.id.tvFrecuenciaCardiaca)
+        val tvOxigeno = dialogView.findViewById<TextView>(R.id.tvOxigenoSangre)
+        val tvEstado = dialogView.findViewById<TextView>(R.id.tvEstadoSalud)
+        val tvMensaje = dialogView.findViewById<TextView>(R.id.tvMensajeEstadoSalud)
+        val btnCerrar = dialogView.findViewById<TextView>(R.id.btnClose)
+
+        // Mostrar resultados
+        tvFrecuencia.text = "Frecuencia Cardíaca: $resultadoFrecuencia"
+        tvOxigeno.text = "Oxígeno en Sangre: $resultadoOxigeno"
+        tvEstado.text = "Estado de Salud: $estadoSalud"
+        tvMensaje.text = mensaje
+
+        // Color del estado de salud
+        val colorEstado = when (estadoSalud) {
+            "Crítico" -> Color.RED
+            "Moderado" -> Color.parseColor("#FFA500") // Naranja
+            "Saludable" -> ContextCompat.getColor(this, R.color.green)
+            else -> Color.BLACK
+        }
+        tvEstado.setTextColor(colorEstado)
+
+        // Crear diálogo respetando bordes
+        val dialog = Dialog(this)
+        dialog.setContentView(dialogView)
+        dialog.setCancelable(false)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        btnCerrar.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun inicializarUI() {

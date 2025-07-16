@@ -17,7 +17,7 @@
             android:id="@+id/tvDeleteMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="¿Eliminar cuenta?"
+            android:text="¿Deseas desactivar o eliminar tu cuenta?"
             android:textColor="@color/white"
             android:textSize="25sp"
             android:textStyle="bold"
@@ -30,7 +30,22 @@
             android:layout_height="1dp"
             android:background="@color/gris" />
 
-        <!-- Botón Salir -->
+        <!-- Botón Desactivar -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmDesactivar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Desactivar"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/red"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/gray"
+            android:padding="0dp"
+            android:layout_marginBottom="-12dp"
+            app:cornerRadius="0dp"/>
+
+        <!-- Botón Eliminar -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirmDelete"
             android:layout_width="match_parent"

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
 
@@ -99,25 +100,210 @@ class PerfilFragmentViewModel : ViewModel() {
 
     fun eliminarCuenta() {
         val user = auth.currentUser ?: return
-
+        val userId = user.uid
         _eliminacionEstado.value = EliminacionEstado.Cargando
 
-        val userId = user.uid
+        eliminarSubcoleccion(userId, "mediciones") {
+            eliminarSugerenciasDelUsuario(userId) {
+                eliminarSolicitudesDelUsuario(userId) {
+                    eliminarChatsDelUsuario(userId) {
+                        db.collection("usuarios").document(userId).delete()
+                            .addOnSuccessListener {
+                                user.delete()
+                                    .addOnSuccessListener {
+                                        _eliminacionEstado.value = EliminacionEstado.Exito
+                                    }
+                                    .addOnFailureListener {
+                                        _eliminacionEstado.value = EliminacionEstado.Error("No se pudo eliminar la cuenta de autenticación")
+                                    }
+                            }
+                            .addOnFailureListener {
+                                _eliminacionEstado.value = EliminacionEstado.Error("No se pudo eliminar los datos del usuario")
+                            }
+                    }
+                }
+            }
+        }
+    }
 
-        // Eliminar Firestore primero
-        db.collection("usuarios").document(userId).delete()
+    fun desactivarCuenta() {
+        val userId = auth.currentUser?.uid ?: return
+        _eliminacionEstado.value = EliminacionEstado.Cargando
+
+        db.collection("usuarios").document(userId)
+            .update("activo", false)
             .addOnSuccessListener {
-                // Luego FirebaseAuth
-                user.delete()
+                _eliminacionEstado.value = EliminacionEstado.Exito
+            }
+            .addOnFailureListener {
+                _eliminacionEstado.value = EliminacionEstado.Error("No se pudo desactivar la cuenta")
+            }
+    }
+
+    private fun eliminarChatsDelUsuario(userId: String, onComplete: () -> Unit) {
+        val chatsRef = db.collection("chats")
+
+        chatsRef.get().addOnSuccessListener { snapshot ->
+            val chatsAEliminar = snapshot.documents.filter { doc ->
+                doc.id.contains(userId)
+            }
+
+            if (chatsAEliminar.isEmpty()) {
+                onComplete() // Nada que eliminar
+                return@addOnSuccessListener
+            }
+
+            val lotesPendientes = mutableListOf<() -> Unit>()
+            var completados = 0
+
+            chatsAEliminar.forEach { chatDoc ->
+                // Paso 1: eliminar subcolección 'mensajes'
+                eliminarSubcoleccionChat(chatDoc.reference, "mensajes") {
+                    // Paso 2: eliminar el documento de chat
+                    chatDoc.reference.delete()
+                        .addOnSuccessListener {
+                            completados++
+                            if (completados == chatsAEliminar.size) {
+                                onComplete()
+                            }
+                        }
+                        .addOnFailureListener {
+                            _eliminacionEstado.value = EliminacionEstado.Error("Error al eliminar el chat ${chatDoc.id}")
+                        }
+                }
+            }
+        }.addOnFailureListener {
+            _eliminacionEstado.value = EliminacionEstado.Error("Error al buscar los chats del usuario")
+        }
+    }
+
+    private fun eliminarSubcoleccionChat(
+        docRef: DocumentReference,
+        subcoleccion: String,
+        onComplete: () -> Unit
+    ) {
+        docRef.collection(subcoleccion)
+            .get()
+            .addOnSuccessListener { snap ->
+                if (snap.isEmpty) {
+                    onComplete() // No hay nada que eliminar
+                    return@addOnSuccessListener
+                }
+
+                val batch = db.batch()
+                for (doc in snap.documents) {
+                    batch.delete(doc.reference)
+                }
+                batch.commit()
                     .addOnSuccessListener {
-                        _eliminacionEstado.value = EliminacionEstado.Exito
+                        // ✅ Solo después de que se borren los mensajes se ejecuta onComplete
+                        onComplete()
                     }
                     .addOnFailureListener {
-                        _eliminacionEstado.value = EliminacionEstado.Error("No se pudo eliminar la cuenta de autenticación")
+                        _eliminacionEstado.value = EliminacionEstado.Error("Error al eliminar subcolección $subcoleccion")
                     }
             }
             .addOnFailureListener {
-                _eliminacionEstado.value = EliminacionEstado.Error("No se pudo eliminar los datos del usuario")
+                _eliminacionEstado.value = EliminacionEstado.Error("Error al leer subcolección $subcoleccion")
+            }
+    }
+
+    private fun eliminarSolicitudesDelUsuario(
+        userId: String,
+        onComplete: () -> Unit
+    ) {
+        // Acumularemos las refs que hay que borrar
+        val refsAEliminar = mutableListOf<com.google.firebase.firestore.DocumentReference>()
+
+        // 1. Solicitudes enviadas por el usuario
+        db.collection("solicitudes")
+            .whereEqualTo("emisorId", userId)
+            .get()
+            .addOnSuccessListener { snap1 ->
+                refsAEliminar += snap1.documents.map { it.reference }
+
+                // 2. Solicitudes recibidas por el usuario
+                db.collection("solicitudes")
+                    .whereEqualTo("receptorId", userId)
+                    .get()
+                    .addOnSuccessListener { snap2 ->
+                        refsAEliminar += snap2.documents.map { it.reference }
+
+                        // 🔄 Dividir en lotes de a 500 (límite de Firestore)
+                        val lotes = refsAEliminar.chunked(500)
+                        eliminarLotesRecursivos(lotes, onComplete)
+                    }
+                    .addOnFailureListener {
+                        _eliminacionEstado.value =
+                            EliminacionEstado.Error("Error al buscar solicitudes recibidas")
+                    }
+            }
+            .addOnFailureListener {
+                _eliminacionEstado.value =
+                    EliminacionEstado.Error("Error al buscar solicitudes enviadas")
+            }
+    }
+
+    /* Borra los lotes uno tras otro para no exceder 500 ops por commit */
+    private fun eliminarLotesRecursivos(
+        lotes: List<List<com.google.firebase.firestore.DocumentReference>>,
+        onComplete: () -> Unit,
+        indice: Int = 0
+    ) {
+        if (indice >= lotes.size) {
+            onComplete()   // ✔️ Terminamos
+            return
+        }
+        val batch = db.batch()
+        for (ref in lotes[indice]) batch.delete(ref)
+        batch.commit()
+            .addOnSuccessListener { eliminarLotesRecursivos(lotes, onComplete, indice + 1) }
+            .addOnFailureListener {
+                _eliminacionEstado.value =
+                    EliminacionEstado.Error("Error al eliminar algunas solicitudes")
+            }
+    }
+
+    private fun eliminarSugerenciasDelUsuario(userId: String, onComplete: () -> Unit) {
+        db.collection("sugerencias")
+            .whereEqualTo("uid", userId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val batch = db.batch()
+                for (document in snapshot.documents) {
+                    batch.delete(document.reference)
+                }
+                batch.commit()
+                    .addOnSuccessListener { onComplete() }
+                    .addOnFailureListener {
+                        _eliminacionEstado.value = EliminacionEstado.Error("Error al eliminar sugerencias del usuario")
+                    }
+            }
+            .addOnFailureListener {
+                _eliminacionEstado.value = EliminacionEstado.Error("Error al acceder a sugerencias del usuario")
+            }
+    }
+
+    private fun eliminarSubcoleccion(
+        userId: String,
+        subcoleccion: String,
+        onComplete: () -> Unit
+    ) {
+        val subcollectionRef = db.collection("usuarios").document(userId).collection(subcoleccion)
+        subcollectionRef.get()
+            .addOnSuccessListener { snapshot ->
+                val batch = db.batch()
+                for (document in snapshot) {
+                    batch.delete(document.reference)
+                }
+                batch.commit().addOnSuccessListener {
+                    onComplete()
+                }.addOnFailureListener {
+                    _eliminacionEstado.value = EliminacionEstado.Error("Error al eliminar subcolección $subcoleccion")
+                }
+            }
+            .addOnFailureListener {
+                _eliminacionEstado.value = EliminacionEstado.Error("Error al acceder a subcolección $subcoleccion")
             }
     }
 

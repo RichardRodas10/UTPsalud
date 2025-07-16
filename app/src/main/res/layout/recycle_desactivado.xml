@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:elevation="4dp"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="6dp"
+        android:background="@color/fondo_fragment">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profileImagePaciente"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_account"
+            android:layout_marginEnd="16dp"/>
+
+        <TextView
+            android:id="@+id/textNombrePaciente"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Nombre Apellido"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

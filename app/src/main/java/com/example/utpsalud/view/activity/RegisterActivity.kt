@@ -3,6 +3,8 @@ package com.example.utpsalud.view.activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -14,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.utpsalud.databinding.ActivityRegisterBinding
 import com.example.utpsalud.viewmodel.RegisterViewModel
 import com.google.android.material.snackbar.Snackbar
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,10 +34,12 @@ class RegisterActivity : AppCompatActivity() {
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            // Obtengo el bitmap de la imagen seleccionada para mostrar y convertir
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, it)
-            binding.profileImage.setImageBitmap(bitmap)
-            profileImageBase64 = viewModel.bitmapToBase64(bitmap) // lo convierto a base64 para enviar
+            // Obtengo el bitmap redimensionado de la imagen seleccionada para mostrar y convertir
+            val bitmap = decodeBitmapFromUri(it)
+            bitmap?.let { bmp ->
+                binding.profileImage.setImageBitmap(bmp)
+                profileImageBase64 = viewModel.bitmapToBase64(bmp) // lo convierto a base64 para enviar
+            }
         }
     }
 
@@ -91,7 +96,7 @@ class RegisterActivity : AppCompatActivity() {
                 fechaEmision.takeIf { esAdmin },        // idem
                 profileImageBase64.takeIf { profileImageBase64.isNotEmpty() }, // solo si hay imagen
                 fechaNacimiento
-                )
+            )
         }
 
         // Link para volver a login si ya tengo cuenta
@@ -186,5 +191,23 @@ class RegisterActivity : AppCompatActivity() {
     private fun ocultarTeclado(view: View) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    // Esta función escala la imagen proporcionalmente como en PerfilFragment
+    private fun decodeBitmapFromUri(uri: Uri): Bitmap? {
+        val inputStream = contentResolver.openInputStream(uri)
+        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+
+        val width = originalBitmap.width
+        val height = originalBitmap.height
+        val newSize = 512
+
+        return if (width > height) {
+            val newHeight = (height.toFloat() / width.toFloat() * newSize).toInt()
+            Bitmap.createScaledBitmap(originalBitmap, newSize, newHeight, true)
+        } else {
+            val newWidth = (width.toFloat() / height.toFloat() * newSize).toInt()
+            Bitmap.createScaledBitmap(originalBitmap, newWidth, newSize, true)
+        }
     }
 }

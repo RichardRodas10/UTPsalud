@@ -299,9 +299,28 @@ class RegisterViewModel : ViewModel() {
 
     // Función para convertir imagen en base64 (usado para foto de perfil)
     fun bitmapToBase64(bitmap: Bitmap): String {
-        val resized = Bitmap.createScaledBitmap(bitmap, 300, 300, true)
+        val maxSize = 600 // más grande para más detalle
+        val scaled = scaleBitmapProportionally(bitmap, maxSize)
         val baos = ByteArrayOutputStream()
-        resized.compress(Bitmap.CompressFormat.JPEG, 80, baos)
+        scaled.compress(Bitmap.CompressFormat.JPEG, 100, baos)  // calidad máxima
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
+    }
+
+    private fun scaleBitmapProportionally(bitmap: Bitmap, maxSize: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        val scaledWidth: Int
+        val scaledHeight: Int
+
+        if (width >= height) {
+            scaledWidth = maxSize
+            scaledHeight = (height.toFloat() / width.toFloat() * maxSize).toInt()
+        } else {
+            scaledHeight = maxSize
+            scaledWidth = (width.toFloat() / height.toFloat() * maxSize).toInt()
+        }
+
+        return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
     }
 }

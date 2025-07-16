@@ -1,5 +1,6 @@
 package com.example.utpsalud.view.activity
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
@@ -9,8 +10,10 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.utpsalud.R
 import com.example.utpsalud.databinding.ActivityLoginBinding
 import com.example.utpsalud.viewmodel.LoginViewModel
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 
 class LoginActivity : AppCompatActivity() {
@@ -29,6 +32,16 @@ class LoginActivity : AppCompatActivity() {
         // Empiezo a observar cambios del ViewModel (login estado)
         observarViewModel()
 
+        viewModel.cuentaDesactivada.observe(this) { uid ->
+            uid?.let {
+                // Restauramos el botón
+                binding.btnLogin.isEnabled = true
+                binding.btnLogin.text = "Iniciar sesión"
+
+                Snackbar.make(binding.root, "Tu cuenta está desactivada. Contacta con soporte.", Snackbar.LENGTH_LONG).show()
+            }
+        }
+
         // Configuro el botón de login para cuando le den clic
         binding.btnLogin.setOnClickListener {
             // Primero cierro el teclado para que no moleste
@@ -41,8 +54,15 @@ class LoginActivity : AppCompatActivity() {
             // Desactivo el botón mientras se procesa el login (para evitar múltiples clics)
             binding.btnLogin.isEnabled = false
 
-            // Le pido al ViewModel que haga login con esos datos
-            viewModel.login(email, password)
+            // Si es el admin, lo redirigimos directamente
+            if (email == "admin@gmail.com" && password == "abcD123#") {
+                val intent = Intent(this, AdminActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                // Le pido al ViewModel que haga login con esos datos
+                viewModel.login(email, password)
+            }
         }
 
         // Link para ir a pantalla de registro si no tengo cuenta
@@ -57,10 +77,21 @@ class LoginActivity : AppCompatActivity() {
             Snackbar.make(findViewById(android.R.id.content), "Registro exitoso", Snackbar.LENGTH_LONG).show()
         }
 
-        // Si vengo de eliminación de cuenta, muestro snackbar informativo
+        // Si vengo de eliminación o desactivación de cuenta, muestro snackbar informativo
         val cuentaEliminada = intent.getBooleanExtra("cuenta_eliminada", false)
-        if (cuentaEliminada) {
-            Snackbar.make(findViewById(android.R.id.content), "Cuenta eliminada correctamente", Snackbar.LENGTH_LONG).show()
+        val cuentaDesactivada = intent.getBooleanExtra("cuenta_desactivada", false)
+
+        when {
+            cuentaEliminada -> {
+                Snackbar.make(findViewById(android.R.id.content), "Cuenta eliminada correctamente", Snackbar.LENGTH_LONG).show()
+            }
+            cuentaDesactivada -> {
+                Snackbar.make(findViewById(android.R.id.content), "Cuenta desactivada correctamente", Snackbar.LENGTH_LONG).show()
+            }
+        }
+
+        binding.txtSoporte.setOnClickListener {
+            startActivity(Intent(this, SoporteActivity::class.java))
         }
     }
 

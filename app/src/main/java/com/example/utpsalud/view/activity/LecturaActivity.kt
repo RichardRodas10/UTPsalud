@@ -470,6 +470,7 @@ class LecturaActivity : AppCompatActivity() {
                 putExtra("temperatura_promedio", tempPromedio)
                 putExtra("fecha_medicion", fecha)
                 putExtra("hora_medicion", hora)
+                putExtra("desde_medicion", true)
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             startActivity(intent)

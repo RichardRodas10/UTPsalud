@@ -92,6 +92,15 @@
         <activity android:name=".view.activity.HistorialActivity"
             android:exported="true">
         </activity>
+        <activity android:name=".view.activity.SoporteActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".view.activity.AdminActivity"
+            android:exported="true">
+        </activity>
+        <activity android:name=".view.activity.HabilitarActivity"
+            android:exported="true">
+        </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

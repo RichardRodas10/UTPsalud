@@ -16,6 +16,10 @@ class LoginViewModel : ViewModel() {
     private val _loginEstado = MutableLiveData<LoginEstado>()
     val loginEstado: LiveData<LoginEstado> = _loginEstado
 
+    // LiveData para detectar si una cuenta está desactivada
+    private val _cuentaDesactivada = MutableLiveData<String?>()
+    val cuentaDesactivada: LiveData<String?> = _cuentaDesactivada
+
     // Función que me sirve para iniciar sesión con email y password
     fun login(email: String, password: String) {
         // Primero verifico que no estén vacíos los campos
@@ -38,10 +42,18 @@ class LoginViewModel : ViewModel() {
                     db.collection("usuarios").document(uid).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists()) {
-                                // Si el documento existe, leo si es admin o no
-                                val esAdmin = doc.getBoolean("esAdministrador") ?: false
-                                // Aviso que el login fue exitoso y envío si es admin o no
-                                _loginEstado.value = LoginEstado.Success(esAdmin)
+                                // Verifico si la cuenta está activa (por defecto true si no existe)
+                                val activo = doc.getBoolean("activo") ?: true
+                                if (!activo) {
+                                    _cuentaDesactivada.value = uid
+                                    // Opcional: cerrar sesión para seguridad
+                                    auth.signOut()
+                                } else {
+                                    // Si el documento existe, leo si es admin o no
+                                    val esAdmin = doc.getBoolean("esAdministrador") ?: false
+                                    // Aviso que el login fue exitoso y envío si es admin o no
+                                    _loginEstado.value = LoginEstado.Success(esAdmin)
+                                }
                             } else {
                                 // Si el documento no existe, muestro error
                                 _loginEstado.value = LoginEstado.Error("Datos de usuario no encontrados")

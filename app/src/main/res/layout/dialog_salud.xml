@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="355dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/dialog_instrucciones"
+        android:paddingEnd="5dp"
+        android:paddingStart="25dp"
+        android:paddingVertical="15dp"
+        android:clipToOutline="true">
+
+        <!-- Contenedor para el título "RESULTADO GENERAL" a la izquierda y el botón "x" a la derecha -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Título "RESULTADO GENERAL" alineado a la izquierda -->
+            <TextView
+                android:id="@+id/tituloInstruccion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginTop="4dp"
+                android:text="RESULTADO GENERAL"
+                android:textColor="@color/azul_marino"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <!-- Botón de cierre alineado a la derecha -->
+            <TextView
+                android:id="@+id/btnClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:padding="10dp"
+                android:text="x"
+                android:textColor="@color/azul_marino"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- Los demás TextViews de resultado, ahora alineados por defecto a la izquierda del LinearLayout padre -->
+        <TextView
+            android:id="@+id/tvFrecuenciaCardiaca"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/letra_fragment"
+            android:layout_marginTop="15dp"
+            android:text="Frecuencia Cardíaca: "/>
+
+        <TextView
+            android:id="@+id/tvOxigenoSangre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textColor="@color/letra_fragment"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Oxígeno en Sangre:"/>
+
+        <TextView
+            android:id="@+id/tvEstadoSalud"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:textColor="@color/letra_fragment"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Estado de Salud: "/>
+
+        <TextView
+            android:id="@+id/tvMensajeEstadoSalud"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="15dp"
+            android:paddingEnd="20dp"
+            android:textColor="@color/gray_suave"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            android:text="Mensaje: Todo parece estar en orden."/>
+
+    </LinearLayout>
+</LinearLayout>
